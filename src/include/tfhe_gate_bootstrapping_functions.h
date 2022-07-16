@@ -11,7 +11,7 @@
 //////////////////////////////////////////
 
 /** generate default gate bootstrapping parameters */
-EXPORT TFheGateBootstrappingParameterSet *new_default_gate_bootstrapping_parameters(int32_t minimum_lambda);
+EXPORT TFheGateBootstrappingParameterSet *new_default_gate_bootstrapping_parameters();
 
 /** generate a random gate bootstrapping secret key */
 EXPORT TFheGateBootstrappingSecretKeySet *
