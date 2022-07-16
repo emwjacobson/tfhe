@@ -11,10 +11,10 @@ struct Exception42 {
 EXPORT void die_dramatically(const char *message) {
     cerr << message << endl;
     abort();
-    throw Exception42();
+    // throw Exception42();
 }
 
-/** 
+/**
  * Everything is expressed as a function of the standard deviation
  */
 

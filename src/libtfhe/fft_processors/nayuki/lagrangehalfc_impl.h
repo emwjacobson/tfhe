@@ -12,7 +12,7 @@ typedef std::complex< double > cplx; // https://stackoverflow.com/a/31800404
 class FFT_Processor_nayuki {
     public:
     const int32_t _2N;
-    const int32_t N;    
+    const int32_t N;
     const int32_t Ns2;
     private:
     double* real_inout;
@@ -31,7 +31,7 @@ class FFT_Processor_nayuki {
     ~FFT_Processor_nayuki();
 };
 
-extern thread_local FFT_Processor_nayuki fp1024_nayuki;
+extern FFT_Processor_nayuki fp1024_nayuki;
 
 /**
  * structure that represents a real polynomial P mod X^N+1
