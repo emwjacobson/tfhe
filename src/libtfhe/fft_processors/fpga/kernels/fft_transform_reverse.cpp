@@ -1,97 +1,107 @@
-#include <inttypes.h>
 
-struct FftTables {
+#include <cstdint>
+#include <cstddef>
+
+// struct FftTables {
+// 	uint64_t n;
+// 	uint64_t *bit_reversed;
+// 	double *trig_tables;
+// };
+
+struct FftTables_Contained {
 	uint64_t n;
-	uint64_t *bit_reversed;
-	double *trig_tables;
+	uint64_t bit_reversed[(2*1024) * sizeof(size_t)];
+	double trig_tables[(((2*1024) - 4) * 2 * sizeof(double))];
 };
 
-void fft_transform_reverse(const void *tables, double *real, double *imag) {
-  #pragma HLS interface m_axi port=tables
-  #pragma HLS interface m_axi port=real
-  #pragma HLS interface m_axi port=imag
+extern "C" {
+void fft_transform_reverse(const FftTables_Contained *tbl, double *real, double *imag) {
+  #pragma HLS INTERFACE m_axi port=tbl
+  #pragma HLS INTERFACE m_axi port=real
+  #pragma HLS INTERFACE m_axi port=imag
 
-	struct FftTables *tbl = (struct FftTables *)tables;
+	// struct FftTables *tbl = (struct FftTables *)tables;
 	uint64_t n = tbl->n;
 
-	// Bit-reversed addressing permutation
-	uint64_t i;
-	uint64_t *bitreversed = tbl->bit_reversed;
-	for (i = 0; i < n; i++) {
-		uint64_t j = bitreversed[i];
-		if (i < j) {
-			double tp0re = real[i];
-			double tp0im = imag[i];
-			double tp1re = real[j];
-			double tp1im = imag[j];
-			real[i] = tp1re;
-			imag[i] = tp1im;
-			real[j] = tp0re;
-			imag[j] = tp0im;
-		}
-	}
+	// // Bit-reversed addressing permutation
+	// uint64_t i;
+	// uint64_t *bitreversed = tbl->bit_reversed;
+	// for (i = 0; i < n; i++) {
+	// 	uint64_t j = bitreversed[i];
+	// 	if (i < j) {
+	// 		double tp0re = real[i];
+	// 		double tp0im = imag[i];
+	// 		double tp1re = real[j];
+	// 		double tp1im = imag[j];
+	// 		real[i] = tp1re;
+	// 		imag[i] = tp1im;
+	// 		real[j] = tp0re;
+	// 		imag[j] = tp0im;
+	// 	}
+	// }
 
-	// Size 2 merge (special)
-	if (n >= 2) {
-		for (i = 0; i < n; i += 2) {
-			double tpre = real[i];
-			double tpim = imag[i];
-			real[i] += real[i + 1];
-			imag[i] += imag[i + 1];
-			real[i + 1] = tpre - real[i + 1];
-			imag[i + 1] = tpim - imag[i + 1];
-		}
-	}
+	// // Size 2 merge (special)
+	// if (n >= 2) {
+	// 	for (i = 0; i < n; i += 2) {
+	// 		double tpre = real[i];
+	// 		double tpim = imag[i];
+	// 		real[i] += real[i + 1];
+	// 		imag[i] += imag[i + 1];
+	// 		real[i + 1] = tpre - real[i + 1];
+	// 		imag[i + 1] = tpim - imag[i + 1];
+	// 	}
+	// }
 
-	// Size 4 merge (special)
-	if (n >= 4) {
-		for (i = 0; i < n; i += 4) {
-			// Even indices
-			double tpre, tpim;
-			tpre = real[i];
-			tpim = imag[i];
-			real[i] += real[i + 2];
-			imag[i] += imag[i + 2];
-			real[i + 2] = tpre - real[i + 2];
-			imag[i + 2] = tpim - imag[i + 2];
-			// Odd indices
-			tpre = real[i + 1];
-			tpim = imag[i + 1];
-			real[i + 1] -= imag[i + 3];
-			imag[i + 1] += real[i + 3];
-			tpre += imag[i + 3];
-			tpim -= real[i + 3];
-			real[i + 3] = tpre;
-			imag[i + 3] = tpim;
-		}
-	}
+	// // Size 4 merge (special)
+	// if (n >= 4) {
+	// 	for (i = 0; i < n; i += 4) {
+	// 		// Even indices
+	// 		double tpre, tpim;
+	// 		tpre = real[i];
+	// 		tpim = imag[i];
+	// 		real[i] += real[i + 2];
+	// 		imag[i] += imag[i + 2];
+	// 		real[i + 2] = tpre - real[i + 2];
+	// 		imag[i + 2] = tpim - imag[i + 2];
+	// 		// Odd indices
+	// 		tpre = real[i + 1];
+	// 		tpim = imag[i + 1];
+	// 		real[i + 1] -= imag[i + 3];
+	// 		imag[i + 1] += real[i + 3];
+	// 		tpre += imag[i + 3];
+	// 		tpim -= real[i + 3];
+	// 		real[i + 3] = tpre;
+	// 		imag[i + 3] = tpim;
+	// 	}
+	// }
 
-	// Size 8 and larger merges (general)
-	double *trigtables = tbl->trig_tables;
-	uint64_t size;
-	for (size = 8; size <= n; size <<= 1) {
-		uint64_t halfsize = size >> 1;
-		uint64_t i;
-		for (i = 0; i < n; i += size) {
-			uint64_t j, off;
-			for (j = 0, off = 0; j < halfsize; j += 4, off += 8) {
-				uint64_t k;
-				for (k = 0; k < 4; k++) {  // To simulate x86 AVX 4-vectors
-					uint64_t vi = i + j + k;  // Vector index
-					uint64_t ti = off + k;    // Table index
-					double re = real[vi + halfsize];
-					double im = imag[vi + halfsize];
-					double tpre = re * trigtables[ti] + im * trigtables[ti + 4];
-					double tpim = im * trigtables[ti] - re * trigtables[ti + 4];
-					real[vi + halfsize] = real[vi] - tpre;
-					imag[vi + halfsize] = imag[vi] - tpim;
-					real[vi] += tpre;
-					imag[vi] += tpim;
-				}
-			}
-		}
-		if (size == n)
-			break;
-		trigtables += size;
-	}
+	// // Size 8 and larger merges (general)
+	// double *trigtables = tbl->trig_tables;
+	// uint64_t size;
+	// for (size = 8; size <= n; size <<= 1) {
+	// 	uint64_t halfsize = size >> 1;
+	// 	uint64_t i;
+	// 	for (i = 0; i < n; i += size) {
+	// 		uint64_t j, off;
+	// 		for (j = 0, off = 0; j < halfsize; j += 4, off += 8) {
+	// 			uint64_t k;
+	// 			for (k = 0; k < 4; k++) {  // To simulate x86 AVX 4-vectors
+	// 				uint64_t vi = i + j + k;  // Vector index
+	// 				uint64_t ti = off + k;    // Table index
+	// 				double re = real[vi + halfsize];
+	// 				double im = imag[vi + halfsize];
+	// 				double tpre = re * trigtables[ti] + im * trigtables[ti + 4];
+	// 				double tpim = im * trigtables[ti] - re * trigtables[ti + 4];
+	// 				real[vi + halfsize] = real[vi] - tpre;
+	// 				imag[vi + halfsize] = imag[vi] - tpim;
+	// 				real[vi] += tpre;
+	// 				imag[vi] += tpim;
+	// 			}
+	// 		}
+	// 	}
+	// 	if (size == n)
+	// 		break;
+	// 	trigtables += size;
+	// }
+}
 }

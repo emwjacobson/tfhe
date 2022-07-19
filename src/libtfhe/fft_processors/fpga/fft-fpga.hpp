@@ -18,6 +18,12 @@ struct FftTables {
 	double *trig_tables;
 };
 
+struct FftTables_Contained {
+	uint64_t n;
+	uint64_t bit_reversed[(2*1024) * sizeof(size_t)];
+	double trig_tables[(((2*1024) - 4) * 2 * sizeof(double))];
+};
+
 class FPGACompute {
 public:
   const int32_t _2N;

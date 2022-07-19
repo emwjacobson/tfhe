@@ -21,7 +21,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "AppleClang")
 endif()
 
 # -std=c99 seems to be required in Travis tests for whatever reason
-set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -std=c99")
+set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -std=c11")
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CLANG_FLAGS} -std=c++11 -g3 -O0 -Wall -Werror")
 set(CMAKE_C_FLAGS_DEBUG "-g3 -O0 -Wall -Werror")
@@ -66,6 +66,8 @@ list(APPEND FFT_PROCESSORS "spqlios-fma")
 endif(ENABLE_SPQLIOS_FMA)
 
 if (ENABLE_FPGA_FFT)
+find_package(OpenCL REQUIRED)
+include_directories(${OPENCL_INCLUDE_DIR})
 list(APPEND FFT_PROCESSORS "fpga")
 endif(ENABLE_FPGA_FFT)
 

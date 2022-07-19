@@ -7,7 +7,7 @@
 #include "fft.h"
 #include "fft-fpga.hpp"
 #include <CL/cl2.hpp>
-
+#include <cstdlib>
 
 FPGACompute::FPGACompute(const int32_t N) : _2N(2*N),N(N),Ns2(N/2)
 {
@@ -17,7 +17,7 @@ FPGACompute::FPGACompute(const int32_t N) : _2N(2*N),N(N),Ns2(N/2)
   devices.resize(1);
   cl::Device device = devices[0];
   this->context = cl::Context(device, NULL, NULL, NULL, &err);
-  char *fileBuf = read_binary_file("fft_fpga.xclbin", fileBufSize);
+  char *fileBuf = read_binary_file("/home/ejaco020/tfhe/fft.xclbin", fileBufSize);
   cl::Program::Binaries bins{{fileBuf, fileBufSize}};
   cl::Program program(context, devices, bins, NULL, &err);
   this->q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
@@ -25,6 +25,7 @@ FPGACompute::FPGACompute(const int32_t N) : _2N(2*N),N(N),Ns2(N/2)
 }
 
 void FPGACompute::fft_transform_reverse(const void *tables, double *real, double *imag) {
+	__fft_reverse_fpga(tables, real, imag);
 }
 
 void FPGACompute::__fft_reverse_cpu(const void *tables, double *real, double *imag) {
@@ -119,11 +120,11 @@ void FPGACompute::__fft_reverse_fpga(const void *tables, double *real, double *i
 	uint64_t n = tbl->n;
 
   // Size from `fft_init_reverse` in `fft-x8664-avx-aux.c`
-  cl::Buffer tables_buf(context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, sizeof(FftTables) + (_2N * sizeof(size_t)) + ((_2N - 4) * 2 * sizeof(double)));
+  cl::Buffer tables_buf(context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, sizeof(FftTables_Contained));
   cl::Buffer real_buf(context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, sizeof(double) * _2N);
   cl::Buffer imag_buf(context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, sizeof(double) * _2N);
 
-  FftTables *tables_mapped = (FftTables *)q.enqueueMapBuffer(tables_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(FftTables) + (_2N * sizeof(size_t)) + ((_2N - 4) * 2 * sizeof(double)));
+  FftTables *tables_mapped = (FftTables *)q.enqueueMapBuffer(tables_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(FftTables_Contained));
   double *real_mapped = (double *)q.enqueueMapBuffer(tables_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(double) * _2N);
   double *imag_mapped = (double *)q.enqueueMapBuffer(tables_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(double) * _2N);
 
