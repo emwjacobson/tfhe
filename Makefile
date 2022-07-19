@@ -1,7 +1,7 @@
 CMAKE_COMPILER_OPTS=
-CMAKE_TESTS_OPTS=-DENABLE_TESTS=on -DENABLE_FFTW=on \
-		 -DENABLE_NAYUKI_PORTABLE=on -DENABLE_NAYUKI_AVX=on \
-		 -DENABLE_SPQLIOS_AVX=on -DENABLE_SPQLIOS_FMA=on
+CMAKE_TESTS_OPTS=-DENABLE_TESTS=on -DENABLE_FFTW=off \
+		 -DENABLE_NAYUKI_PORTABLE=on -DENABLE_NAYUKI_AVX=off \
+		 -DENABLE_SPQLIOS_AVX=off -DENABLE_SPQLIOS_FMA=off -DENABLE_FPGA=on
 CMAKE_DTESTS_OPTS=${CMAKE_COMPILER_OPTS} -DCMAKE_BUILD_TYPE=debug ${CMAKE_TESTS_OPTS}
 CMAKE_OTESTS_OPTS=${CMAKE_COMPILER_OPTS} -DCMAKE_BUILD_TYPE=optim ${CMAKE_TESTS_OPTS}
 
@@ -27,14 +27,14 @@ build: src/test/googletest/CMakeLists.txt
 	mkdir build; cd build; cmake ../src; cd ..
 
 builddtests:
-	rm -rf $@; true; mkdir $@; 
-	cd $@; cmake ../src ${CMAKE_DTESTS_OPTS}; 
+	rm -rf $@; true; mkdir $@;
+	cd $@; cmake ../src ${CMAKE_DTESTS_OPTS};
 	cd $@; cmake ../src ${CMAKE_DTESTS_OPTS};
 	cd ..
 
 buildotests:
-	rm -rf $@; true; mkdir $@; 
-	cd $@; cmake ../src ${CMAKE_OTESTS_OPTS}; 
+	rm -rf $@; true; mkdir $@;
+	cd $@; cmake ../src ${CMAKE_OTESTS_OPTS};
 	cd $@; cmake ../src ${CMAKE_OTESTS_OPTS};
 	cd ..
 
