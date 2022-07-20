@@ -52,7 +52,11 @@ foreach (FFT_PROCESSOR IN LISTS FFT_PROCESSORS)
                 tfhe-fftw
                 ${FFTW_LIBRARIES}
                 )
-
+    elseif (FFT_PROCESSOR STREQUAL "fpga")
+        set(RUNTIME_LIBS
+                tfhe-fpga
+                ${OpenCL_LIBRARIES}
+                )
     else ()
         set(RUNTIME_LIBS
                 tfhe-${FFT_PROCESSOR}
@@ -78,5 +82,5 @@ foreach (FFT_PROCESSOR IN LISTS FFT_PROCESSORS)
         target_link_libraries(${C_ITEST}-${FFT_PROCESSOR} ${RUNTIME_LIBS})
     endforeach (C_ITEST)
 
-endforeach (FFT_PROCESSOR IN LISTS FFT_PROCESSORS) 
+endforeach (FFT_PROCESSOR IN LISTS FFT_PROCESSORS)
 

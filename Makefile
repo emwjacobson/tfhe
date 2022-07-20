@@ -15,16 +15,17 @@ clean: build
 	make -C build clean
 
 distclean:
-	rm -rf build builddtests buildotests; true
+	rm -rf build builddtests buildotests *.log _x .Xil *.compile_summary *.xo *.info *.link_summary; true
 
-test: builddtests buildotests src/test/googletest/CMakeLists.txt
+# test: builddtests buildotests src/test/googletest/CMakeLists.txt
+test: builddtests src/test/googletest/CMakeLists.txt
 	make -j $(nproc) -C builddtests VERBOSE=1
-	make -j $(nproc) -C buildotests VERBOSE=1
-	make -j $(nproc) -C builddtests test VERBOSE=1
-	make -j $(nproc) -C buildotests test VERBOSE=1
+#  make -j $(nproc) -C buildotests VERBOSE=1
+#	make -j $(nproc) -C builddtests test VERBOSE=1
+#	make -j $(nproc) -C buildotests test VERBOSE=1
 
 build: src/test/googletest/CMakeLists.txt
-	mkdir build; cd build; cmake ../src; cd ..
+	mkdir build; cd build; cmake ../src -DCMAKE_INSTALL_PREFIX=/home/ejaco020/tfhe/; cd ..
 
 builddtests:
 	rm -rf $@; true; mkdir $@;
@@ -49,3 +50,20 @@ alltests:
 	make distclean && make test CMAKE_COMPILER_OPTS="-DCMAKE_CXX_COMPILER=g++-8 -DCMAKE_C_COMPILER=gcc-8"
 	make distclean && make test CMAKE_COMPILER_OPTS="-DCMAKE_CXX_COMPILER=g++-7 -DCMAKE_C_COMPILER=gcc-7"
 
+VPP := v++
+PLATFORM := xilinx_u280_xdma_201920_3
+TARGET := sw_emu
+# CONFIG_NAME := config.cfg
+KERNEL_XO := fft_transform_reverse.xo
+PROJECT_NAME := fft
+
+# VPP_XCLBIN_FLAGS := -l --profile_kernel data:all:all:all -O1 --platform $(PLATFORM) -t $(TARGET) --config $(CONFIG_NAME) $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
+VPP_XCLBIN_FLAGS := -l --profile_kernel data:all:all:all -O1 --platform $(PLATFORM) -t $(TARGET) $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
+VPP_XO_FLAGS := -c --platform $(PLATFORM)
+
+xclbin: $(KERNEL_XO)
+	$(VPP) $(VPP_XCLBIN_FLAGS)
+	emconfigutil --platform $(PLATFORM) --nd 1
+
+%.xo: src/libtfhe/fft_processors/fpga/kernels/%.cpp
+	$(VPP) $(VPP_XO_FLAGS) -k $(basename $(notdir $<)) $< -o $@

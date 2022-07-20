@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 set(SRCS
     fft_processor_fpga.cpp
     lagrangehalfc_impl.cpp
-    fft.c
+    fft.cpp
     )
 
 set(HEADERS

@@ -5,6 +5,8 @@
 #include <cassert>
 #include <cmath>
 
+#include <CL/cl2.hpp>
+
 FFT_Processor_nayuki::FFT_Processor_nayuki(const int32_t N): _2N(2*N),N(N),Ns2(N/2) {
     real_inout = (double*) malloc(sizeof(double) * _2N);
     imag_inout = (double*) malloc(sizeof(double) * _2N);
@@ -12,9 +14,29 @@ FFT_Processor_nayuki::FFT_Processor_nayuki(const int32_t N): _2N(2*N),N(N),Ns2(N
     tables_reverse = fft_init_reverse(_2N);
     omegaxminus1 = (cplx*) malloc(sizeof(cplx) * _2N);
     for (int32_t x=0; x<_2N; x++) {
-	omegaxminus1[x]=cplx(cos(x*M_PI/N)-1., sin(x*M_PI/N)); // instead of cos(x*M_PI/N)-1. + sin(x*M_PI/N) * 1i
-	//exp(i.x.pi/N)-1
+        omegaxminus1[x]=cplx(cos(x*M_PI/N)-1., sin(x*M_PI/N)); // instead of cos(x*M_PI/N)-1. + sin(x*M_PI/N) * 1i
+        //exp(i.x.pi/N)-1
     }
+
+
+    // Initialize OpenCL Environment
+    cl_int err;
+    unsigned fileBufSize;
+    std::vector<cl::Device> devices = get_xilinx_devices();
+    devices.resize(1);
+    cl::Device device = devices[0];
+    cl::Context context(device, NULL, NULL, NULL, &err);
+    printf("Error code context = %i\n", err);
+    char* fileBuf = read_binary_file("/home/ejaco020/tfhe/fft.xclbin", fileBufSize);
+    cl::Program::Binaries bins{{fileBuf, fileBufSize}};
+    printf("Here size=%i, filebuf=%p\n", fileBufSize, fileBuf);
+    cl::Program program(context, devices, bins, NULL, &err);
+    printf("Error code program = %i\n", err);
+    cl::CommandQueue q(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
+    printf("Error code queue = %i\n", err);
+    cl::Kernel krnl_vector_add(program, "fft_transform_reverse", &err);
+    printf("Error code kernel = %i\n", err);
+    printf("Finished loading FPGA kernels\n");
 }
 
 void FFT_Processor_nayuki::check_alternate_real() {
@@ -93,7 +115,7 @@ FFT_Processor_nayuki::~FFT_Processor_nayuki() {
     free(omegaxminus1);
 }
 
-thread_local FFT_Processor_nayuki fp1024_nayuki(1024);
+FFT_Processor_nayuki fp1024_nayuki(1024);
 
 EXPORT void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynomial* p) {
     LagrangeHalfCPolynomial_IMPL* r = (LagrangeHalfCPolynomial_IMPL*) result;

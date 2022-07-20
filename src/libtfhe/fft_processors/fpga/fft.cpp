@@ -33,13 +33,6 @@
     #define M_PI 3.14159265358979323846
 #endif
 
-// Private data structure
-struct FftTables {
-	uint64_t n;
-	uint64_t *bit_reversed;
-	double *trig_tables;
-};
-
 
 // Private function prototypes
 static double accurate_sine(uint64_t i, uint64_t n);
@@ -58,14 +51,14 @@ void *fft_init(size_t n) {
 		return NULL;  // Error: Size is too large, which makes memory allocation impossible
 
 	// Allocate structure
-	struct FftTables *tables = malloc(sizeof(struct FftTables));
+	struct FftTables *tables = (struct FftTables*)malloc(sizeof(struct FftTables));
 	if (tables == NULL)
 		return NULL;
 	tables->n = n;
 
 	// Allocate arrays
-	tables->bit_reversed = malloc(n * sizeof(size_t));
-	tables->trig_tables = malloc((n - 4) * 2 * sizeof(double));
+	tables->bit_reversed = (uint64_t *)malloc(n * sizeof(size_t));
+	tables->trig_tables = (double *)malloc((n - 4) * 2 * sizeof(double));
 	if (tables->bit_reversed == NULL || tables->trig_tables == NULL) {
 		free(tables->bit_reversed);
 		free(tables->trig_tables);
@@ -105,14 +98,14 @@ void *fft_init_reverse(size_t n) {
 		return NULL;  // Error: Size is too large, which makes memory allocation impossible
 
 	// Allocate structure
-	struct FftTables *tables = malloc(sizeof(struct FftTables));
+	struct FftTables *tables = (struct FftTables *)malloc(sizeof(struct FftTables));
 	if (tables == NULL)
 		return NULL;
 	tables->n = n;
 
 	// Allocate arrays
-	tables->bit_reversed = malloc(n * sizeof(size_t));
-	tables->trig_tables = malloc((n - 4) * 2 * sizeof(double));
+	tables->bit_reversed = (uint64_t *)malloc(n * sizeof(size_t));
+	tables->trig_tables = (double *)malloc((n - 4) * 2 * sizeof(double));
 	if (tables->bit_reversed == NULL || tables->trig_tables == NULL) {
 		free(tables->bit_reversed);
 		free(tables->trig_tables);
@@ -375,4 +368,47 @@ static uint64_t reverse_bits(uint64_t x, uint32_t n) {
 	for (i = 0; i < n; i++, x >>= 1)
 		result = (result << 1) | (x & 1);
 	return result;
+}
+
+std::vector<cl::Device> get_xilinx_devices() {
+    size_t i;
+    cl_int err;
+    std::vector<cl::Platform> platforms;
+    err = cl::Platform::get(&platforms);
+    cl::Platform platform;
+    for (i  = 0 ; i < platforms.size(); i++){
+        platform = platforms[i];
+        std::string platformName = platform.getInfo<CL_PLATFORM_NAME>(&err);
+        if (platformName == "Xilinx"){
+            std::cout << "INFO: Found Xilinx Platform" << std::endl;
+            break;
+        }
+    }
+    if (i == platforms.size()) {
+        std::cout << "ERROR: Failed to find Xilinx platform" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    //Getting ACCELERATOR Devices and selecting 1st such device
+    std::vector<cl::Device> devices;
+    err = platform.getDevices(CL_DEVICE_TYPE_ACCELERATOR, &devices);
+    return devices;
+}
+
+char* read_binary_file(const std::string &xclbin_file_name, unsigned &nb)
+{
+    if(access(xclbin_file_name.c_str(), R_OK) != 0) {
+        printf("ERROR: %s xclbin not available please build\n", xclbin_file_name.c_str());
+        exit(EXIT_FAILURE);
+    }
+    //Loading XCL Bin into char buffer
+    std::cout << "INFO: Loading '" << xclbin_file_name << "'\n";
+    std::ifstream bin_file(xclbin_file_name.c_str(), std::ifstream::binary);
+    bin_file.seekg (0, bin_file.end);
+    nb = bin_file.tellg();
+    bin_file.seekg (0, bin_file.beg);
+    // char *buf = new char [nb];
+		char *buf = (char *)malloc(nb * sizeof(char));
+    bin_file.read(buf, nb);
+    return buf;
 }
