@@ -74,8 +74,10 @@ void FFT_Processor_nayuki::execute_reverse_torus32(cplx* res, const Torus32* a) 
     for (int32_t i=0; i<N; i++) real_inout[N+i]=-real_inout[i];
     for (int32_t i=0; i<_2N; i++) imag_inout[i]=0;
     check_alternate_real();
+
     // fft_transform_reverse(tables_reverse,real_inout,imag_inout);
     fpga_fft_transform_reverse(tables_reverse, real_inout, imag_inout);
+
     for (int32_t i=0; i<Ns2; i++) res[i]=cplx(real_inout[2*i+1],imag_inout[2*i+1]);
     check_conjugate_cplx();
 }
@@ -117,35 +119,24 @@ void FFT_Processor_nayuki::fpga_fft_transform_reverse(const void *tables, double
     struct FftTables *tbl = (struct FftTables *)tables;
     uint64_t n = tbl->n;
 
-    cl::Buffer bit_reversed_buf(context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, n * sizeof(uint64_t));
-    cl::Buffer trig_tables_buf(context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, n * 2 * sizeof(double));
     cl::Buffer real_buf(context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(double) * n);
     cl::Buffer imag_buf(context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(double) * n);
 
-    uint64_t *bit_reversed_map = (uint64_t *)q.enqueueMapBuffer(bit_reversed_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, n * sizeof(uint64_t));
-    double *trig_tables_map = (double *)q.enqueueMapBuffer(trig_tables_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, n * 2 * sizeof(double));
     double *real_map = (double *)q.enqueueMapBuffer(real_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(double) * n);
     double *imag_map = (double *)q.enqueueMapBuffer(imag_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(double) * n);
 
-    memcpy(bit_reversed_map, tbl->bit_reversed, n * sizeof(size_t));
-    memcpy(trig_tables_map, tbl->trig_tables, (n - 4) * 2 * sizeof(double));
     memcpy(real_map, real, sizeof(double) * n);
     memcpy(imag_map, imag, sizeof(double) * n);
 
-    k_fft_transform_reverse.setArg(0, n);
-    k_fft_transform_reverse.setArg(1, bit_reversed_buf);
-    k_fft_transform_reverse.setArg(2, trig_tables_buf);
-    k_fft_transform_reverse.setArg(3, real_buf);
-    k_fft_transform_reverse.setArg(4, imag_buf);
+    k_fft_transform_reverse.setArg(0, real_buf);
+    k_fft_transform_reverse.setArg(1, imag_buf);
 
-    q.enqueueMigrateMemObjects({ bit_reversed_buf, trig_tables_buf, real_buf, imag_buf }, 0 /* 0 means from host*/);
+    q.enqueueMigrateMemObjects({ real_buf, imag_buf }, 0 /* 0 means from host*/);
     q.enqueueTask(k_fft_transform_reverse);
-    q.enqueueMigrateMemObjects({ bit_reversed_buf, trig_tables_buf, real_buf, imag_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
+    q.enqueueMigrateMemObjects({ real_buf, imag_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
 
     q.finish();
 
-    memcpy(tbl->bit_reversed, bit_reversed_map, n * sizeof(size_t));
-    memcpy(tbl->trig_tables, trig_tables_map, (n - 4) * 2 * sizeof(double));
     memcpy(real, real_map, sizeof(double) * n);
     memcpy(imag, imag_map, sizeof(double) * n);
 }

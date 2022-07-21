@@ -15,12 +15,12 @@ clean: build
 	make -C build clean
 
 distclean:
-	rm -rf build builddtests buildotests *.log _x .Xil *.compile_summary *.xo *.info *.link_summary; true
+	rm -rf build builddtests buildotests *.log _x .Xil *.compile_summary *.xo *.info *.link_summary *.csv *.run_summary .run/; true
 
-# test: builddtests buildotests src/test/googletest/CMakeLists.txt
-test: builddtests src/test/googletest/CMakeLists.txt
+# test: builddtests src/test/googletest/CMakeLists.txt
+test: builddtests buildotests src/test/googletest/CMakeLists.txt
 	make -j $(nproc) -C builddtests VERBOSE=1
-#  make -j $(nproc) -C buildotests VERBOSE=1
+	make -j $(nproc) -C buildotests VERBOSE=1
 #	make -j $(nproc) -C builddtests test VERBOSE=1
 #	make -j $(nproc) -C buildotests test VERBOSE=1
 
@@ -52,14 +52,13 @@ alltests:
 
 VPP := v++
 PLATFORM := xilinx_u280_xdma_201920_3
-TARGET := sw_emu
-# CONFIG_NAME := config.cfg
+TARGET := hw_emu
+CONFIG_NAME := config.cfg
 KERNEL_XO := fft_transform_reverse.xo
 PROJECT_NAME := fft
 
-# VPP_XCLBIN_FLAGS := -l --profile_kernel data:all:all:all -O1 --platform $(PLATFORM) -t $(TARGET) --config $(CONFIG_NAME) $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
-VPP_XCLBIN_FLAGS := -l --profile_kernel data:all:all:all -O1 --platform $(PLATFORM) -t $(TARGET) $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
-VPP_XO_FLAGS := -c --platform $(PLATFORM)
+VPP_XCLBIN_FLAGS := -l --profile_kernel data:all:all:all -O1 --platform $(PLATFORM) -t $(TARGET) --config $(CONFIG_NAME) $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
+VPP_XO_FLAGS := -c --platform $(PLATFORM) -t $(TARGET)
 
 xclbin: $(KERNEL_XO)
 	$(VPP) $(VPP_XCLBIN_FLAGS)
