@@ -66,14 +66,14 @@ foreach (FFT_PROCESSOR IN LISTS FFT_PROCESSORS)
 
     #the unittests are compiled with the google test framework
     add_executable(unittests-${FFT_PROCESSOR} ${GOOGLETEST_SOURCES} ${TFHE_HEADERS})
-    target_link_libraries(unittests-${FFT_PROCESSOR} ${RUNTIME_LIBS} gtest gtest_main -lpthread)
+    target_link_libraries(unittests-${FFT_PROCESSOR} ${RUNTIME_LIBS} gtest gtest_main -lpthread -lpthread -lrt -lstdc++)
     add_test(unittests-${FFT_PROCESSOR} unittests-${FFT_PROCESSOR})
 
     #the integration tests must be single source code, and are compiled as a standalone application
     #we first compile the C++ tests
     foreach (CPP_ITEST ${CPP_ITESTS})
         add_executable(${CPP_ITEST}-${FFT_PROCESSOR} ${CPP_ITEST}.cpp ${TFHE_HEADERS})
-        target_link_libraries(${CPP_ITEST}-${FFT_PROCESSOR} ${RUNTIME_LIBS})
+        target_link_libraries(${CPP_ITEST}-${FFT_PROCESSOR} ${RUNTIME_LIBS} -lpthread -lrt -lstdc++)
     endforeach (CPP_ITEST)
 
     #then the C tests

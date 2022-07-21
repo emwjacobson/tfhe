@@ -18,24 +18,18 @@ FFT_Processor_nayuki::FFT_Processor_nayuki(const int32_t N): _2N(2*N),N(N),Ns2(N
         //exp(i.x.pi/N)-1
     }
 
-
     // Initialize OpenCL Environment
     cl_int err;
     unsigned fileBufSize;
     std::vector<cl::Device> devices = get_xilinx_devices();
     devices.resize(1);
     cl::Device device = devices[0];
-    cl::Context context(device, NULL, NULL, NULL, &err);
-    printf("Error code context = %i\n", err);
-    char* fileBuf = read_binary_file("/home/ejaco020/tfhe/fft.xclbin", fileBufSize);
+    context = cl::Context(device, NULL, NULL, NULL, &err);
+    char* fileBuf = read_binary_file("fft.xclbin", fileBufSize);
     cl::Program::Binaries bins{{fileBuf, fileBufSize}};
-    printf("Here size=%i, filebuf=%p\n", fileBufSize, fileBuf);
     cl::Program program(context, devices, bins, NULL, &err);
-    printf("Error code program = %i\n", err);
-    cl::CommandQueue q(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
-    printf("Error code queue = %i\n", err);
-    cl::Kernel krnl_vector_add(program, "fft_transform_reverse", &err);
-    printf("Error code kernel = %i\n", err);
+    q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
+    k_fft_transform_reverse = cl::Kernel(program, "fft_transform_reverse", &err);
     printf("Finished loading FPGA kernels\n");
 }
 
@@ -59,7 +53,10 @@ void FFT_Processor_nayuki::execute_reverse_int(cplx* res, const int32_t* a) {
     for (int32_t i=0; i<N; i++) real_inout[N+i]=-real_inout[i];
     for (int32_t i=0; i<_2N; i++) imag_inout[i]=0;
     check_alternate_real();
-    fft_transform_reverse(tables_reverse,real_inout,imag_inout);
+
+    // fft_transform_reverse(tables_reverse,real_inout,imag_inout);
+    fpga_fft_transform_reverse(tables_reverse, real_inout, imag_inout);
+
     for (int32_t i=0; i<N; i+=2) {
 	res_dbl[i]=real_inout[i+1];
 	res_dbl[i+1]=imag_inout[i+1];
@@ -77,7 +74,8 @@ void FFT_Processor_nayuki::execute_reverse_torus32(cplx* res, const Torus32* a) 
     for (int32_t i=0; i<N; i++) real_inout[N+i]=-real_inout[i];
     for (int32_t i=0; i<_2N; i++) imag_inout[i]=0;
     check_alternate_real();
-    fft_transform_reverse(tables_reverse,real_inout,imag_inout);
+    // fft_transform_reverse(tables_reverse,real_inout,imag_inout);
+    fpga_fft_transform_reverse(tables_reverse, real_inout, imag_inout);
     for (int32_t i=0; i<Ns2; i++) res[i]=cplx(real_inout[2*i+1],imag_inout[2*i+1]);
     check_conjugate_cplx();
 }
@@ -113,6 +111,43 @@ FFT_Processor_nayuki::~FFT_Processor_nayuki() {
     free(real_inout);
     free(imag_inout);
     free(omegaxminus1);
+}
+
+void FFT_Processor_nayuki::fpga_fft_transform_reverse(const void *tables, double *real, double *imag) {
+    struct FftTables *tbl = (struct FftTables *)tables;
+    uint64_t n = tbl->n;
+
+    cl::Buffer bit_reversed_buf(context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, n * sizeof(uint64_t));
+    cl::Buffer trig_tables_buf(context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, n * 2 * sizeof(double));
+    cl::Buffer real_buf(context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(double) * n);
+    cl::Buffer imag_buf(context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(double) * n);
+
+    uint64_t *bit_reversed_map = (uint64_t *)q.enqueueMapBuffer(bit_reversed_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, n * sizeof(uint64_t));
+    double *trig_tables_map = (double *)q.enqueueMapBuffer(trig_tables_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, n * 2 * sizeof(double));
+    double *real_map = (double *)q.enqueueMapBuffer(real_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(double) * n);
+    double *imag_map = (double *)q.enqueueMapBuffer(imag_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(double) * n);
+
+    memcpy(bit_reversed_map, tbl->bit_reversed, n * sizeof(size_t));
+    memcpy(trig_tables_map, tbl->trig_tables, (n - 4) * 2 * sizeof(double));
+    memcpy(real_map, real, sizeof(double) * n);
+    memcpy(imag_map, imag, sizeof(double) * n);
+
+    k_fft_transform_reverse.setArg(0, n);
+    k_fft_transform_reverse.setArg(1, bit_reversed_buf);
+    k_fft_transform_reverse.setArg(2, trig_tables_buf);
+    k_fft_transform_reverse.setArg(3, real_buf);
+    k_fft_transform_reverse.setArg(4, imag_buf);
+
+    q.enqueueMigrateMemObjects({ bit_reversed_buf, trig_tables_buf, real_buf, imag_buf }, 0 /* 0 means from host*/);
+    q.enqueueTask(k_fft_transform_reverse);
+    q.enqueueMigrateMemObjects({ bit_reversed_buf, trig_tables_buf, real_buf, imag_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
+
+    q.finish();
+
+    memcpy(tbl->bit_reversed, bit_reversed_map, n * sizeof(size_t));
+    memcpy(tbl->trig_tables, trig_tables_map, (n - 4) * 2 * sizeof(double));
+    memcpy(real, real_map, sizeof(double) * n);
+    memcpy(imag, imag_map, sizeof(double) * n);
 }
 
 FFT_Processor_nayuki fp1024_nayuki(1024);

@@ -104,7 +104,7 @@ void *fft_init_reverse(size_t n) {
 	tables->n = n;
 
 	// Allocate arrays
-	tables->bit_reversed = (uint64_t *)malloc(n * sizeof(size_t));
+	tables->bit_reversed = (uint64_t *)malloc(n * sizeof(uint64_t));
 	tables->trig_tables = (double *)malloc((n - 4) * 2 * sizeof(double));
 	if (tables->bit_reversed == NULL || tables->trig_tables == NULL) {
 		free(tables->bit_reversed);
@@ -310,7 +310,6 @@ void fft_transform_reverse(const void *tables, double *real, double *imag) {
 		trigtables += size;
 	}
 }
-
 
 // Deallocates the given structure of FFT tables.
 void fft_destroy(void *tables) {
