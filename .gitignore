@@ -2,3 +2,13 @@ callgrind.*
 .*.swp
 *.o
 doc
+_x
+.ipcache
+.Xil
+builddtests/
+buildotests/
+fft*
+*.csv
+*.log
+*.run_summary
+*.json
