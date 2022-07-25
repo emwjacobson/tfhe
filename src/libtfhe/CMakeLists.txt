@@ -31,16 +31,7 @@ set(SRCS
     tfhe_garbage_collector.cpp
     tfhe_gate_bootstrapping.cpp
     tfhe_gate_bootstrapping_structures.cpp
-    )
-
-set(FFT_SRCS
-    fft_processor/lagrangehalfc_impl.cpp
-    fft_processor/fft.cpp
-    )
-
-set(FFT_HEADERS
-    fft_processor/lagrangehalfc_impl.h
-    fft_processor/fft.h
+    fft.cpp
     )
 
 add_library(tfhe-core SHARED ${SRCS} ${FFT_SRCS} ${TFHE_HEADERS} ${FFT_HEADERS})

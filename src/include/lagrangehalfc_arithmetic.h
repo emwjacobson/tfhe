@@ -16,7 +16,7 @@ EXPORT void destroy_LagrangeHalfCPolynomial(LagrangeHalfCPolynomial* obj);
 
 
 /**
- * FFT functions 
+ * FFT functions
  */
 EXPORT void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynomial* p);
 EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPolynomial* p);
@@ -31,7 +31,7 @@ EXPORT void LagrangeHalfCPolynomialSetTorusConstant(LagrangeHalfCPolynomial* res
 EXPORT void LagrangeHalfCPolynomialAddTorusConstant(LagrangeHalfCPolynomial* result, const Torus32 cst);
 
 // /* sets to X^ai-1 */
-//This function is commented, because it is not used 
+//This function is commented, because it is not used
 //in the current version. However, it may be included in future releases
 //EXPORT void LagrangeHalfCPolynomialSetXaiMinusOne(LagrangeHalfCPolynomial* result, const int32_t ai);
 
@@ -43,23 +43,23 @@ EXPORT void torusPolynomialSubMulRFFT(TorusPolynomial* result, const IntPolynomi
 
 /** termwise multiplication in Lagrange space */
 EXPORT void LagrangeHalfCPolynomialMul(
-	LagrangeHalfCPolynomial* result, 
-	const LagrangeHalfCPolynomial* a, 
+	LagrangeHalfCPolynomial* result,
+	const LagrangeHalfCPolynomial* a,
 	const LagrangeHalfCPolynomial* b);
 
 /** termwise multiplication and addTo in Lagrange space */
 EXPORT void LagrangeHalfCPolynomialAddTo(
-	LagrangeHalfCPolynomial* accum, 
+	LagrangeHalfCPolynomial* accum,
 	const LagrangeHalfCPolynomial* a);
 
 EXPORT void LagrangeHalfCPolynomialAddMul(
-	LagrangeHalfCPolynomial* accum, 
-	const LagrangeHalfCPolynomial* a, 
+	LagrangeHalfCPolynomial* accum,
+	const LagrangeHalfCPolynomial* a,
 	const LagrangeHalfCPolynomial* b);
 
 EXPORT void LagrangeHalfCPolynomialSubMul(
-	LagrangeHalfCPolynomial* accum, 
-	const LagrangeHalfCPolynomial* a, 
+	LagrangeHalfCPolynomial* accum,
+	const LagrangeHalfCPolynomial* a,
 	const LagrangeHalfCPolynomial* b);
 
 #endif // LAGRANGEHALFC_ARITHMETIC_H
