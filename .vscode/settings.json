@@ -15,6 +15,12 @@
     "regex": "cpp",
     "utility": "cpp",
     "cmath": "cpp",
-    "ostream": "cpp"
+    "ostream": "cpp",
+    "random": "cpp",
+    "polynomials_arithmetic.h": "c",
+    "tfhe_core.h": "c",
+    "polynomials.h": "c",
+    "cl2.hpp": "c",
+    "cl.h": "c"
   }
 }

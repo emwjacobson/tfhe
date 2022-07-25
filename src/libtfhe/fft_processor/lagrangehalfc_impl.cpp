@@ -148,50 +148,35 @@ void FFT_Processor_nayuki::fpga_fft_transform_reverse(const void *tables, double
 FFT_Processor_nayuki fp1024_nayuki(1024);
 
 EXPORT void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynomial* p) {
-    LagrangeHalfCPolynomial_IMPL* r = (LagrangeHalfCPolynomial_IMPL*) result;
-    fp1024_nayuki.execute_reverse_int(r->coefsC, p->coefs);
+    fp1024_nayuki.execute_reverse_int(result->coefsC, p->coefs);
 }
 EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPolynomial* p) {
-    LagrangeHalfCPolynomial_IMPL* r = (LagrangeHalfCPolynomial_IMPL*) result;
-    fp1024_nayuki.execute_reverse_torus32(r->coefsC, p->coefsT);
+    fp1024_nayuki.execute_reverse_torus32(result->coefsC, p->coefsT);
 }
 EXPORT void TorusPolynomial_fft(TorusPolynomial* result, const LagrangeHalfCPolynomial* p) {
-    LagrangeHalfCPolynomial_IMPL* r = (LagrangeHalfCPolynomial_IMPL*) p;
-    fp1024_nayuki.execute_direct_torus32(result->coefsT, r->coefsC);
-}
-
-LagrangeHalfCPolynomial_IMPL::LagrangeHalfCPolynomial_IMPL(const int32_t N) {
-    assert(N==1024);
-    coefsC = new cplx[N/2];
-    proc = &fp1024_nayuki;
-}
-
-LagrangeHalfCPolynomial_IMPL::~LagrangeHalfCPolynomial_IMPL() {
-    delete[] coefsC;
+    fp1024_nayuki.execute_direct_torus32(result->coefsT, p->coefsC);
 }
 
 
 //initialize the key structure
 //(equivalent of the C++ constructor)
 EXPORT void init_LagrangeHalfCPolynomial(LagrangeHalfCPolynomial* obj, const int32_t N) {
-    new(obj) LagrangeHalfCPolynomial_IMPL(N);
+    new(obj) LagrangeHalfCPolynomial(N);
 }
 EXPORT void init_LagrangeHalfCPolynomial_array(int32_t nbelts, LagrangeHalfCPolynomial* obj, const int32_t N) {
     for (int32_t i=0; i<nbelts; i++) {
-	new(obj+i) LagrangeHalfCPolynomial_IMPL(N);
+	new(obj+i) LagrangeHalfCPolynomial(N);
     }
 }
 
 //destroys the LagrangeHalfCPolynomial structure
 //(equivalent of the C++ destructor)
 EXPORT void destroy_LagrangeHalfCPolynomial(LagrangeHalfCPolynomial* obj) {
-    LagrangeHalfCPolynomial_IMPL* objbis = (LagrangeHalfCPolynomial_IMPL*) obj;
-    objbis->~LagrangeHalfCPolynomial_IMPL();
+    obj->~LagrangeHalfCPolynomial();
 }
 EXPORT void destroy_LagrangeHalfCPolynomial_array(int32_t nbelts, LagrangeHalfCPolynomial* obj) {
-    LagrangeHalfCPolynomial_IMPL* objbis = (LagrangeHalfCPolynomial_IMPL*) obj;
     for (int32_t i=0; i<nbelts; i++) {
-	(objbis+i)->~LagrangeHalfCPolynomial_IMPL();
+	(obj+i)->~LagrangeHalfCPolynomial();
     }
 }
 
@@ -200,37 +185,33 @@ EXPORT void destroy_LagrangeHalfCPolynomial_array(int32_t nbelts, LagrangeHalfCP
 /** sets to zero */
 EXPORT void LagrangeHalfCPolynomialClear(
 	LagrangeHalfCPolynomial* reps) {
-    LagrangeHalfCPolynomial_IMPL* reps1 = (LagrangeHalfCPolynomial_IMPL*) reps;
-    const int32_t Ns2 = reps1->proc->Ns2;
+    const int32_t Ns2 = reps->proc->Ns2;
     for (int32_t i=0; i<Ns2; i++)
-	reps1->coefsC[i] = 0;
+	reps->coefsC[i] = 0;
 }
 
 EXPORT void LagrangeHalfCPolynomialSetTorusConstant(LagrangeHalfCPolynomial* result, const Torus32 mu) {
-    LagrangeHalfCPolynomial_IMPL* result1 = (LagrangeHalfCPolynomial_IMPL*) result;
-    const int32_t Ns2 = result1->proc->Ns2;
-    cplx* b = result1->coefsC;
+    const int32_t Ns2 = result->proc->Ns2;
+    cplx* b = result->coefsC;
     const cplx muc = t32tod(mu);
     for (int32_t j=0; j<Ns2; j++)
     	b[j]=muc;
 }
 
 EXPORT void LagrangeHalfCPolynomialAddTorusConstant(LagrangeHalfCPolynomial* result, const Torus32 mu) {
-    LagrangeHalfCPolynomial_IMPL* result1 = (LagrangeHalfCPolynomial_IMPL*) result;
-    const int32_t Ns2 = result1->proc->Ns2;
-    cplx* b = result1->coefsC;
+    const int32_t Ns2 = result->proc->Ns2;
+    cplx* b = result->coefsC;
     const cplx muc = t32tod(mu);
     for (int32_t j=0; j<Ns2; j++)
     	b[j]+=muc;
 }
 
 EXPORT void LagrangeHalfCPolynomialSetXaiMinusOne(LagrangeHalfCPolynomial* result, const int32_t ai) {
-    LagrangeHalfCPolynomial_IMPL* result1 = (LagrangeHalfCPolynomial_IMPL*) result;
-    const int32_t Ns2 = result1->proc->Ns2;
-    const int32_t _2N = result1->proc->_2N;
-    const cplx* omegaxminus1 = result1->proc->omegaxminus1;
+    const int32_t Ns2 = result->proc->Ns2;
+    const int32_t _2N = result->proc->_2N;
+    const cplx* omegaxminus1 = result->proc->omegaxminus1;
     for (int32_t i=0; i<Ns2; i++)
-	result1->coefsC[i]=omegaxminus1[((2*i+1)*ai)%_2N];
+	result->coefsC[i]=omegaxminus1[((2*i+1)*ai)%_2N];
 }
 
 /** termwise multiplication in Lagrange space */
@@ -238,11 +219,10 @@ EXPORT void LagrangeHalfCPolynomialMul(
 	LagrangeHalfCPolynomial* result,
 	const LagrangeHalfCPolynomial* a,
 	const LagrangeHalfCPolynomial* b) {
-    LagrangeHalfCPolynomial_IMPL* result1 = (LagrangeHalfCPolynomial_IMPL*) result;
-    const int32_t Ns2 = result1->proc->Ns2;
-    cplx* aa = ((LagrangeHalfCPolynomial_IMPL*) a)->coefsC;
-    cplx* bb = ((LagrangeHalfCPolynomial_IMPL*) b)->coefsC;
-    cplx* rr = result1->coefsC;
+    const int32_t Ns2 = result->proc->Ns2;
+    cplx* aa = a->coefsC;
+    cplx* bb = b->coefsC;
+    cplx* rr = result->coefsC;
     for (int32_t i=0; i<Ns2; i++)
 	rr[i] = aa[i]*bb[i];
 }
@@ -253,11 +233,10 @@ EXPORT void LagrangeHalfCPolynomialAddMul(
 	const LagrangeHalfCPolynomial* a,
 	const LagrangeHalfCPolynomial* b)
 {
-    LagrangeHalfCPolynomial_IMPL* result1 = (LagrangeHalfCPolynomial_IMPL*) accum;
-    const int32_t Ns2 = result1->proc->Ns2;
-    cplx* aa = ((LagrangeHalfCPolynomial_IMPL*) a)->coefsC;
-    cplx* bb = ((LagrangeHalfCPolynomial_IMPL*) b)->coefsC;
-    cplx* rr = result1->coefsC;
+    const int32_t Ns2 = accum->proc->Ns2;
+    cplx* aa = a->coefsC;
+    cplx* bb = b->coefsC;
+    cplx* rr = accum->coefsC;
     for (int32_t i=0; i<Ns2; i++)
 	rr[i] += aa[i]*bb[i];
 }
@@ -269,11 +248,10 @@ EXPORT void LagrangeHalfCPolynomialSubMul(
 	const LagrangeHalfCPolynomial* a,
 	const LagrangeHalfCPolynomial* b)
 {
-    LagrangeHalfCPolynomial_IMPL* result1 = (LagrangeHalfCPolynomial_IMPL*) accum;
-    const int32_t Ns2 = result1->proc->Ns2;
-    cplx* aa = ((LagrangeHalfCPolynomial_IMPL*) a)->coefsC;
-    cplx* bb = ((LagrangeHalfCPolynomial_IMPL*) b)->coefsC;
-    cplx* rr = result1->coefsC;
+    const int32_t Ns2 = accum->proc->Ns2;
+    cplx* aa = a->coefsC;
+    cplx* bb = b->coefsC;
+    cplx* rr = accum->coefsC;
     for (int32_t i=0; i<Ns2; i++)
 	rr[i] -= aa[i]*bb[i];
 }
@@ -281,10 +259,9 @@ EXPORT void LagrangeHalfCPolynomialSubMul(
 EXPORT void LagrangeHalfCPolynomialAddTo(
 	LagrangeHalfCPolynomial* accum,
 	const LagrangeHalfCPolynomial* a) {
-    LagrangeHalfCPolynomial_IMPL* result1 = (LagrangeHalfCPolynomial_IMPL*) accum;
-    const int32_t Ns2 = result1->proc->Ns2;
-    cplx* aa = ((LagrangeHalfCPolynomial_IMPL*) a)->coefsC;
-    cplx* rr = result1->coefsC;
+    const int32_t Ns2 = accum->proc->Ns2;
+    cplx* aa = a->coefsC;
+    cplx* rr = accum->coefsC;
     for (int32_t i=0; i<Ns2; i++)
 	rr[i] += aa[i];
 }

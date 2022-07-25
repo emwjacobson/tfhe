@@ -6,15 +6,42 @@
 
 #include "tfhe_core.h"
 
+class FFT_Processor_nayuki {
+    public:
+    const int32_t _2N;
+    const int32_t N;
+    const int32_t Ns2;
+    private:
+    double* real_inout;
+    double* imag_inout;
+    void* tables_direct;
+    void* tables_reverse;
+    public:
+    cplx* omegaxminus1;
+
+    cl::Context context;
+    cl::CommandQueue q;
+    cl::Kernel k_fft_transform_reverse;
+
+    FFT_Processor_nayuki(const int32_t N);
+    void check_alternate_real();
+    void check_conjugate_cplx();
+    void execute_reverse_int(cplx* res, const int32_t* a);
+    void execute_reverse_torus32(cplx* res, const Torus32* a);
+    void execute_direct_torus32(Torus32* res, const cplx* a);
+    void fpga_fft_transform_reverse(const void *tables, double *real, double *imag);
+    ~FFT_Processor_nayuki();
+};
+
 /** This structure represents an integer polynomial modulo X^N+1 */
 struct IntPolynomial {
    const int32_t N;
    int32_t* coefs;
 
-#ifdef __cplusplus   
+#ifdef __cplusplus
    IntPolynomial(const int32_t N);
    ~IntPolynomial();
-   IntPolynomial(const IntPolynomial&) = delete; //forbidden 
+   IntPolynomial(const IntPolynomial&) = delete; //forbidden
    IntPolynomial* operator=(const IntPolynomial&) = delete; //forbidden
 #endif
 };
@@ -25,25 +52,35 @@ struct TorusPolynomial {
    const int32_t N;
    Torus32* coefsT;
 
-#ifdef __cplusplus   
+#ifdef __cplusplus
    TorusPolynomial(const int32_t N);
    ~TorusPolynomial();
-   TorusPolynomial(const TorusPolynomial&) = delete; //forbidden 
+   TorusPolynomial(const TorusPolynomial&) = delete; //forbidden
    TorusPolynomial* operator=(const TorusPolynomial&) = delete; //forbidden
 #endif
 };
 
+extern FFT_Processor_nayuki fp1024_nayuki;
 
-/** 
+/**
  * This structure is used for FFT operations, and is a representation
  * over C of a polynomial in R[X]/X^N+1
- * This type is meant to be specialized, and all implementations of the structure must be compatible 
- * (reinterpret_cast) with this one. Namely, they should contain at most 2 pointers 
+ * This type is meant to be specialized, and all implementations of the structure must be compatible
+ * (reinterpret_cast) with this one. Namely, they should contain at most 2 pointers
+ */
+/**
+ * structure that represents a real polynomial P mod X^N+1
+ * as the N/2 complex numbers:
+ * P(w), P(w^3), ..., P(w^(N-1))
+ * where w is exp(i.pi/N)
  */
 struct LagrangeHalfCPolynomial
 {
-   void* data;
-   void* precomp;
+   cplx* coefsC;
+   FFT_Processor_nayuki* proc;
+
+   LagrangeHalfCPolynomial(int32_t N);
+   ~LagrangeHalfCPolynomial();
 };
 
 //allocate memory space for a IntPolynomial
@@ -63,7 +100,7 @@ EXPORT void init_IntPolynomial_array(int32_t nbelts, IntPolynomial* obj, const i
 //(equivalent of the C++ destructor)
 EXPORT void destroy_IntPolynomial(IntPolynomial* obj);
 EXPORT void destroy_IntPolynomial_array(int32_t nbelts, IntPolynomial* obj);
- 
+
 //allocates and initialize the IntPolynomial structure
 //(equivalent of the C++ new)
 EXPORT IntPolynomial* new_IntPolynomial(const int32_t N);
@@ -91,7 +128,7 @@ EXPORT void init_TorusPolynomial_array(int32_t nbelts, TorusPolynomial* obj, con
 //(equivalent of the C++ destructor)
 EXPORT void destroy_TorusPolynomial(TorusPolynomial* obj);
 EXPORT void destroy_TorusPolynomial_array(int32_t nbelts, TorusPolynomial* obj);
- 
+
 //allocates and initialize the TorusPolynomial structure
 //(equivalent of the C++ new)
 EXPORT TorusPolynomial* new_TorusPolynomial(const int32_t N);
@@ -119,7 +156,7 @@ EXPORT void init_LagrangeHalfCPolynomial_array(int32_t nbelts, LagrangeHalfCPoly
 //(equivalent of the C++ destructor)
 EXPORT void destroy_LagrangeHalfCPolynomial(LagrangeHalfCPolynomial* obj);
 EXPORT void destroy_LagrangeHalfCPolynomial_array(int32_t nbelts, LagrangeHalfCPolynomial* obj);
- 
+
 //allocates and initialize the LagrangeHalfCPolynomial structure
 //(equivalent of the C++ new)
 EXPORT LagrangeHalfCPolynomial* new_LagrangeHalfCPolynomial(const int32_t N);

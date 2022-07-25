@@ -3,62 +3,12 @@
 
 #include <cassert>
 #include <cmath>
-#include <complex>
-// typedef double _Complex cplx;
-typedef std::complex< double > cplx; // https://stackoverflow.com/a/31800404
 #include "tfhe.h"
 #include "polynomials.h"
 
-#define CL_HPP_CL_1_2_DEFAULT_BUILD
-#define CL_HPP_TARGET_OPENCL_VERSION 120
-#define CL_HPP_MINIMUM_OPENCL_VERSION 120
-#define CL_HPP_ENABLE_PROGRAM_CONSTRUCTION_FROM_ARRAY_COMPATIBILITY 1
-#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 
-#include <CL/cl2.hpp>
 
-class FFT_Processor_nayuki {
-    public:
-    const int32_t _2N;
-    const int32_t N;
-    const int32_t Ns2;
-    private:
-    double* real_inout;
-    double* imag_inout;
-    void* tables_direct;
-    void* tables_reverse;
-    public:
-    cplx* omegaxminus1;
 
-    cl::Context context;
-    cl::CommandQueue q;
-    cl::Kernel k_fft_transform_reverse;
 
-    FFT_Processor_nayuki(const int32_t N);
-    void check_alternate_real();
-    void check_conjugate_cplx();
-    void execute_reverse_int(cplx* res, const int32_t* a);
-    void execute_reverse_torus32(cplx* res, const Torus32* a);
-    void execute_direct_torus32(Torus32* res, const cplx* a);
-    void fpga_fft_transform_reverse(const void *tables, double *real, double *imag);
-    ~FFT_Processor_nayuki();
-};
-
-extern FFT_Processor_nayuki fp1024_nayuki;
-
-/**
- * structure that represents a real polynomial P mod X^N+1
- * as the N/2 complex numbers:
- * P(w), P(w^3), ..., P(w^(N-1))
- * where w is exp(i.pi/N)
- */
-struct LagrangeHalfCPolynomial_IMPL
-{
-   cplx* coefsC;
-   FFT_Processor_nayuki* proc;
-
-   LagrangeHalfCPolynomial_IMPL(int32_t N);
-   ~LagrangeHalfCPolynomial_IMPL();
-};
 
 #endif // LAGRANGEHALFC_IMPL_H

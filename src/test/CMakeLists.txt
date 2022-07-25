@@ -40,9 +40,9 @@ set(CPP_ITESTS
         test-long-run
         )
 
-set(C_ITESTS
-        test-c-binding
-        )
+# set(C_ITESTS
+#         test-c-binding
+#         )
 
 set(RUNTIME_LIBS
         tfhe-core

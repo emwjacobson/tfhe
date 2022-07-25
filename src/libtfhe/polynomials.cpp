@@ -5,7 +5,21 @@
 #include "polynomials_arithmetic.h"
 #include "lagrangehalfc_arithmetic.h"
 
+#include <complex>
+// typedef double _Complex cplx;
+typedef std::complex< double > cplx; // https://stackoverflow.com/a/31800404
+
 using namespace std;
+
+LagrangeHalfCPolynomial::LagrangeHalfCPolynomial(const int32_t N) {
+    assert(N==1024);
+    coefsC = new cplx[N/2];
+    proc = &fp1024_nayuki;
+}
+
+LagrangeHalfCPolynomial::~LagrangeHalfCPolynomial() {
+    delete[] coefsC;
+}
 
 //allocate memory space for a LagrangeHalfCPolynomial
 EXPORT LagrangeHalfCPolynomial* alloc_LagrangeHalfCPolynomial() {
