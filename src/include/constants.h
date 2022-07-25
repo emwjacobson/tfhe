@@ -4,7 +4,9 @@
 #include <cstddef>
 #include <cstdint>
 
-#define N 2048
+#define N 1024
+#define _2N 2*N
+#define Ns2 N/2
 
 // These should be implemented as a ROM in the final design
 static double trig_tables[] = {

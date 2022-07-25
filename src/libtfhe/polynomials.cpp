@@ -86,19 +86,6 @@ EXPORT void delete_LagrangeHalfCPolynomial_array(int32_t nbelts, LagrangeHalfCPo
     free_LagrangeHalfCPolynomial_array(nbelts,obj);
 }
 
-FFT_Processor_nayuki fp1024_nayuki(1024);
-
-EXPORT void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynomial* p) {
-    fp1024_nayuki.execute_reverse_int(result->coefsC, p->coefs);
-}
-EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPolynomial* p) {
-    fp1024_nayuki.execute_reverse_torus32(result->coefsC, p->coefsT);
-}
-EXPORT void TorusPolynomial_fft(TorusPolynomial* result, const LagrangeHalfCPolynomial* p) {
-    fp1024_nayuki.execute_direct_torus32(result->coefsT, p->coefsC);
-}
-
-
 
 /** multiplication via direct FFT (it must know the implem of LagrangeHalfCPolynomial because of the tmp+1 notation */
 EXPORT void torusPolynomialMultFFT(TorusPolynomial* result, const IntPolynomial* poly1, const TorusPolynomial* poly2) {
@@ -219,6 +206,17 @@ EXPORT void LagrangeHalfCPolynomialAddTo(
 	rr[i] += aa[i];
 }
 
+FFT_Processor_nayuki fp1024_nayuki(1024);
+
+EXPORT void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynomial* p) {
+    fp1024_nayuki.execute_reverse_int(result->coefsC, p->coefs);
+}
+EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPolynomial* p) {
+    fp1024_nayuki.execute_reverse_torus32(result->coefsC, p->coefsT);
+}
+EXPORT void TorusPolynomial_fft(TorusPolynomial* result, const LagrangeHalfCPolynomial* p) {
+    fp1024_nayuki.execute_direct_torus32(result->coefsT, p->coefsC);
+}
 
 FFT_Processor_nayuki::FFT_Processor_nayuki(const int32_t N): _2N(2*N),N(N),Ns2(N/2) {
     real_inout = (double*) malloc(sizeof(double) * _2N);
