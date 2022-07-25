@@ -49,6 +49,8 @@ void fft_transform(const void *tables, double *real, double *imag);
 
 void fft_transform_reverse(const void *tables, double *real, double *imag);
 
+void fpga_fft_transform_reverse(const void *tables, double *real, double *imag);
+
 void fft_destroy(void *tables);
 
 #ifdef __cplusplus

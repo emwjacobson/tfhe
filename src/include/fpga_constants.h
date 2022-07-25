@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <cstdint>
 
+// Ideally this file should only be included in files intended to run on the FPGA
+
 #define N 1024
 #define _2N 2*N
 #define Ns2 N/2

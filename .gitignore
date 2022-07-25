@@ -9,7 +9,7 @@ builddtests/
 buildotests/
 fft.ltx
 fft.xclbin*
-fft_transform_reverse*
+fft_transform_reverse.xo*
 *.csv
 *.log
 *.run_summary

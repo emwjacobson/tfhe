@@ -310,29 +310,3 @@ FFT_Processor_nayuki::~FFT_Processor_nayuki() {
     free(omegaxminus1);
 }
 
-void FFT_Processor_nayuki::fpga_fft_transform_reverse(const void *tables, double *real, double *imag) {
-    struct FftTables *tbl = (struct FftTables *)tables;
-    uint64_t n = tbl->n;
-
-    cl::Buffer real_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(double) * n);
-    cl::Buffer imag_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(double) * n);
-
-    double *real_map = (double *)fpga.q.enqueueMapBuffer(real_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(double) * n);
-    double *imag_map = (double *)fpga.q.enqueueMapBuffer(imag_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(double) * n);
-
-    memcpy(real_map, real, sizeof(double) * n);
-    memcpy(imag_map, imag, sizeof(double) * n);
-
-    fpga.k_fft_transform_reverse.setArg(0, real_buf);
-    fpga.k_fft_transform_reverse.setArg(1, imag_buf);
-
-    fpga.q.enqueueMigrateMemObjects({ real_buf, imag_buf }, 0 /* 0 means from host*/);
-    fpga.q.enqueueTask(fpga.k_fft_transform_reverse);
-    fpga.q.enqueueMigrateMemObjects({ real_buf, imag_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
-
-    fpga.q.finish();
-
-    memcpy(real, real_map, sizeof(double) * n);
-    memcpy(imag, imag_map, sizeof(double) * n);
-}
-

@@ -25,7 +25,6 @@ class FFT_Processor_nayuki {
     void execute_reverse_int(cplx* res, const int32_t* a);
     void execute_reverse_torus32(cplx* res, const Torus32* a);
     void execute_direct_torus32(Torus32* res, const cplx* a);
-    void fpga_fft_transform_reverse(const void *tables, double *real, double *imag);
     ~FFT_Processor_nayuki();
 };
 
