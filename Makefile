@@ -1,7 +1,5 @@
 CMAKE_COMPILER_OPTS=
-CMAKE_TESTS_OPTS=-DENABLE_TESTS=on -DENABLE_FFTW=off \
-		 -DENABLE_NAYUKI_PORTABLE=on -DENABLE_NAYUKI_AVX=off \
-		 -DENABLE_SPQLIOS_AVX=off -DENABLE_SPQLIOS_FMA=off -DENABLE_FPGA=on
+CMAKE_TESTS_OPTS=-DENABLE_TESTS=on -DENABLE_FPGA=on
 CMAKE_DTESTS_OPTS=${CMAKE_COMPILER_OPTS} -DCMAKE_BUILD_TYPE=debug ${CMAKE_TESTS_OPTS}
 CMAKE_OTESTS_OPTS=${CMAKE_COMPILER_OPTS} -DCMAKE_BUILD_TYPE=optim ${CMAKE_TESTS_OPTS}
 
@@ -19,8 +17,10 @@ distclean:
 
 # test: builddtests src/test/googletest/CMakeLists.txt
 test: builddtests buildotests src/test/googletest/CMakeLists.txt
-	make -j $(nproc) -C builddtests VERBOSE=1
-	make -j $(nproc) -C buildotests VERBOSE=1
+	make -C builddtests VERBOSE=1
+	make -C buildotests VERBOSE=1
+# make -j $(nproc) -C builddtests VERBOSE=1
+# make -j $(nproc) -C buildotests VERBOSE=1
 #	make -j $(nproc) -C builddtests test VERBOSE=1
 #	make -j $(nproc) -C buildotests test VERBOSE=1
 
@@ -52,10 +52,10 @@ alltests:
 
 VPP := v++
 PLATFORM := xilinx_u280_xdma_201920_3
-TARGET := hw_emu
+TARGET := sw_emu
 CONFIG_NAME := config.cfg
 KERNEL_XO := fft_transform_reverse.xo
-KERNEL_INCLUDE := ./src/libtfhe/fft_processors/fpga/kernels/
+KERNEL_INCLUDE := ./src/libtfhe/fft_processor/kernels/
 PROJECT_NAME := fft
 
 VPP_XCLBIN_FLAGS := -l --profile_kernel data:all:all:all -O1 --platform $(PLATFORM) -t $(TARGET) --config $(CONFIG_NAME) -I$(KERNEL_INCLUDE) $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
@@ -65,5 +65,5 @@ xclbin: $(KERNEL_XO)
 	$(VPP) $(VPP_XCLBIN_FLAGS)
 	emconfigutil --platform $(PLATFORM) --nd 1
 
-%.xo: src/libtfhe/fft_processors/fpga/kernels/%.cpp
+%.xo: src/libtfhe/fft_processor/kernels/%.cpp
 	$(VPP) $(VPP_XO_FLAGS) -k $(basename $(notdir $<)) $< -o $@
