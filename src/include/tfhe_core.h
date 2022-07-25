@@ -4,34 +4,12 @@
 ///@file
 ///@brief This file declares only the structures names
 #include <stdint.h>
-
-#define CL_HPP_CL_1_2_DEFAULT_BUILD
-#define CL_HPP_TARGET_OPENCL_VERSION 120
-#define CL_HPP_MINIMUM_OPENCL_VERSION 120
-#define CL_HPP_ENABLE_PROGRAM_CONSTRUCTION_FROM_ARRAY_COMPATIBILITY 1
-#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
-
-// //not very important, but all the functions exported in the output library
-// //should use the C naming convention, for inter-compiler compatibility
-// //reasons, or to bind it with non C++ code.
-// #ifdef __cplusplus
+#include <fpga.h>
 
 #define EXPORT extern "C"
 #include "tfhe_generic_templates.h"
 #include <complex>
 typedef std::complex< double > cplx; // https://stackoverflow.com/a/31800404
-#include <CL/cl2.hpp>
-
-// #else
-
-// typedef double _Complex cplx;
-// #include <CL/cl.h>
-// #define EXPORT
-
-// #endif
-
-
-
 
 EXPORT void die_dramatically(const char* message);
 

@@ -8,10 +8,6 @@
 
 #include "fft.h"
 
-#include <complex>
-// typedef double _Complex cplx;
-typedef std::complex< double > cplx; // https://stackoverflow.com/a/31800404
-
 using namespace std;
 
 LagrangeHalfCPolynomial::LagrangeHalfCPolynomial(const int32_t N) {
@@ -229,19 +225,7 @@ FFT_Processor_nayuki::FFT_Processor_nayuki(const int32_t N): _2N(2*N),N(N),Ns2(N
         //exp(i.x.pi/N)-1
     }
 
-    // Initialize OpenCL Environment
-    cl_int err;
-    unsigned fileBufSize;
-    std::vector<cl::Device> devices = get_xilinx_devices();
-    devices.resize(1);
-    cl::Device device = devices[0];
-    context = cl::Context(device, NULL, NULL, NULL, &err);
-    char* fileBuf = read_binary_file("fft.xclbin", fileBufSize);
-    cl::Program::Binaries bins{{fileBuf, fileBufSize}};
-    cl::Program program(context, devices, bins, NULL, &err);
-    q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
-    k_fft_transform_reverse = cl::Kernel(program, "fft_transform_reverse", &err);
-    printf("Finished loading FPGA kernels\n");
+
 }
 
 void FFT_Processor_nayuki::check_alternate_real() {
@@ -330,23 +314,23 @@ void FFT_Processor_nayuki::fpga_fft_transform_reverse(const void *tables, double
     struct FftTables *tbl = (struct FftTables *)tables;
     uint64_t n = tbl->n;
 
-    cl::Buffer real_buf(context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(double) * n);
-    cl::Buffer imag_buf(context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(double) * n);
+    cl::Buffer real_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(double) * n);
+    cl::Buffer imag_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(double) * n);
 
-    double *real_map = (double *)q.enqueueMapBuffer(real_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(double) * n);
-    double *imag_map = (double *)q.enqueueMapBuffer(imag_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(double) * n);
+    double *real_map = (double *)fpga.q.enqueueMapBuffer(real_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(double) * n);
+    double *imag_map = (double *)fpga.q.enqueueMapBuffer(imag_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(double) * n);
 
     memcpy(real_map, real, sizeof(double) * n);
     memcpy(imag_map, imag, sizeof(double) * n);
 
-    k_fft_transform_reverse.setArg(0, real_buf);
-    k_fft_transform_reverse.setArg(1, imag_buf);
+    fpga.k_fft_transform_reverse.setArg(0, real_buf);
+    fpga.k_fft_transform_reverse.setArg(1, imag_buf);
 
-    q.enqueueMigrateMemObjects({ real_buf, imag_buf }, 0 /* 0 means from host*/);
-    q.enqueueTask(k_fft_transform_reverse);
-    q.enqueueMigrateMemObjects({ real_buf, imag_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
+    fpga.q.enqueueMigrateMemObjects({ real_buf, imag_buf }, 0 /* 0 means from host*/);
+    fpga.q.enqueueTask(fpga.k_fft_transform_reverse);
+    fpga.q.enqueueMigrateMemObjects({ real_buf, imag_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
 
-    q.finish();
+    fpga.q.finish();
 
     memcpy(real, real_map, sizeof(double) * n);
     memcpy(imag, imag_map, sizeof(double) * n);

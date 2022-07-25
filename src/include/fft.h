@@ -25,13 +25,6 @@
 #ifndef FFT_FPGA_H
 #define FFT_FPGA_H
 
-#define CL_HPP_CL_1_2_DEFAULT_BUILD
-#define CL_HPP_TARGET_OPENCL_VERSION 120
-#define CL_HPP_MINIMUM_OPENCL_VERSION 120
-#define CL_HPP_ENABLE_PROGRAM_CONSTRUCTION_FROM_ARRAY_COMPATIBILITY 1
-#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
-
-#include <CL/cl2.hpp>
 #include <iostream>
 #include <unistd.h>
 #include <iostream>
@@ -48,12 +41,6 @@ struct FftTables {
 	double *trig_tables;
 };
 
-struct FftTables_Container {
-  uint64_t n;
-  uint64_t bit_reversed[2*1024 * sizeof(size_t)];
-  double trig_tables[((2*1024) - 4) * 2 * sizeof(double)];
-};
-
 void* fft_init(size_t n);
 
 void* fft_init_reverse(size_t n);
@@ -63,10 +50,6 @@ void fft_transform(const void *tables, double *real, double *imag);
 void fft_transform_reverse(const void *tables, double *real, double *imag);
 
 void fft_destroy(void *tables);
-
-std::vector<cl::Device> get_xilinx_devices();
-
-char* read_binary_file(const std::string &xclbin_file_name, unsigned &nb);
 
 #ifdef __cplusplus
 }

@@ -32,6 +32,7 @@ set(SRCS
     tfhe_gate_bootstrapping.cpp
     tfhe_gate_bootstrapping_structures.cpp
     fft.cpp
+    fpga.cpp
     )
 
 add_library(tfhe-core SHARED ${SRCS} ${FFT_SRCS} ${TFHE_HEADERS} ${FFT_HEADERS})

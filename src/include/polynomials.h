@@ -19,10 +19,6 @@ class FFT_Processor_nayuki {
     public:
     cplx* omegaxminus1;
 
-    cl::Context context;
-    cl::CommandQueue q;
-    cl::Kernel k_fft_transform_reverse;
-
     FFT_Processor_nayuki(const int32_t N);
     void check_alternate_real();
     void check_conjugate_cplx();
