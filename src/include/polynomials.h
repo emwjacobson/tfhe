@@ -5,6 +5,15 @@
 ///@brief This file contains the declaration of polynomials structures
 
 #include "tfhe_core.h"
+#include "fft.h"
+
+typedef struct {
+   const int64_t N;
+   const int64_t _2N;
+   const int64_t Ns2;
+} N_Values_t;
+
+static const N_Values_t N_Values = { 1024, 2*1024, 1024/2 };
 
 class FFT_Processor_nayuki {
     public:
@@ -20,9 +29,6 @@ class FFT_Processor_nayuki {
     cplx* omegaxminus1;
 
     FFT_Processor_nayuki(const int32_t N);
-    void check_alternate_real();
-    void check_conjugate_cplx();
-    void execute_reverse_int(cplx* res, const int32_t* a);
     void execute_reverse_torus32(cplx* res, const Torus32* a);
     void execute_direct_torus32(Torus32* res, const cplx* a);
     ~FFT_Processor_nayuki();

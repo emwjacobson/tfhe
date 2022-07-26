@@ -14,6 +14,9 @@ EXPORT void init_LagrangeHalfCPolynomial(LagrangeHalfCPolynomial* obj, const int
 //(equivalent of the C++ destructor)
 EXPORT void destroy_LagrangeHalfCPolynomial(LagrangeHalfCPolynomial* obj);
 
+void check_alternate_real();
+
+void check_conjugate_cplx();
 
 /**
  * FFT functions

@@ -5,7 +5,7 @@
 #include "polynomials_arithmetic.h"
 #include "lagrangehalfc_arithmetic.h"
 #include "numeric_functions.h"
-
+#include "polynomials.h"
 #include "fft.h"
 
 using namespace std;
@@ -204,8 +204,47 @@ EXPORT void LagrangeHalfCPolynomialAddTo(
 
 FFT_Processor_nayuki fp1024_nayuki(1024);
 
+void check_alternate_real() {
+// #ifndef NDEBUG
+//     for (int32_t i=0; i<N_Values._2N; i++) assert(fabs(imag_inout[i])<1e-8);
+//     for (int32_t i=0; i<N_Values.N; i++) assert(fabs(real_inout[i]+real_inout[N_Values.N+i])<1e-9);
+// #endif
+}
+
+void check_conjugate_cplx() {
+// #ifndef NDEBUG
+//     for (int32_t i=0; i<N_Values.N; i++) assert(fabs(real_inout[2*i])+fabs(imag_inout[2*i])<1e-20);
+//     for (int32_t i=0; i<N_Values._2N; i++) assert(fabs(imag_inout[2*i+1]+imag_inout[N_Values._2N-1-2*i])<1e-20);
+// #endif
+}
+
 EXPORT void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynomial* p) {
-    fp1024_nayuki.execute_reverse_int(result->coefsC, p->coefs);
+    // fp1024_nayuki.execute_reverse_int(result->coefsC, p->coefs);
+    // cplx* res          =>   result->coefsC
+    // const int32_t* a   =>   p->coefs
+
+    cplx* res = (cplx*)result->coefsC;
+    const int32_t* a = p->coefs;
+
+    double real_inout[N_Values._2N];
+    double imag_inout[N_Values._2N];
+
+    double* res_dbl=(double*) res;
+    for (int32_t i=0; i<N_Values.N; i++) real_inout[i]=a[i]/2.;
+    for (int32_t i=0; i<N_Values.N; i++) real_inout[N_Values.N+i]=-real_inout[i];
+    for (int32_t i=0; i<N_Values._2N; i++) imag_inout[i]=0;
+    check_alternate_real();
+
+    fft_transform_reverse(N_Values._2N, real_inout, imag_inout);
+
+    for (int32_t i=0; i<N_Values.N; i+=2) {
+	res_dbl[i]=real_inout[i+1];
+	res_dbl[i+1]=imag_inout[i+1];
+    }
+    for (int32_t i=0; i<N_Values.Ns2; i++) {
+	    assert(abs(cplx(real_inout[2*i+1],imag_inout[2*i+1])-res[i])<1e-20);
+    }
+    check_conjugate_cplx();
 }
 EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPolynomial* p) {
     fp1024_nayuki.execute_reverse_torus32(result->coefsC, p->coefsT);
@@ -228,40 +267,6 @@ FFT_Processor_nayuki::FFT_Processor_nayuki(const int32_t N): _2N(2*N),N(N),Ns2(N
 
 }
 
-void FFT_Processor_nayuki::check_alternate_real() {
-#ifndef NDEBUG
-    for (int32_t i=0; i<_2N; i++) assert(fabs(imag_inout[i])<1e-8);
-    for (int32_t i=0; i<N; i++) assert(fabs(real_inout[i]+real_inout[N+i])<1e-9);
-#endif
-}
-
-void FFT_Processor_nayuki::check_conjugate_cplx() {
-#ifndef NDEBUG
-    for (int32_t i=0; i<N; i++) assert(fabs(real_inout[2*i])+fabs(imag_inout[2*i])<1e-20);
-    for (int32_t i=0; i<Ns2; i++) assert(fabs(imag_inout[2*i+1]+imag_inout[_2N-1-2*i])<1e-20);
-#endif
-}
-
-void FFT_Processor_nayuki::execute_reverse_int(cplx* res, const int32_t* a) {
-    double* res_dbl=(double*) res;
-    for (int32_t i=0; i<N; i++) real_inout[i]=a[i]/2.;
-    for (int32_t i=0; i<N; i++) real_inout[N+i]=-real_inout[i];
-    for (int32_t i=0; i<_2N; i++) imag_inout[i]=0;
-    check_alternate_real();
-
-    // fft_transform_reverse(tables_reverse,real_inout,imag_inout);
-    fpga_fft_transform_reverse(tables_reverse, real_inout, imag_inout);
-
-    for (int32_t i=0; i<N; i+=2) {
-	res_dbl[i]=real_inout[i+1];
-	res_dbl[i+1]=imag_inout[i+1];
-    }
-    for (int32_t i=0; i<Ns2; i++) {
-	assert(abs(cplx(real_inout[2*i+1],imag_inout[2*i+1])-res[i])<1e-20);
-    }
-    check_conjugate_cplx();
-}
-
 void FFT_Processor_nayuki::execute_reverse_torus32(cplx* res, const Torus32* a) {
     static const double _2pm33 = 1./double(INT64_C(1)<<33);
     int32_t* aa = (int32_t*) a;
@@ -270,8 +275,7 @@ void FFT_Processor_nayuki::execute_reverse_torus32(cplx* res, const Torus32* a) 
     for (int32_t i=0; i<_2N; i++) imag_inout[i]=0;
     check_alternate_real();
 
-    // fft_transform_reverse(tables_reverse,real_inout,imag_inout);
-    fpga_fft_transform_reverse(tables_reverse, real_inout, imag_inout);
+    fft_transform_reverse(_2N, real_inout, imag_inout);
 
     for (int32_t i=0; i<Ns2; i++) res[i]=cplx(real_inout[2*i+1],imag_inout[2*i+1]);
     check_conjugate_cplx();
