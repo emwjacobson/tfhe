@@ -224,9 +224,11 @@ void fft_transform(const void *tables, double *real, double *imag) {
 	}
 }
 
-
 // This is a C implementation that models the x86-64 AVX implementation.
 void fft_transform_reverse(const uint64_t n, double *real, double *imag) {
+	////////////////////////////
+	// HW FPGA Implementation //
+	////////////////////////////
 	cl::Buffer real_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(double) * n);
 	cl::Buffer imag_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(double) * n);
 
@@ -248,14 +250,16 @@ void fft_transform_reverse(const uint64_t n, double *real, double *imag) {
 	memcpy(real, real_map, sizeof(double) * n);
 	memcpy(imag, imag_map, sizeof(double) * n);
 
-	// struct FftTables *tbl = (struct FftTables *)tables;
-	// uint64_t n = tbl->n;
+
+
+	/////////////////////////////////////
+	// Original SW only implementation //
+	/////////////////////////////////////
 
 	// // Bit-reversed addressing permutation
 	// uint64_t i;
-	// uint64_t *bitreversed = tbl->bit_reversed;
 	// for (i = 0; i < n; i++) {
-	// 	uint64_t j = bitreversed[i];
+	// 	uint64_t j = bit_reversed[i];
 	// 	if (i < j) {
 	// 		double tp0re = real[i];
 	// 		double tp0im = imag[i];
@@ -304,7 +308,7 @@ void fft_transform_reverse(const uint64_t n, double *real, double *imag) {
 	// }
 
 	// // Size 8 and larger merges (general)
-	// double *trigtables = tbl->trig_tables;
+	// double *trigtables = trig_tables;
 	// uint64_t size;
 	// for (size = 8; size <= n; size <<= 1) {
 	// 	uint64_t halfsize = size >> 1;

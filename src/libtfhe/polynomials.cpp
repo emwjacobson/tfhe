@@ -204,18 +204,18 @@ EXPORT void LagrangeHalfCPolynomialAddTo(
 
 FFT_Processor_nayuki fp1024_nayuki(1024);
 
-void check_alternate_real() {
-// #ifndef NDEBUG
-//     for (int32_t i=0; i<N_Values._2N; i++) assert(fabs(imag_inout[i])<1e-8);
-//     for (int32_t i=0; i<N_Values.N; i++) assert(fabs(real_inout[i]+real_inout[N_Values.N+i])<1e-9);
-// #endif
+void check_alternate_real(const double *real_inout, const double *imag_inout) {
+#ifndef NDEBUG
+    for (int32_t i=0; i<N_Values._2N; i++) assert(fabs(imag_inout[i])<1e-8);
+    for (int32_t i=0; i<N_Values.N; i++) assert(fabs(real_inout[i]+real_inout[N_Values.N+i])<1e-9);
+#endif
 }
 
-void check_conjugate_cplx() {
-// #ifndef NDEBUG
-//     for (int32_t i=0; i<N_Values.N; i++) assert(fabs(real_inout[2*i])+fabs(imag_inout[2*i])<1e-20);
-//     for (int32_t i=0; i<N_Values._2N; i++) assert(fabs(imag_inout[2*i+1]+imag_inout[N_Values._2N-1-2*i])<1e-20);
-// #endif
+void check_conjugate_cplx(const double *real_inout, const double *imag_inout) {
+#ifndef NDEBUG
+    for (int32_t i=0; i<N_Values.N; i++) assert(fabs(real_inout[2*i])+fabs(imag_inout[2*i])<1e-20);
+    for (int32_t i=0; i<N_Values.Ns2; i++) assert(fabs(imag_inout[2*i+1]+imag_inout[N_Values._2N-1-2*i])<1e-20);
+#endif
 }
 
 EXPORT void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynomial* p) {
@@ -233,18 +233,18 @@ EXPORT void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynom
     for (int32_t i=0; i<N_Values.N; i++) real_inout[i]=a[i]/2.;
     for (int32_t i=0; i<N_Values.N; i++) real_inout[N_Values.N+i]=-real_inout[i];
     for (int32_t i=0; i<N_Values._2N; i++) imag_inout[i]=0;
-    check_alternate_real();
+    check_alternate_real(real_inout, imag_inout);
 
     fft_transform_reverse(N_Values._2N, real_inout, imag_inout);
 
     for (int32_t i=0; i<N_Values.N; i+=2) {
-	res_dbl[i]=real_inout[i+1];
-	res_dbl[i+1]=imag_inout[i+1];
+        res_dbl[i]=real_inout[i+1];
+        res_dbl[i+1]=imag_inout[i+1];
     }
     for (int32_t i=0; i<N_Values.Ns2; i++) {
 	    assert(abs(cplx(real_inout[2*i+1],imag_inout[2*i+1])-res[i])<1e-20);
     }
-    check_conjugate_cplx();
+    check_conjugate_cplx(real_inout, imag_inout);
 }
 EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPolynomial* p) {
     fp1024_nayuki.execute_reverse_torus32(result->coefsC, p->coefsT);
@@ -273,12 +273,12 @@ void FFT_Processor_nayuki::execute_reverse_torus32(cplx* res, const Torus32* a) 
     for (int32_t i=0; i<N; i++) real_inout[i]=aa[i]*_2pm33;
     for (int32_t i=0; i<N; i++) real_inout[N+i]=-real_inout[i];
     for (int32_t i=0; i<_2N; i++) imag_inout[i]=0;
-    check_alternate_real();
+    check_alternate_real(real_inout, imag_inout);
 
     fft_transform_reverse(_2N, real_inout, imag_inout);
 
     for (int32_t i=0; i<Ns2; i++) res[i]=cplx(real_inout[2*i+1],imag_inout[2*i+1]);
-    check_conjugate_cplx();
+    check_conjugate_cplx(real_inout, imag_inout);
 }
 
 void FFT_Processor_nayuki::execute_direct_torus32(Torus32* res, const cplx* a) {
@@ -298,12 +298,12 @@ void FFT_Processor_nayuki::execute_direct_torus32(Torus32* res, const cplx* a) {
     for (int32_t i=0; i<Ns2; i++) assert(imag_inout[2*i+1]==imag(a[i]));
     for (int32_t i=0; i<Ns2; i++) assert(real_inout[_2N-1-2*i]==real(a[i]));
     for (int32_t i=0; i<Ns2; i++) assert(imag_inout[_2N-1-2*i]==-imag(a[i]));
-    check_conjugate_cplx();
+    check_conjugate_cplx(real_inout, imag_inout);
 #endif
     fft_transform(tables_direct,real_inout,imag_inout);
     for (int32_t i=0; i<N; i++) res[i]=Torus32(int64_t(real_inout[i]*_1sN*_2p32));
     //pas besoin du fmod... Torus32(int64_t(fmod(rev_out[i]*_1sN,1.)*_2p32));
-    check_alternate_real();
+    check_alternate_real(real_inout, imag_inout);
 }
 
 FFT_Processor_nayuki::~FFT_Processor_nayuki() {
