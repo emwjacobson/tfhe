@@ -224,7 +224,7 @@ EXPORT void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynom
     for (int32_t i=0; i<N_Values._2N; i++) imag_inout[i]=0;
     check_alternate_real(real_inout, imag_inout);
 
-    fft_transform_reverse(N_Values._2N, real_inout, imag_inout);
+    fft_transform_reverse(real_inout, imag_inout);
 
     for (int32_t i=0; i<N_Values.N; i+=2) {
         res_dbl[i]=real_inout[i+1];
@@ -250,7 +250,7 @@ EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPol
     for (int32_t i=0; i<N_Values._2N; i++) imag_inout[i]=0;
     check_alternate_real(real_inout, imag_inout);
 
-    fft_transform_reverse(N_Values._2N, real_inout, imag_inout);
+    fft_transform_reverse(real_inout, imag_inout);
 
     for (int32_t i=0; i<N_Values.Ns2; i++) res[i]=cplx(real_inout[2*i+1],imag_inout[2*i+1]);
     check_conjugate_cplx(real_inout, imag_inout);
@@ -281,7 +281,7 @@ EXPORT void TorusPolynomial_fft(TorusPolynomial* result, const LagrangeHalfCPoly
     for (int32_t i=0; i<N_Values.Ns2; i++) assert(imag_inout[N_Values._2N-1-2*i]==-imag(a[i]));
     check_conjugate_cplx(real_inout, imag_inout);
 #endif
-    fft_transform(N_Values._2N, real_inout, imag_inout);
+    fft_transform(real_inout, imag_inout);
     for (int32_t i=0; i<N_Values.N; i++) res[i]=Torus32(int64_t(real_inout[i]*_1sN*_2p32));
     //pas besoin du fmod... Torus32(int64_t(fmod(rev_out[i]*_1sN,1.)*_2p32));
     check_alternate_real(real_inout, imag_inout);
