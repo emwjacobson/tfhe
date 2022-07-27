@@ -70,6 +70,6 @@ xclbin: $(KERNEL_XO)
 
 runtest: test xclbin
 	cp $(PROJECT_NAME).xclbin emconfig.json ./builddtests/test
-	./builddtests/test/unittests-fpga
-	./builddtests/test/test-bootstrapping-fft-fpga
-	./builddtests/test/test-gate-bootstrapping-fpga
+	XCL_EMULATION_MODE=$(TARGET) ./builddtests/test/unittests-fpga
+	XCL_EMULATION_MODE=$(TARGET) ./builddtests/test/test-bootstrapping-fft-fpga
+	XCL_EMULATION_MODE=$(TARGET) ./builddtests/test/test-gate-bootstrapping-fpga

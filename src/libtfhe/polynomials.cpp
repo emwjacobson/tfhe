@@ -122,33 +122,28 @@ EXPORT void torusPolynomialSubMulRFFT(TorusPolynomial* result, const IntPolynomi
 /** sets to zero */
 EXPORT void LagrangeHalfCPolynomialClear(
 	LagrangeHalfCPolynomial* reps) {
-    const int32_t Ns2 = reps->proc->Ns2;
-    for (int32_t i=0; i<Ns2; i++)
+    for (int32_t i=0; i<N_Values.Ns2; i++)
 	reps->coefsC[i] = 0;
 }
 
 EXPORT void LagrangeHalfCPolynomialSetTorusConstant(LagrangeHalfCPolynomial* result, const Torus32 mu) {
-    const int32_t Ns2 = result->proc->Ns2;
     cplx* b = result->coefsC;
     const cplx muc = t32tod(mu);
-    for (int32_t j=0; j<Ns2; j++)
+    for (int32_t j=0; j<N_Values.Ns2; j++)
     	b[j]=muc;
 }
 
 EXPORT void LagrangeHalfCPolynomialAddTorusConstant(LagrangeHalfCPolynomial* result, const Torus32 mu) {
-    const int32_t Ns2 = result->proc->Ns2;
     cplx* b = result->coefsC;
     const cplx muc = t32tod(mu);
-    for (int32_t j=0; j<Ns2; j++)
+    for (int32_t j=0; j<N_Values.Ns2; j++)
     	b[j]+=muc;
 }
 
 EXPORT void LagrangeHalfCPolynomialSetXaiMinusOne(LagrangeHalfCPolynomial* result, const int32_t ai) {
-    const int32_t Ns2 = result->proc->Ns2;
-    const int32_t _2N = result->proc->_2N;
     const cplx* omegaxminus1 = result->proc->omegaxminus1;
-    for (int32_t i=0; i<Ns2; i++)
-	result->coefsC[i]=omegaxminus1[((2*i+1)*ai)%_2N];
+    for (int32_t i=0; i<N_Values.Ns2; i++)
+	result->coefsC[i]=omegaxminus1[((2*i+1)*ai)%N_Values._2N];
 }
 
 /** termwise multiplication in Lagrange space */
@@ -156,11 +151,10 @@ EXPORT void LagrangeHalfCPolynomialMul(
 	LagrangeHalfCPolynomial* result,
 	const LagrangeHalfCPolynomial* a,
 	const LagrangeHalfCPolynomial* b) {
-    const int32_t Ns2 = result->proc->Ns2;
     cplx* aa = a->coefsC;
     cplx* bb = b->coefsC;
     cplx* rr = result->coefsC;
-    for (int32_t i=0; i<Ns2; i++)
+    for (int32_t i=0; i<N_Values.Ns2; i++)
 	rr[i] = aa[i]*bb[i];
 }
 
@@ -170,11 +164,10 @@ EXPORT void LagrangeHalfCPolynomialAddMul(
 	const LagrangeHalfCPolynomial* a,
 	const LagrangeHalfCPolynomial* b)
 {
-    const int32_t Ns2 = accum->proc->Ns2;
     cplx* aa = a->coefsC;
     cplx* bb = b->coefsC;
     cplx* rr = accum->coefsC;
-    for (int32_t i=0; i<Ns2; i++)
+    for (int32_t i=0; i<N_Values.Ns2; i++)
 	rr[i] += aa[i]*bb[i];
 }
 
@@ -184,21 +177,19 @@ EXPORT void LagrangeHalfCPolynomialSubMul(
 	const LagrangeHalfCPolynomial* a,
 	const LagrangeHalfCPolynomial* b)
 {
-    const int32_t Ns2 = accum->proc->Ns2;
     cplx* aa = a->coefsC;
     cplx* bb = b->coefsC;
     cplx* rr = accum->coefsC;
-    for (int32_t i=0; i<Ns2; i++)
+    for (int32_t i=0; i<N_Values.Ns2; i++)
 	rr[i] -= aa[i]*bb[i];
 }
 
 EXPORT void LagrangeHalfCPolynomialAddTo(
 	LagrangeHalfCPolynomial* accum,
 	const LagrangeHalfCPolynomial* a) {
-    const int32_t Ns2 = accum->proc->Ns2;
     cplx* aa = a->coefsC;
     cplx* rr = accum->coefsC;
-    for (int32_t i=0; i<Ns2; i++)
+    for (int32_t i=0; i<N_Values.Ns2; i++)
 	rr[i] += aa[i];
 }
 
@@ -298,23 +289,15 @@ EXPORT void TorusPolynomial_fft(TorusPolynomial* result, const LagrangeHalfCPoly
     check_alternate_real(real_inout, imag_inout);
 }
 
-FFT_Processor_nayuki::FFT_Processor_nayuki(const int32_t N): _2N(2*N),N(N),Ns2(N/2) {
-    real_inout = (double*) malloc(sizeof(double) * _2N);
-    imag_inout = (double*) malloc(sizeof(double) * _2N);
-    tables_direct = fft_init(_2N);
-    tables_reverse = fft_init_reverse(_2N);
-    omegaxminus1 = (cplx*) malloc(sizeof(cplx) * _2N);
-    for (int32_t x=0; x<_2N; x++) {
-        omegaxminus1[x]=cplx(cos(x*M_PI/N)-1., sin(x*M_PI/N)); // instead of cos(x*M_PI/N)-1. + sin(x*M_PI/N) * 1i
+FFT_Processor_nayuki::FFT_Processor_nayuki(const int32_t N) {
+    omegaxminus1 = (cplx*) malloc(sizeof(cplx) * N_Values._2N);
+    for (int32_t x=0; x<N_Values._2N; x++) {
+        omegaxminus1[x]=cplx(cos(x*M_PI/N_Values.N)-1., sin(x*M_PI/N_Values.N)); // instead of cos(x*M_PI/N)-1. + sin(x*M_PI/N) * 1i
         //exp(i.x.pi/N)-1
     }
 }
 
 FFT_Processor_nayuki::~FFT_Processor_nayuki() {
-    fft_destroy(tables_direct);
-    fft_destroy(tables_reverse);
-    free(real_inout);
-    free(imag_inout);
     free(omegaxminus1);
 }
 
