@@ -15,6 +15,7 @@ public:
   cl::Context context;
   cl::CommandQueue q;
   cl::Kernel k_fft_transform_reverse;
+  cl::Kernel k_fft_transform;
 
 private:
   std::vector<cl::Device> get_xilinx_devices();

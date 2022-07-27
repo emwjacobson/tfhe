@@ -45,7 +45,7 @@ void* fft_init(size_t n);
 
 void* fft_init_reverse(size_t n);
 
-void fft_transform(const void *tables, double *real, double *imag);
+void fft_transform(const uint64_t n, double *real, double *imag);
 
 void fft_transform_reverse(const uint64_t n, double *real, double *imag);
 

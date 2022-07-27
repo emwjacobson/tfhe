@@ -18,6 +18,7 @@ FPGA_Processor::FPGA_Processor() {
     cl::Program program(context, devices, bins, NULL, &err);
     q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
     k_fft_transform_reverse = cl::Kernel(program, "fft_transform_reverse", &err);
+    k_fft_transform = cl::Kernel(program, "fft_transform", &err);
     printf("Finished loading FPGA kernels\n");
 }
 

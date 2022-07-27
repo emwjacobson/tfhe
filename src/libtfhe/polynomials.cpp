@@ -300,7 +300,7 @@ void FFT_Processor_nayuki::execute_direct_torus32(Torus32* res, const cplx* a) {
     for (int32_t i=0; i<Ns2; i++) assert(imag_inout[_2N-1-2*i]==-imag(a[i]));
     check_conjugate_cplx(real_inout, imag_inout);
 #endif
-    fft_transform(tables_direct,real_inout,imag_inout);
+    fft_transform(N_Values._2N, real_inout, imag_inout);
     for (int32_t i=0; i<N; i++) res[i]=Torus32(int64_t(real_inout[i]*_1sN*_2p32));
     //pas besoin du fmod... Torus32(int64_t(fmod(rev_out[i]*_1sN,1.)*_2p32));
     check_alternate_real(real_inout, imag_inout);

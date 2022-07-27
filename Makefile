@@ -54,7 +54,7 @@ VPP := v++
 PLATFORM := xilinx_u280_xdma_201920_3
 TARGET := sw_emu
 CONFIG_NAME := config.cfg
-KERNEL_XO := fft_transform_reverse.xo
+KERNEL_XO := fft_transform_reverse.xo fft_transform.xo
 KERNEL_INCLUDE := ./src/include/
 PROJECT_NAME := fft
 
@@ -70,5 +70,6 @@ xclbin: $(KERNEL_XO)
 
 runtest: test xclbin
 	cp $(PROJECT_NAME).xclbin emconfig.json ./builddtests/test
+	./builddtests/test/unittest-fpga
 	./builddtests/test/test-bootstrapping-fft-fpga
 	./builddtests/test/test-gate-bootstrapping-fpga
