@@ -13,6 +13,7 @@
 class FPGA_Processor {
 public:
   FPGA_Processor();
+  ~FPGA_Processor();
   cl::Context context;
   cl::CommandQueue q;
   cl::Kernel k_fft_transform_reverse;

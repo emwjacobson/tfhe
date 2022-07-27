@@ -7,13 +7,13 @@
 #include "numeric_functions.h"
 #include "polynomials.h"
 #include "fft.h"
+#include "fpga.h"
 
 using namespace std;
 
 LagrangeHalfCPolynomial::LagrangeHalfCPolynomial(const int32_t N) {
     assert(N==1024);
     coefsC = new cplx[N/2];
-    proc = &fp1024_nayuki;
 }
 
 LagrangeHalfCPolynomial::~LagrangeHalfCPolynomial() {
@@ -141,7 +141,7 @@ EXPORT void LagrangeHalfCPolynomialAddTorusConstant(LagrangeHalfCPolynomial* res
 }
 
 EXPORT void LagrangeHalfCPolynomialSetXaiMinusOne(LagrangeHalfCPolynomial* result, const int32_t ai) {
-    const cplx* omegaxminus1 = result->proc->omegaxminus1;
+    const cplx* omegaxminus1 = fpga.omegaxminus1;
     for (int32_t i=0; i<N_Values.Ns2; i++)
 	result->coefsC[i]=omegaxminus1[((2*i+1)*ai)%N_Values._2N];
 }
@@ -192,8 +192,6 @@ EXPORT void LagrangeHalfCPolynomialAddTo(
     for (int32_t i=0; i<N_Values.Ns2; i++)
 	rr[i] += aa[i];
 }
-
-FFT_Processor_nayuki fp1024_nayuki(1024);
 
 void check_alternate_real(const double *real_inout, const double *imag_inout) {
 #ifndef NDEBUG
@@ -288,16 +286,3 @@ EXPORT void TorusPolynomial_fft(TorusPolynomial* result, const LagrangeHalfCPoly
     //pas besoin du fmod... Torus32(int64_t(fmod(rev_out[i]*_1sN,1.)*_2p32));
     check_alternate_real(real_inout, imag_inout);
 }
-
-FFT_Processor_nayuki::FFT_Processor_nayuki(const int32_t N) {
-    omegaxminus1 = (cplx*) malloc(sizeof(cplx) * N_Values._2N);
-    for (int32_t x=0; x<N_Values._2N; x++) {
-        omegaxminus1[x]=cplx(cos(x*M_PI/N_Values.N)-1., sin(x*M_PI/N_Values.N)); // instead of cos(x*M_PI/N)-1. + sin(x*M_PI/N) * 1i
-        //exp(i.x.pi/N)-1
-    }
-}
-
-FFT_Processor_nayuki::~FFT_Processor_nayuki() {
-    free(omegaxminus1);
-}
-

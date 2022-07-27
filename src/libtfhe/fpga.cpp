@@ -30,6 +30,10 @@ FPGA_Processor::FPGA_Processor() {
     printf("Finished loading FPGA kernels\n");
 }
 
+FPGA_Processor::~FPGA_Processor() {
+    free(omegaxminus1);
+}
+
 std::vector<cl::Device> FPGA_Processor::get_xilinx_devices() {
     size_t i;
     cl_int err;

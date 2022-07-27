@@ -15,13 +15,6 @@ typedef struct {
 
 static const N_Values_t N_Values = { 1024, 2*1024, 1024/2 };
 
-class FFT_Processor_nayuki {
-    public:
-    cplx* omegaxminus1;
-
-    FFT_Processor_nayuki(const int32_t N);
-    ~FFT_Processor_nayuki();
-};
 
 /** This structure represents an integer polynomial modulo X^N+1 */
 struct IntPolynomial {
@@ -50,8 +43,6 @@ struct TorusPolynomial {
 #endif
 };
 
-extern FFT_Processor_nayuki fp1024_nayuki;
-
 /**
  * This structure is used for FFT operations, and is a representation
  * over C of a polynomial in R[X]/X^N+1
@@ -67,7 +58,7 @@ extern FFT_Processor_nayuki fp1024_nayuki;
 struct LagrangeHalfCPolynomial
 {
    cplx* coefsC;
-   FFT_Processor_nayuki* proc;
+   void* precomp;
 
    LagrangeHalfCPolynomial(int32_t N);
    ~LagrangeHalfCPolynomial();
