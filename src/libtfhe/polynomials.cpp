@@ -246,6 +246,7 @@ EXPORT void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynom
     }
     check_conjugate_cplx(real_inout, imag_inout);
 }
+
 EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPolynomial* p) {
     cplx* res = result->coefsC;
     Torus32* a = p->coefsT;
@@ -265,8 +266,36 @@ EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPol
     for (int32_t i=0; i<N_Values.Ns2; i++) res[i]=cplx(real_inout[2*i+1],imag_inout[2*i+1]);
     check_conjugate_cplx(real_inout, imag_inout);
 }
+
 EXPORT void TorusPolynomial_fft(TorusPolynomial* result, const LagrangeHalfCPolynomial* p) {
-    fp1024_nayuki.execute_direct_torus32(result->coefsT, p->coefsC);
+    Torus32* res = result->coefsT;
+    cplx* a = p->coefsC;
+
+    double real_inout[N_Values._2N];
+    double imag_inout[N_Values._2N];
+
+    static const double _2p32 = double(INT64_C(1)<<32);
+    static const double _1sN = double(1)/double(N_Values.N);
+    //double* a_dbl=(double*) a;
+    for (int32_t i=0; i<N_Values.N; i++) real_inout[2*i]=0;
+    for (int32_t i=0; i<N_Values.N; i++) imag_inout[2*i]=0;
+    for (int32_t i=0; i<N_Values.Ns2; i++) real_inout[2*i+1]=real(a[i]);
+    for (int32_t i=0; i<N_Values.Ns2; i++) imag_inout[2*i+1]=imag(a[i]);
+    for (int32_t i=0; i<N_Values.Ns2; i++) real_inout[N_Values._2N-1-2*i]=real(a[i]);
+    for (int32_t i=0; i<N_Values.Ns2; i++) imag_inout[N_Values._2N-1-2*i]=-imag(a[i]);
+#ifndef NDEBUG
+    for (int32_t i=0; i<N_Values.N; i++) assert(real_inout[2*i]==0);
+    for (int32_t i=0; i<N_Values.N; i++) assert(imag_inout[2*i]==0);
+    for (int32_t i=0; i<N_Values.Ns2; i++) assert(real_inout[2*i+1]==real(a[i]));
+    for (int32_t i=0; i<N_Values.Ns2; i++) assert(imag_inout[2*i+1]==imag(a[i]));
+    for (int32_t i=0; i<N_Values.Ns2; i++) assert(real_inout[N_Values._2N-1-2*i]==real(a[i]));
+    for (int32_t i=0; i<N_Values.Ns2; i++) assert(imag_inout[N_Values._2N-1-2*i]==-imag(a[i]));
+    check_conjugate_cplx(real_inout, imag_inout);
+#endif
+    fft_transform(N_Values._2N, real_inout, imag_inout);
+    for (int32_t i=0; i<N_Values.N; i++) res[i]=Torus32(int64_t(real_inout[i]*_1sN*_2p32));
+    //pas besoin du fmod... Torus32(int64_t(fmod(rev_out[i]*_1sN,1.)*_2p32));
+    check_alternate_real(real_inout, imag_inout);
 }
 
 FFT_Processor_nayuki::FFT_Processor_nayuki(const int32_t N): _2N(2*N),N(N),Ns2(N/2) {
@@ -279,31 +308,6 @@ FFT_Processor_nayuki::FFT_Processor_nayuki(const int32_t N): _2N(2*N),N(N),Ns2(N
         omegaxminus1[x]=cplx(cos(x*M_PI/N)-1., sin(x*M_PI/N)); // instead of cos(x*M_PI/N)-1. + sin(x*M_PI/N) * 1i
         //exp(i.x.pi/N)-1
     }
-}
-
-void FFT_Processor_nayuki::execute_direct_torus32(Torus32* res, const cplx* a) {
-    static const double _2p32 = double(INT64_C(1)<<32);
-    static const double _1sN = double(1)/double(N);
-    //double* a_dbl=(double*) a;
-    for (int32_t i=0; i<N; i++) real_inout[2*i]=0;
-    for (int32_t i=0; i<N; i++) imag_inout[2*i]=0;
-    for (int32_t i=0; i<Ns2; i++) real_inout[2*i+1]=real(a[i]);
-    for (int32_t i=0; i<Ns2; i++) imag_inout[2*i+1]=imag(a[i]);
-    for (int32_t i=0; i<Ns2; i++) real_inout[_2N-1-2*i]=real(a[i]);
-    for (int32_t i=0; i<Ns2; i++) imag_inout[_2N-1-2*i]=-imag(a[i]);
-#ifndef NDEBUG
-    for (int32_t i=0; i<N; i++) assert(real_inout[2*i]==0);
-    for (int32_t i=0; i<N; i++) assert(imag_inout[2*i]==0);
-    for (int32_t i=0; i<Ns2; i++) assert(real_inout[2*i+1]==real(a[i]));
-    for (int32_t i=0; i<Ns2; i++) assert(imag_inout[2*i+1]==imag(a[i]));
-    for (int32_t i=0; i<Ns2; i++) assert(real_inout[_2N-1-2*i]==real(a[i]));
-    for (int32_t i=0; i<Ns2; i++) assert(imag_inout[_2N-1-2*i]==-imag(a[i]));
-    check_conjugate_cplx(real_inout, imag_inout);
-#endif
-    fft_transform(N_Values._2N, real_inout, imag_inout);
-    for (int32_t i=0; i<N; i++) res[i]=Torus32(int64_t(real_inout[i]*_1sN*_2p32));
-    //pas besoin du fmod... Torus32(int64_t(fmod(rev_out[i]*_1sN,1.)*_2p32));
-    check_alternate_real(real_inout, imag_inout);
 }
 
 FFT_Processor_nayuki::~FFT_Processor_nayuki() {

@@ -29,7 +29,6 @@ class FFT_Processor_nayuki {
     cplx* omegaxminus1;
 
     FFT_Processor_nayuki(const int32_t N);
-    void execute_direct_torus32(Torus32* res, const cplx* a);
     ~FFT_Processor_nayuki();
 };
 
