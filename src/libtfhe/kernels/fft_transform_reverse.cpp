@@ -73,7 +73,7 @@ extern "C" {
 		}
 
 		// Size 8 and larger merges (general)
-		double *trigtables = trig_tables;
+		double *trigtables = trig_table_reverse;
 		uint64_t size;
 		for (size = 8; size <= _2N; size <<= 1) {
 			uint64_t halfsize = size >> 1;

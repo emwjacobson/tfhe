@@ -67,3 +67,8 @@ xclbin: $(KERNEL_XO)
 
 %.xo: src/libtfhe/kernels/%.cpp
 	$(VPP) $(VPP_XO_FLAGS) -k $(basename $(notdir $<)) $< -o $@
+
+runtest: test xclbin
+	cp $(PROJECT_NAME).xclbin emconfig.json ./builddtests/test
+	./builddtests/test/test-bootstrapping-fft-fpga
+	./builddtests/test/test-gate-bootstrapping-fpga
