@@ -247,7 +247,23 @@ EXPORT void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynom
     check_conjugate_cplx(real_inout, imag_inout);
 }
 EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPolynomial* p) {
-    fp1024_nayuki.execute_reverse_torus32(result->coefsC, p->coefsT);
+    cplx* res = result->coefsC;
+    Torus32* a = p->coefsT;
+
+    double real_inout[N_Values._2N];
+    double imag_inout[N_Values._2N];
+
+    static const double _2pm33 = 1./double(INT64_C(1)<<33);
+    int32_t* aa = (int32_t*) a;
+    for (int32_t i=0; i<N_Values.N; i++) real_inout[i]=aa[i]*_2pm33;
+    for (int32_t i=0; i<N_Values.N; i++) real_inout[N_Values.N+i]=-real_inout[i];
+    for (int32_t i=0; i<N_Values._2N; i++) imag_inout[i]=0;
+    check_alternate_real(real_inout, imag_inout);
+
+    fft_transform_reverse(N_Values._2N, real_inout, imag_inout);
+
+    for (int32_t i=0; i<N_Values.Ns2; i++) res[i]=cplx(real_inout[2*i+1],imag_inout[2*i+1]);
+    check_conjugate_cplx(real_inout, imag_inout);
 }
 EXPORT void TorusPolynomial_fft(TorusPolynomial* result, const LagrangeHalfCPolynomial* p) {
     fp1024_nayuki.execute_direct_torus32(result->coefsT, p->coefsC);
@@ -263,22 +279,6 @@ FFT_Processor_nayuki::FFT_Processor_nayuki(const int32_t N): _2N(2*N),N(N),Ns2(N
         omegaxminus1[x]=cplx(cos(x*M_PI/N)-1., sin(x*M_PI/N)); // instead of cos(x*M_PI/N)-1. + sin(x*M_PI/N) * 1i
         //exp(i.x.pi/N)-1
     }
-
-
-}
-
-void FFT_Processor_nayuki::execute_reverse_torus32(cplx* res, const Torus32* a) {
-    static const double _2pm33 = 1./double(INT64_C(1)<<33);
-    int32_t* aa = (int32_t*) a;
-    for (int32_t i=0; i<N; i++) real_inout[i]=aa[i]*_2pm33;
-    for (int32_t i=0; i<N; i++) real_inout[N+i]=-real_inout[i];
-    for (int32_t i=0; i<_2N; i++) imag_inout[i]=0;
-    check_alternate_real(real_inout, imag_inout);
-
-    fft_transform_reverse(_2N, real_inout, imag_inout);
-
-    for (int32_t i=0; i<Ns2; i++) res[i]=cplx(real_inout[2*i+1],imag_inout[2*i+1]);
-    check_conjugate_cplx(real_inout, imag_inout);
 }
 
 void FFT_Processor_nayuki::execute_direct_torus32(Torus32* res, const cplx* a) {
