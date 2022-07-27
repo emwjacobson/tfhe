@@ -4,7 +4,6 @@
 ///@file
 ///@brief This file declares only the structures names
 #include <stdint.h>
-#include <fpga.h>
 
 #define EXPORT extern "C"
 #include "tfhe_generic_templates.h"

@@ -2,10 +2,18 @@
 #include <unistd.h>
 #include <fstream>
 #include "fpga.h"
+#include "tfhe_core.h"
+#include "polynomials.h"
 
 FPGA_Processor fpga;
 
 FPGA_Processor::FPGA_Processor() {
+    omegaxminus1 = (cplx*) malloc(sizeof(cplx) * N_Values._2N);
+    for (int32_t x=0; x<N_Values._2N; x++) {
+        omegaxminus1[x]=cplx(cos(x*M_PI/N_Values.N)-1., sin(x*M_PI/N_Values.N)); // instead of cos(x*M_PI/N)-1. + sin(x*M_PI/N) * 1i
+        //exp(i.x.pi/N)-1
+    }
+
     // Initialize OpenCL Environment
     cl_int err;
     unsigned fileBufSize;

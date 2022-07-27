@@ -8,6 +8,7 @@
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 
 #include <CL/cl2.hpp>
+#include "tfhe_core.h"
 
 class FPGA_Processor {
 public:
@@ -16,6 +17,8 @@ public:
   cl::CommandQueue q;
   cl::Kernel k_fft_transform_reverse;
   cl::Kernel k_fft_transform;
+
+  cplx* omegaxminus1;
 
 private:
   std::vector<cl::Device> get_xilinx_devices();

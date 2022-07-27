@@ -28,6 +28,7 @@
 #include <string.h>
 #include "fft.h"
 #include "tfhe_core.h"
+#include "fpga.h"
 
 // M_PI isn't defined with C99 for whatever reason
 #ifndef M_PI
