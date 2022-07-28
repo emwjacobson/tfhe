@@ -14,9 +14,9 @@ EXPORT void init_LagrangeHalfCPolynomial(LagrangeHalfCPolynomial* obj, const int
 //(equivalent of the C++ destructor)
 EXPORT void destroy_LagrangeHalfCPolynomial(LagrangeHalfCPolynomial* obj);
 
-void check_alternate_real(const double *real_inout, const double *imag_inout);
-
-void check_conjugate_cplx(const double *real_inout, const double *imag_inout);
+// Removed for HLS https://docs.xilinx.com/r/en-US/ug1399-vitis-hls/Assertions
+// void check_alternate_real(const double *real_inout, const double *imag_inout);
+// void check_conjugate_cplx(const double *real_inout, const double *imag_inout);
 
 /**
  * FFT functions
