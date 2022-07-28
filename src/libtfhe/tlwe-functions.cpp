@@ -72,7 +72,7 @@ EXPORT void tLwePhase(TorusPolynomial *phase, const TLweSample *sample, const TL
 
 
 /**
- * This function computes the approximation of the phase 
+ * This function computes the approximation of the phase
  * à revoir, surtout le Msize
  */
 EXPORT void tLweApproxPhase(TorusPolynomial *message, const TorusPolynomial *phase, int32_t Msize, int32_t N) {
@@ -89,7 +89,7 @@ EXPORT void tLweSymDecrypt(TorusPolynomial *result, const TLweSample *sample, co
 
 
 EXPORT Torus32 tLweSymDecryptT(const TLweSample *sample, const TLweKey *key, int32_t Msize) {
-    TorusPolynomial *phase = new_TorusPolynomial(key->params->N);
+    TorusPolynomial *phase = new_TorusPolynomial();
 
     tLwePhase(phase, sample, key);
     Torus32 result = approxPhase(phase->coefsT[0], Msize);

@@ -6,7 +6,7 @@
 
 namespace {
 
-    // Fake TLWE structure 
+    // Fake TLWE structure
     struct FakeTLweFFT {
         //TODO: parallelization
         static const int32_t FAKE_TYPE_UID = 816458235; // precaution: distinguish fakes from trues
@@ -19,7 +19,7 @@ namespace {
 
         // construct
         FakeTLweFFT(int32_t N) : fake_uid(FAKE_TYPE_UID) {
-            message = new_TorusPolynomial(N);
+            message = new_TorusPolynomial();
             current_variance = 0.;
         }
 
@@ -40,7 +40,7 @@ namespace {
     //TODO: parallelization
     static_assert(sizeof(FakeTLweFFT) == sizeof(TLweSampleFFT), "Error: Size is not correct");
 
-    // fake functons 
+    // fake functons
     inline FakeTLweFFT *fake(TLweSampleFFT *sample) {
         FakeTLweFFT *reps = (FakeTLweFFT *) sample;
         if (reps->fake_uid != FakeTLweFFT::FAKE_TYPE_UID) abort();
@@ -78,7 +78,7 @@ namespace {
         free(arr);
     }
 
-    // 
+    //
 #define USE_FAKE_delete_TLweSampleFFT_array \
     inline void delete_TLweSampleFFT_array(int32_t nbelts, TLweSampleFFT* samples) { \
     fake_delete_TLweSampleFFT_array(nbelts,samples); \
@@ -92,7 +92,7 @@ namespace {
         return (TLweSampleFFT *) reps;
     }
 
-    // 
+    //
 #define USE_FAKE_new_TLweSampleFFT \
     inline TLweSampleFFT* new_TLweSampleFFT(const TLweParams* params) { \
     return fake_new_TLweSampleFFT(params); \
@@ -104,7 +104,7 @@ namespace {
         free(ptr);
     }
 
-    // 
+    //
 #define USE_FAKE_delete_TLweSampleFFT \
     inline void delete_TLweSampleFFT(TLweSampleFFT* sample) { \
     fake_delete_TLweSampleFFT(sample); \

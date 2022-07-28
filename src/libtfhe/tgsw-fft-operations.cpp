@@ -172,8 +172,8 @@ EXPORT void tfhe_bootstrapFFT(LweSample* result, const LweBootstrappingKeyFFT* b
 
 
     // Set the test vector (aa + aaX + ... + aaX^{N/2-1} -aaX^{N/2} - ... -aaX^{N-1})*X^{b}
-    TorusPolynomial* testvect=new_TorusPolynomial(N);
-    TorusPolynomial* testvectbis=new_TorusPolynomial(N);
+    TorusPolynomial* testvect=new_TorusPolynomial();
+    TorusPolynomial* testvectbis=new_TorusPolynomial();
 
     int32_t barb=modSwitchFromTorus32(x->b,Nx2);
     //je definis le test vector (multiplié par a inclus !
@@ -198,7 +198,7 @@ EXPORT void tfhe_bootstrapFFT(LweSample* result, const LweBootstrappingKeyFFT* b
     // Blind rotation
 //NICOLAS: j'ai ajouté ce bloc
 #ifndef NDEBUG
-    TorusPolynomial* phase = new_TorusPolynomial(N);
+    TorusPolynomial* phase = new_TorusPolynomial();
     int32_t correctOffset = barb;
     cout << "starting the test..." << endl;
 #endif

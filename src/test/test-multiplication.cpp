@@ -27,10 +27,10 @@ int32_t main(int32_t argc, char **argv) {
 
     const int32_t N = 1024;
     IntPolynomial *a = new_IntPolynomial();
-    TorusPolynomial *b = new_TorusPolynomial(N);
-    TorusPolynomial *resNaive = new_TorusPolynomial(N);
-    TorusPolynomial *resFFT = new_TorusPolynomial(N);
-    TorusPolynomial *resKaratsuba = new_TorusPolynomial(N);
+    TorusPolynomial *b = new_TorusPolynomial();
+    TorusPolynomial *resNaive = new_TorusPolynomial();
+    TorusPolynomial *resFFT = new_TorusPolynomial();
+    TorusPolynomial *resKaratsuba = new_TorusPolynomial();
     //LagrangeHalfCPolynomial* test_fft = new_LagrangeHalfCPolynomial(N);
 
     double cycles_naive[count];

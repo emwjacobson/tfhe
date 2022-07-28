@@ -113,7 +113,7 @@ namespace {
                                       const TGswParams *bk_params) {
 
         FakeTLwe *facc = fake(accum);
-        TorusPolynomial *temp = new_TorusPolynomial(bk_params->tlwe_params->N);
+        TorusPolynomial *temp = new_TorusPolynomial();
 
         int32_t offset = 0;
         for (int32_t i = 0; i < n; i++) {
@@ -257,7 +257,7 @@ static inline void tfhe_bootstrap(LweSample *result, const LweBootstrappingKey *
         const int32_t Nx2 = 2 * N;
         const int32_t n = in_params->n;
 
-        TorusPolynomial *testvect = new_TorusPolynomial(N);
+        TorusPolynomial *testvect = new_TorusPolynomial();
         int32_t *bara = new int32_t[N];
         //LweSample* u = new_LweSample(extract_params);
 

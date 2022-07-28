@@ -236,10 +236,9 @@ namespace {
 
     //ligne 5 algo,mult externe
     inline void fake_tGswExternMulToTLwe(TLweSample *accum, const TGswSample *sample, const TGswParams *params) {
-        const int32_t N = params->tlwe_params->N;
         const FakeTGsw *fgsw = fake(sample);
         const FakeTLwe *faccum = fake(accum);
-        TorusPolynomial *tmp = new_TorusPolynomial(N);
+        TorusPolynomial *tmp = new_TorusPolynomial();
         torusPolynomialMultKaratsuba(tmp, fgsw->message, faccum->message);
         torusPolynomialCopy(faccum->message, tmp);
         delete_TorusPolynomial(tmp);

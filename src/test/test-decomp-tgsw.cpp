@@ -60,7 +60,7 @@ int32_t main(int32_t argc, char **argv) {
 
 
     //MESSAGE RLwe
-    TorusPolynomial *muB = new_TorusPolynomial(N);
+    TorusPolynomial *muB = new_TorusPolynomial();
 
     //test decompH
     cout << "Test decompH on TorusPolynomial" << endl;
@@ -93,9 +93,9 @@ int32_t main(int32_t argc, char **argv) {
     }
     // PHASE, DECRYPTION
     IntPolynomial *dechifA = new_IntPolynomial();
-    TorusPolynomial *dechifB = new_TorusPolynomial(N);
-    TorusPolynomial *dechifAB = new_TorusPolynomial(N);
-    TorusPolynomial *muAB = new_TorusPolynomial(N);
+    TorusPolynomial *dechifB = new_TorusPolynomial();
+    TorusPolynomial *dechifAB = new_TorusPolynomial();
+    TorusPolynomial *muAB = new_TorusPolynomial();
 
 
     tGswKeyGen(rgsw_key); // KEY GENERATION

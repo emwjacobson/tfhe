@@ -102,7 +102,7 @@ EXPORT void tfhe_blindRotateAndExtract(LweSample *result,
     const int32_t N = accum_params->N;
     const int32_t _2N = 2 * N;
 
-    TorusPolynomial *testvectbis = new_TorusPolynomial(N);
+    TorusPolynomial *testvectbis = new_TorusPolynomial();
     TLweSample *acc = new_TLweSample(accum_params);
 
     if (barb != 0) torusPolynomialMulByXai(testvectbis, _2N - barb, v);
@@ -137,7 +137,7 @@ EXPORT void tfhe_bootstrap_woKS(LweSample *result,
     const int32_t Nx2 = 2 * N;
     const int32_t n = in_params->n;
 
-    TorusPolynomial *testvect = new_TorusPolynomial(N);
+    TorusPolynomial *testvect = new_TorusPolynomial();
     int32_t *bara = new int32_t[N];
 
     int32_t barb = modSwitchFromTorus32(x->b, Nx2);

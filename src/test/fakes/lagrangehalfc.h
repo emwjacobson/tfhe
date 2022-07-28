@@ -38,7 +38,7 @@ namespace {
             if (isInt == 1) abort(); //should not mix int32_t/torus
             if (isInt == -1) {
                 isInt = 0;
-                value.as_torusPolynomial = new_TorusPolynomial(p->N);
+                value.as_torusPolynomial = new_TorusPolynomial();
             }
             if (p != 0)
                 torusPolynomialCopy(value.as_torusPolynomial, p);
@@ -197,7 +197,7 @@ namespace {
         const FakeLagrangeHalfCPolynomial *fb = fake(b);
         FakeLagrangeHalfCPolynomial *facc = fake(accum);
 
-        TorusPolynomial *tmp = new_TorusPolynomial(1024); // TODO: This is hard coded to 1024 to match Value_N
+        TorusPolynomial *tmp = new_TorusPolynomial();
         torusPolynomialMultKaratsuba(tmp, fa->getIntPolynomialPtr(), fb->getTorusPolynomialPtr());
         torusPolynomialAddTo(facc->getTorusPolynomialPtr(), tmp);
 

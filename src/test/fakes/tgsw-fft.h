@@ -191,10 +191,9 @@ namespace {
 
     // External product (*): accum = gsw (*) accum
     inline void fake_tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, const TGswParams *params) {
-        const int32_t N = params->tlwe_params->N;
         const FakeTGswFFT *fgsw = fake(gsw);
         const FakeTLwe *faccum = fake(accum);
-        TorusPolynomial *tmp = new_TorusPolynomial(N);
+        TorusPolynomial *tmp = new_TorusPolynomial();
         torusPolynomialMultKaratsuba(tmp, fgsw->message, faccum->message);
         torusPolynomialCopy(faccum->message, tmp);
         delete_TorusPolynomial(tmp);

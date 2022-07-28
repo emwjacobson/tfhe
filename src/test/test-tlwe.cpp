@@ -50,15 +50,15 @@ int32_t main(int32_t argc, char **argv) {
     cout << "-------------" << endl;
 
     //MESSAGE
-    TorusPolynomial *mu = new_TorusPolynomial(N);
+    TorusPolynomial *mu = new_TorusPolynomial();
     for (int32_t i = 0; i < N; ++i) {
         int32_t temp = distribution(generator);
         mu->coefsT[i] = modSwitchToTorus32(temp, Msize);
         //cout << mu->coefsT[i] << endl;
     }
     // PHASE, DECRYPTION
-    TorusPolynomial *phi = new_TorusPolynomial(N);
-    TorusPolynomial *dechif = new_TorusPolynomial(N);
+    TorusPolynomial *phi = new_TorusPolynomial();
+    TorusPolynomial *dechif = new_TorusPolynomial();
 
 
     tLweKeyGen(key); // KEY GENERATION
@@ -74,7 +74,7 @@ int32_t main(int32_t argc, char **argv) {
     cout << "----------------------" << endl;
 
 
-    TorusPolynomial *phiT = new_TorusPolynomial(N);
+    TorusPolynomial *phiT = new_TorusPolynomial();
 
     for (int32_t trial = 1; trial < 1000; trial++) {
         Torus32 muT = modSwitchToTorus32(distribution(generator), Msize);
@@ -122,12 +122,12 @@ int32_t main(int32_t argc, char **argv) {
     TLweSample *cipher1 = new_TLweSample(params);
 
     // MESSAGES
-    TorusPolynomial *mu0 = new_TorusPolynomial(N);
+    TorusPolynomial *mu0 = new_TorusPolynomial();
     for (int32_t i = 0; i < N; ++i) {
         int32_t temp = distribution(generator);
         mu0->coefsT[i] = modSwitchToTorus32(temp, Msize);
     }
-    TorusPolynomial *mu1 = new_TorusPolynomial(N);
+    TorusPolynomial *mu1 = new_TorusPolynomial();
     for (int32_t i = 0; i < N; ++i) {
         int32_t temp = distribution(generator);
         mu1->coefsT[i] = modSwitchToTorus32(temp, Msize);

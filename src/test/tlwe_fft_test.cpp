@@ -59,7 +59,7 @@ namespace {
 
         inline void tlweSampleFFTUniform(TLweSampleFFT *sample, const TLweParams *params) {
             FakeLagrangeHalfCPolynomial *samplea = fake(sample->a);
-            TorusPolynomial *tmp = new_TorusPolynomial(params->N);
+            TorusPolynomial *tmp = new_TorusPolynomial();
             for (int32_t i = 0; i <= params->k; i++) {
                 torusPolynomialUniform(tmp);
                 samplea[i].set_torusPolynomial(tmp);
@@ -143,7 +143,7 @@ namespace {
             const int32_t k = params->k;
             TLweSampleFFT *result = new_TLweSampleFFT(params);
             FakeLagrangeHalfCPolynomial *resulta = fake(result->a);
-            TorusPolynomial *zero = new_TorusPolynomial(params->N);
+            TorusPolynomial *zero = new_TorusPolynomial();
             torusPolynomialClear(zero);
 
             tlweSampleFFTUniform(result, params);
@@ -177,7 +177,7 @@ namespace {
             intLagrangeHalfCPolynomialUniform(p, N);
 
             //copy the initial sample
-            TorusPolynomial *tmp = new_TorusPolynomial_array(k + 1, N);
+            TorusPolynomial *tmp = new_TorusPolynomial_array(k + 1);
             for (int32_t i = 0; i <= k; i++) {
                 torusPolynomialCopy(tmp + i, resulta[i].getTorusPolynomialPtr());
             }

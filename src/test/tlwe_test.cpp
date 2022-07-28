@@ -160,7 +160,7 @@ namespace {
             const int32_t N = params->N;
             const int32_t k = params->k;
             TLweSample *samples = new_TLweSample_array(NB_SAMPLES, params);
-            TorusPolynomial *phase = new_TorusPolynomial(N);
+            TorusPolynomial *phase = new_TorusPolynomial();
             Torus32 decrypt;
 
             //verify correctness of the decryption
@@ -227,10 +227,10 @@ namespace {
             const int32_t N = params->N;
             const int32_t k = params->k;
             TLweSample *samples = new_TLweSample_array(NB_SAMPLES, params);
-            TorusPolynomial *message = new_TorusPolynomial(N);
-            TorusPolynomial *phase = new_TorusPolynomial(N);
-            TorusPolynomial *approxphase = new_TorusPolynomial(N);
-            TorusPolynomial *decrypt = new_TorusPolynomial(N);
+            TorusPolynomial *message = new_TorusPolynomial();
+            TorusPolynomial *phase = new_TorusPolynomial();
+            TorusPolynomial *approxphase = new_TorusPolynomial();
+            TorusPolynomial *decrypt = new_TorusPolynomial();
 
             //verify correctness of the decryption
             for (int32_t trial = 0; trial < NB_SAMPLES; trial++) {
@@ -373,7 +373,7 @@ namespace {
             const int32_t N = params->N;
             const int32_t k = params->k;
 
-            TorusPolynomial *message = new_TorusPolynomial(N);
+            TorusPolynomial *message = new_TorusPolynomial();
             for (int32_t j = 0; j < N; ++j)
                 message->coefsT[j] = uniformTorus32_distrib(generator);
             TLweSample *sample = new_TLweSample(params);

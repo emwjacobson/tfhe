@@ -80,11 +80,11 @@ inline void fake_tfhe_createLweBootstrappingKeyFFT(LweBootstrappingKeyFFT* bkFFT
     const FakeLweBootstrappingKey* fbk = fake(bk);
     FakeLweKeySwitchKey* fksFFT = fake(bkFFT->ks);
     const FakeLweKeySwitchKey* fks = fake(bk->ks);
-    
+
     assert(fbkFFT->bk_params == fbk->bk_params);
     assert(fbkFFT->in_out_params == fbk->in_out_params);
 
-    const LweParams* in_out_params = fbkFFT->in_out_params; 
+    const LweParams* in_out_params = fbkFFT->in_out_params;
     const int32_t n = in_out_params->n;
     const TGswParams* bk_params = fbkFFT->bk_params;
 
@@ -109,7 +109,7 @@ inline void fake_tfhe_createLweBootstrappingKeyFFT(LweBootstrappingKeyFFT* bkFFT
                                           const TGswParams *bk_params) {
 
         FakeTLwe *facc = fake(accum);
-        TorusPolynomial *temp = new_TorusPolynomial(bk_params->tlwe_params->N);
+        TorusPolynomial *temp = new_TorusPolynomial();
 
         int32_t offset = 0;
         for (int32_t i = 0; i < n; i++) {
@@ -252,7 +252,7 @@ inline void fake_tfhe_createLweBootstrappingKeyFFT(LweBootstrappingKeyFFT* bkFFT
         const int32_t Nx2 = 2 * N;
         const int32_t n = in_params->n;
 
-        TorusPolynomial *testvect = new_TorusPolynomial(N);
+        TorusPolynomial *testvect = new_TorusPolynomial();
         int32_t *bara = new int32_t[N];
         //LweSample* u = new_LweSample(extract_params);
 

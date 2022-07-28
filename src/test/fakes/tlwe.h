@@ -5,12 +5,12 @@
 
 
 /* **************************
-Fakes for TLWE 
+Fakes for TLWE
 ************************** */
 
 namespace {
 
-    // Fake TLWE structure 
+    // Fake TLWE structure
     struct FakeTLwe {
         //TODO: parallelization
         static const int32_t FAKE_TLWE_UID = 542354312; // precaution: distinguish fakes from trues
@@ -23,7 +23,7 @@ namespace {
 
         // construct
         FakeTLwe(int32_t N) : fake_uid(FAKE_TLWE_UID) {
-            message = new_TorusPolynomial(N);
+            message = new_TorusPolynomial();
             current_variance = 0.;
         }
 
@@ -45,7 +45,7 @@ namespace {
     //TODO: parallelization
     static_assert(sizeof(FakeTLwe) == sizeof(TLweSample), "Error: Size is not correct");
 
-    // fake functons 
+    // fake functons
     inline FakeTLwe *fake(TLweSample *sample) {
         FakeTLwe *reps = (FakeTLwe *) sample;
         if (reps->fake_uid != FakeTLwe::FAKE_TLWE_UID) abort();
@@ -63,13 +63,13 @@ namespace {
     inline TLweSample *fake_new_TLweSample_array(int32_t nbelts, const TLweParams *params) {
         int32_t N = params->N;
         //TLweSample* arr = (TLweSample*) malloc(nbelts*sizeof(TLweSample));
-        //for (int32_t i=0; i<nbelts; i++) new(arr+i) FakeTLwe(N); 
+        //for (int32_t i=0; i<nbelts; i++) new(arr+i) FakeTLwe(N);
         FakeTLwe *arr = (FakeTLwe *) malloc(nbelts * sizeof(FakeTLwe));
         for (int32_t i = 0; i < nbelts; i++) new(arr + i) FakeTLwe(N);
         return (TLweSample *) arr;
     }
 
-    // 
+    //
 #define USE_FAKE_new_TLweSample_array \
     inline TLweSample* new_TLweSample_array(int32_t nbelts, const TLweParams* params) { \
         return fake_new_TLweSample_array(nbelts,params); \
@@ -81,7 +81,7 @@ namespace {
         free(arr);
     }
 
-    // 
+    //
 #define USE_FAKE_delete_TLweSample_array \
     inline void delete_TLweSample_array(int32_t nbelts, TLweSample* samples) { \
         fake_delete_TLweSample_array(nbelts,samples); \
@@ -97,7 +97,7 @@ namespace {
         return (TLweSample *) reps;
     }
 
-    // 
+    //
 #define USE_FAKE_new_TLweSample \
     inline TLweSample* new_TLweSample(const TLweParams* params) { \
         return fake_new_TLweSample(params); \
@@ -109,7 +109,7 @@ namespace {
         free(ptr);
     }
 
-    // 
+    //
 #define USE_FAKE_delete_TLweSample \
     inline void delete_TLweSample(TLweSample* sample) { \
         fake_delete_TLweSample(sample); \
@@ -330,7 +330,7 @@ namespace {
     fake_tLweAddMulRTo(TLweSample *result, const IntPolynomial *p, const TLweSample *sample, const TLweParams *params) {
         const FakeTLwe *fsamp = fake(sample);
         FakeTLwe *fres = fake(result);
-        TorusPolynomial *tmp = new_TorusPolynomial(params->N);
+        TorusPolynomial *tmp = new_TorusPolynomial();
 
         torusPolynomialMultKaratsuba(tmp, p, fsamp->message);
         torusPolynomialAddTo(fres->message, tmp);

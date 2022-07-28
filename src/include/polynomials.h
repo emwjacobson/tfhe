@@ -19,15 +19,7 @@ struct IntPolynomial {
 
 /** This structure represents an torus polynomial modulo X^N+1 */
 struct TorusPolynomial {
-   const int32_t N;
-   Torus32* coefsT;
-
-#ifdef __cplusplus
-   TorusPolynomial(const int32_t N);
-   ~TorusPolynomial();
-   TorusPolynomial(const TorusPolynomial&) = delete; //forbidden
-   TorusPolynomial* operator=(const TorusPolynomial&) = delete; //forbidden
-#endif
+   Torus32 coefsT[Value_N];
 };
 
 /**
@@ -86,8 +78,8 @@ EXPORT void free_TorusPolynomial_array(int32_t nbelts, TorusPolynomial* ptr);
 
 //initialize the TorusPolynomial structure
 //(equivalent of the C++ constructor)
-EXPORT void init_TorusPolynomial(TorusPolynomial* obj, const int32_t N);
-EXPORT void init_TorusPolynomial_array(int32_t nbelts, TorusPolynomial* obj, const int32_t N);
+EXPORT void init_TorusPolynomial(TorusPolynomial* obj);
+EXPORT void init_TorusPolynomial_array(int32_t nbelts, TorusPolynomial* obj);
 
 //destroys the TorusPolynomial structure
 //(equivalent of the C++ destructor)
@@ -96,8 +88,8 @@ EXPORT void destroy_TorusPolynomial_array(int32_t nbelts, TorusPolynomial* obj);
 
 //allocates and initialize the TorusPolynomial structure
 //(equivalent of the C++ new)
-EXPORT TorusPolynomial* new_TorusPolynomial(const int32_t N);
-EXPORT TorusPolynomial* new_TorusPolynomial_array(int32_t nbelts, const int32_t N);
+EXPORT TorusPolynomial* new_TorusPolynomial();
+EXPORT TorusPolynomial* new_TorusPolynomial_array(int32_t nbelts);
 
 //destroys and frees the TorusPolynomial structure
 //(equivalent of the C++ delete)

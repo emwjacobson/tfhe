@@ -9,16 +9,6 @@
 using namespace std;
 
 
-TorusPolynomial::TorusPolynomial(const int32_t N): N(N)
-{
-    this->coefsT = new Torus32[N];
-}
-
-TorusPolynomial::~TorusPolynomial() {
-    delete[] coefsT;
-}
-
-
 void torusPolynomialMultNaive_plain_aux(Torus32* __restrict result, const int32_t* __restrict poly1, const Torus32* __restrict poly2, const int32_t N) {
     const int32_t _2Nm1 = 2*N-1;
     Torus32 ri;

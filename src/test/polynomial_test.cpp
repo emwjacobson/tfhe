@@ -24,7 +24,7 @@ namespace {
         //TODO: parallelization
         static const int32_t NB_TRIALS = 10;
         for (int32_t N: dimensions) {
-            TorusPolynomial *pols = new_TorusPolynomial_array(NB_TRIALS, N);
+            TorusPolynomial *pols = new_TorusPolynomial_array(NB_TRIALS);
             for (int32_t i = 0; i < NB_TRIALS; i++) {
                 torusPolynomialUniform(pols + i);
             }
@@ -44,7 +44,7 @@ namespace {
     //EXPORT void torusPolynomialClear(TorusPolynomial* result);
     TEST_F(PolynomialTest, torusPolynomialClear) {
         for (int32_t N: dimensions) {
-            TorusPolynomial *pol = new_TorusPolynomial(N);
+            TorusPolynomial *pol = new_TorusPolynomial();
             torusPolynomialUniform(pol);
             torusPolynomialClear(pol);
             for (int32_t j = 0; j < N; j++) {
@@ -59,8 +59,8 @@ namespace {
     //EXPORT void torusPolynomialCopy(TorusPolynomial* result, const TorusPolynomial*  sample);
     TEST_F(PolynomialTest, torusPolynomialCopy) {
         for (int32_t N: dimensions) {
-            TorusPolynomial *pol = new_TorusPolynomial(N);
-            TorusPolynomial *polc = new_TorusPolynomial(N);
+            TorusPolynomial *pol = new_TorusPolynomial();
+            TorusPolynomial *polc = new_TorusPolynomial();
             torusPolynomialUniform(pol);
             torusPolynomialUniform(polc);
             Torus32 pol0 = pol->coefsT[0];
@@ -83,7 +83,7 @@ namespace {
     //EXPORT void torusPolynomialAdd(TorusPolynomial* result, const TorusPolynomial* poly1, const TorusPolynomial* poly2);
     TEST_F(PolynomialTest, torusPolynomialAdd) {
         for (int32_t N: dimensions) {
-            TorusPolynomial *pols = new_TorusPolynomial_array(5, N);
+            TorusPolynomial *pols = new_TorusPolynomial_array(5);
             TorusPolynomial *pola = pols + 0;
             TorusPolynomial *polacopy = pols + 1;
             TorusPolynomial *polb = pols + 2;
@@ -108,7 +108,7 @@ namespace {
     //EXPORT void torusPolynomialAddTo(TorusPolynomial* result, const TorusPolynomial* poly2);
     TEST_F(PolynomialTest, torusPolynomialAddTo) {
         for (int32_t N: dimensions) {
-            TorusPolynomial *pols = new_TorusPolynomial_array(4, N);
+            TorusPolynomial *pols = new_TorusPolynomial_array(4);
             TorusPolynomial *pola = pols + 0;
             TorusPolynomial *polacopy = pols + 1;
             TorusPolynomial *polb = pols + 2;
@@ -131,7 +131,7 @@ namespace {
     //EXPORT void torusPolynomialSub(TorusPolynomial* result, const TorusPolynomial* poly1, const TorusPolynomial* poly2);
     TEST_F(PolynomialTest, torusPolynomialSub) {
         for (int32_t N: dimensions) {
-            TorusPolynomial *pols = new_TorusPolynomial_array(5, N);
+            TorusPolynomial *pols = new_TorusPolynomial_array(5);
             TorusPolynomial *pola = pols + 0;
             TorusPolynomial *polacopy = pols + 1;
             TorusPolynomial *polb = pols + 2;
@@ -156,7 +156,7 @@ namespace {
     //EXPORT void torusPolynomialSubTo(TorusPolynomial* result, const TorusPolynomial* poly2);
     TEST_F(PolynomialTest, torusPolynomialSubTo) {
         for (int32_t N: dimensions) {
-            TorusPolynomial *pols = new_TorusPolynomial_array(4, N);
+            TorusPolynomial *pols = new_TorusPolynomial_array(4);
             TorusPolynomial *pola = pols + 0;
             TorusPolynomial *polacopy = pols + 1;
             TorusPolynomial *polb = pols + 2;
@@ -181,7 +181,7 @@ namespace {
         //TODO: parallelization
         static const int32_t p = uniformTorus32_distrib(generator);
         for (int32_t N: dimensions) {
-            TorusPolynomial *pols = new_TorusPolynomial_array(5, N);
+            TorusPolynomial *pols = new_TorusPolynomial_array(5);
             TorusPolynomial *pola = pols + 0;
             TorusPolynomial *polacopy = pols + 1;
             TorusPolynomial *polb = pols + 2;
@@ -208,7 +208,7 @@ namespace {
         //TODO: parallelization
         static const int32_t p = uniformTorus32_distrib(generator);
         for (int32_t N: dimensions) {
-            TorusPolynomial *pols = new_TorusPolynomial_array(4, N);
+            TorusPolynomial *pols = new_TorusPolynomial_array(4);
             TorusPolynomial *pola = pols + 0;
             TorusPolynomial *polacopy = pols + 1;
             TorusPolynomial *polb = pols + 2;
@@ -233,7 +233,7 @@ namespace {
         //TODO: parallelization
         static const int32_t p = uniformTorus32_distrib(generator);
         for (int32_t N: dimensions) {
-            TorusPolynomial *pols = new_TorusPolynomial_array(5, N);
+            TorusPolynomial *pols = new_TorusPolynomial_array(5);
             TorusPolynomial *pola = pols + 0;
             TorusPolynomial *polacopy = pols + 1;
             TorusPolynomial *polb = pols + 2;
@@ -260,7 +260,7 @@ namespace {
         //TODO: parallelization
         static const int32_t p = uniformTorus32_distrib(generator);
         for (int32_t N: dimensions) {
-            TorusPolynomial *pols = new_TorusPolynomial_array(4, N);
+            TorusPolynomial *pols = new_TorusPolynomial_array(4);
             TorusPolynomial *pola = pols + 0;
             TorusPolynomial *polacopy = pols + 1;
             TorusPolynomial *polb = pols + 2;
@@ -309,7 +309,7 @@ namespace {
                 //TODO: parallelization
                 static const int32_t a = (uniformTorus32_distrib(generator) % 1000000) - 500000;
                 static const int32_t ai = ((a % (2 * N)) + (2 * N)) % (2 * N);
-                TorusPolynomial *pols = new_TorusPolynomial_array(3, N);
+                TorusPolynomial *pols = new_TorusPolynomial_array(3);
                 TorusPolynomial *pola = pols + 0;
                 TorusPolynomial *polacopy = pols + 1;
                 TorusPolynomial *polb = pols + 2;
@@ -369,7 +369,7 @@ namespace {
                 //TODO: parallelization
                 static const int32_t a = (uniformTorus32_distrib(generator) % 1000000) - 500000;
                 static const int32_t ai = ((a % (2 * N)) + (2 * N)) % (2 * N);
-                TorusPolynomial *pols = new_TorusPolynomial_array(3, N);
+                TorusPolynomial *pols = new_TorusPolynomial_array(3);
                 TorusPolynomial *pola = pols + 0;
                 TorusPolynomial *polacopy = pols + 1;
                 TorusPolynomial *polb = pols + 2;
@@ -425,7 +425,7 @@ namespace {
         static const int32_t NB_TRIALS = 5;
         for (int32_t N: dimensions) {
             IntPolynomial *ipols = new_IntPolynomial_array(2);
-            TorusPolynomial *tpols = new_TorusPolynomial_array(3, N);
+            TorusPolynomial *tpols = new_TorusPolynomial_array(3);
             IntPolynomial *a = ipols + 0;
             IntPolynomial *acopy = ipols + 1;
             TorusPolynomial *b = tpols + 0;
@@ -462,7 +462,7 @@ namespace {
         static const int32_t NB_TRIALS = 5;
         for (int32_t N: powers_of_two_dimensions) {
             IntPolynomial *ipols = new_IntPolynomial_array(2);
-            TorusPolynomial *tpols = new_TorusPolynomial_array(3, N);
+            TorusPolynomial *tpols = new_TorusPolynomial_array(3);
             IntPolynomial *a = ipols + 0;
             IntPolynomial *acopy = ipols + 1;
             TorusPolynomial *b = tpols + 0;
@@ -499,7 +499,7 @@ namespace {
         static const int32_t NB_TRIALS = 5;
         for (int32_t N: powers_of_two_dimensions) {
             IntPolynomial *ipols = new_IntPolynomial_array(2);
-            TorusPolynomial *tpols = new_TorusPolynomial_array(4, N);
+            TorusPolynomial *tpols = new_TorusPolynomial_array(4);
             IntPolynomial *a = ipols + 0;
             IntPolynomial *acopy = ipols + 1;
             TorusPolynomial *b = tpols + 0;
@@ -538,7 +538,7 @@ namespace {
         static const int32_t NB_TRIALS = 5;
         for (int32_t N: powers_of_two_dimensions) {
             IntPolynomial *ipols = new_IntPolynomial_array(2);
-            TorusPolynomial *tpols = new_TorusPolynomial_array(4, N);
+            TorusPolynomial *tpols = new_TorusPolynomial_array(4);
             IntPolynomial *a = ipols + 0;
             IntPolynomial *acopy = ipols + 1;
             TorusPolynomial *b = tpols + 0;

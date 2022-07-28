@@ -221,10 +221,9 @@ namespace {
     TEST_F(TGswFFTTest, tGswFFTClear) {
         for (const TGswParams *params: all_params) {
             const int32_t kpl = params->kpl;
-            const int32_t N = params->tlwe_params->N;
             TGswSampleFFT *result = new_TGswSampleFFT(params);
             FakeTLweFFT *fr = fake(result->all_samples);
-            TorusPolynomial *zero = new_TorusPolynomial(N);
+            TorusPolynomial *zero = new_TorusPolynomial();
 
             torusPolynomialClear(zero);
             tGswSampleFFTUniform(result, params);
@@ -248,7 +247,6 @@ namespace {
             const int32_t kpl = params->kpl;
             const int32_t l = params->l;
             const TLweParams *tlwe_params = params->tlwe_params;
-            const int32_t N = tlwe_params->N;
             const int32_t k = tlwe_params->k;
 
             TLweSample *accum = new_TLweSample(tlwe_params);
@@ -267,7 +265,7 @@ namespace {
             }
 
             //compute the same product
-            TorusPolynomial *expected_res = new_TorusPolynomial(N);
+            TorusPolynomial *expected_res = new_TorusPolynomial();
             torusPolynomialClear(expected_res);
             for (int32_t i = 0; i < kpl; i++) {
                 torusPolynomialAddMulRKaratsuba(expected_res, dec + i, fgsw[i].message);

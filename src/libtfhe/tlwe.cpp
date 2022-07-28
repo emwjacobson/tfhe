@@ -46,7 +46,7 @@ TLweSample::TLweSample(const TLweParams *params) : k(params->k) {
     //  &sample->a[0],...,&sample->a[k-1]  and &sample->b
     //or we can also do it in a single for loop
     //  &sample->a[0],...,&sample->a[k]
-    a = new_TorusPolynomial_array(k + 1, params->N);
+    a = new_TorusPolynomial_array(k + 1);
     b = a + k;
     current_variance = 0;
 }

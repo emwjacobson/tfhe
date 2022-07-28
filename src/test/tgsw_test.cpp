@@ -375,7 +375,7 @@ namespace {
         for (const TGswParams *param: all_params) {
             TGswSample *s = new_TGswSample(param);
             int32_t kpl = param->kpl;
-            TorusPolynomial *zeroPol = new_TorusPolynomial(param->tlwe_params->N);
+            TorusPolynomial *zeroPol = new_TorusPolynomial();
 
             torusPolynomialClear(zeroPol);
             tGswClear(s, param);
@@ -556,7 +556,7 @@ namespace {
             double alpha = 4.2; // valeur pseudo aleatoire fixé
 
             // Zero polynomial
-            TorusPolynomial *zeroPol = new_TorusPolynomial(key->params->tlwe_params->N);
+            TorusPolynomial *zeroPol = new_TorusPolynomial();
             torusPolynomialClear(zeroPol);
 
             tGswEncryptZero(s, alpha, key);
@@ -591,7 +591,7 @@ namespace {
             //printf("%d,%d,%d\n",Bgbit,l,toler);
 
             IntPolynomial *result = new_IntPolynomial_array(l);
-            TorusPolynomial *sample = new_TorusPolynomial(N);
+            TorusPolynomial *sample = new_TorusPolynomial();
             torusPolynomialUniform(sample);
 
             tGswTorus32PolynomialDecompH(result, sample, param);
@@ -662,7 +662,6 @@ namespace {
     //EXPORT void tGswExternProduct(TLweSample* result, const TGswSample* a, const TLweSample* b, const TGswParams* params);
     TEST_F(TGswTest, tGswExternProduct) {
         for (const TGswParams *params: all_params) {
-            const int32_t N = params->tlwe_params->N;
             const int32_t kpl = params->kpl;
 
             TGswSample *sample = new_TGswSample(params);
@@ -680,8 +679,8 @@ namespace {
 
             IntPolynomial *decomp = new_IntPolynomial_array(kpl);
             tGswTLweDecompH(decomp, b, params);
-            TorusPolynomial *expectedRes = new_TorusPolynomial(N);
-            TorusPolynomial *tmp = new_TorusPolynomial(N);
+            TorusPolynomial *expectedRes = new_TorusPolynomial();
+            TorusPolynomial *tmp = new_TorusPolynomial();
 
             torusPolynomialClear(expectedRes);
             for (int32_t i = 0; i < kpl; i++) {
@@ -716,7 +715,7 @@ namespace {
                 TGswSample *res = new_TGswSample(key->params);
                 TGswSample *bk = new_TGswSample(key->params);
                 double alpha = 4.2; // valeur pseudo aleatoire fixé
-                TorusPolynomial *poly = new_TorusPolynomial(N);
+                TorusPolynomial *poly = new_TorusPolynomial();
 
                 //generate all rows at random
                 FakeTLwe *fresrows = fake(res->all_sample);
@@ -748,7 +747,6 @@ namespace {
     TEST_F(TGswTest, tGswExternMulToTLwe) {
         for (const TGswKey *key: all_keys) {
             const TGswParams *params = key->params;
-            const int32_t N = params->tlwe_params->N;
             const int32_t kpl = params->kpl;
 
             TGswSample *sample = new_TGswSample(params);
@@ -763,8 +761,8 @@ namespace {
 
             IntPolynomial *decomp = new_IntPolynomial_array(kpl);
             tGswTLweDecompH(decomp, accum, params);
-            TorusPolynomial *expectedRes = new_TorusPolynomial(N);
-            TorusPolynomial *tmp = new_TorusPolynomial(N);
+            TorusPolynomial *expectedRes = new_TorusPolynomial();
+            TorusPolynomial *tmp = new_TorusPolynomial();
 
             torusPolynomialClear(expectedRes);
             for (int32_t i = 0; i < kpl; i++) {

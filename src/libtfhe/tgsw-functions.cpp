@@ -216,8 +216,8 @@ EXPORT void tGswSymDecrypt(IntPolynomial *result, const TGswSample *sample, cons
     const int32_t N = rlwe_params->N;
     const int32_t l = params->l;
     const int32_t k = rlwe_params->k;
-    TorusPolynomial *testvec = new_TorusPolynomial(N);
-    TorusPolynomial *tmp = new_TorusPolynomial(N);
+    TorusPolynomial *testvec = new_TorusPolynomial();
+    TorusPolynomial *tmp = new_TorusPolynomial();
     IntPolynomial *decomp = new_IntPolynomial_array(l);
 
     const Torus32 indic = modSwitchToTorus32(1, Msize);
@@ -243,7 +243,7 @@ EXPORT void tGswSymDecrypt(IntPolynomial *result, const TGswSample *sample, cons
 /*
 // à revoir
 EXPORT int32_t tGswSymDecryptInt(const TGswSample* sample, const TGswKey* key){
-    TorusPolynomial* phase = new_TorusPolynomial(key->params->tlwe_params->N);
+    TorusPolynomial* phase = new_TorusPolynomial();
 
     tGswPhase(phase, sample, key);
     int32_t result = modSwitchFromTorus32(phase->coefsT[0], Msize);

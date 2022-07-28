@@ -333,12 +333,12 @@ EXPORT void free_TorusPolynomial_array(int32_t nbelts, TorusPolynomial* ptr) {
 
 //initialize the key structure
 //(equivalent of the C++ constructor)
-EXPORT void init_TorusPolynomial(TorusPolynomial* obj, const int32_t N) {
-    new(obj) TorusPolynomial(N);
+EXPORT void init_TorusPolynomial(TorusPolynomial* obj) {
+    new(obj) TorusPolynomial();
 }
-EXPORT void init_TorusPolynomial_array(int32_t nbelts, TorusPolynomial* obj, const int32_t N) {
+EXPORT void init_TorusPolynomial_array(int32_t nbelts, TorusPolynomial* obj) {
     for (int32_t i=0; i<nbelts; i++) {
-	new(obj+i) TorusPolynomial(N);
+	new(obj+i) TorusPolynomial();
     }
 }
 
@@ -355,12 +355,12 @@ EXPORT void destroy_TorusPolynomial_array(int32_t nbelts, TorusPolynomial* obj) 
 
 //allocates and initialize the TorusPolynomial structure
 //(equivalent of the C++ new)
-EXPORT TorusPolynomial* new_TorusPolynomial(const int32_t N) {
-    return new TorusPolynomial(N);
+EXPORT TorusPolynomial* new_TorusPolynomial() {
+    return new TorusPolynomial();
 }
-EXPORT TorusPolynomial* new_TorusPolynomial_array(int32_t nbelts, const int32_t N) {
+EXPORT TorusPolynomial* new_TorusPolynomial_array(int32_t nbelts) {
     TorusPolynomial* obj = alloc_TorusPolynomial_array(nbelts);
-    init_TorusPolynomial_array(nbelts,obj,N);
+    init_TorusPolynomial_array(nbelts,obj);
     return obj;
 }
 
