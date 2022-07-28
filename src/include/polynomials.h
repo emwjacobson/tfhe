@@ -58,7 +58,7 @@ struct TorusPolynomial {
 struct LagrangeHalfCPolynomial
 {
    cplx* coefsC;
-   void* precomp;
+   void* precomp; // This variable is likely not used, but kept for compatability
 
    LagrangeHalfCPolynomial(int32_t N);
    ~LagrangeHalfCPolynomial();
