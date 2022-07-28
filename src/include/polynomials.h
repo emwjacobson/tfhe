@@ -7,14 +7,9 @@
 #include "tfhe_core.h"
 #include "fft.h"
 
-typedef struct {
-   const int64_t N;
-   const int64_t _2N;
-   const int64_t Ns2;
-} N_Values_t;
-
-static const N_Values_t N_Values = { 1024, 2*1024, 1024/2 };
-
+constexpr static int64_t Value_N = 1024;
+constexpr static int64_t Value_2N = 2 * Value_N;
+constexpr static int64_t Value_Ns2 = Value_N / 2;
 
 /** This structure represents an integer polynomial modulo X^N+1 */
 struct IntPolynomial {

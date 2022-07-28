@@ -16,7 +16,7 @@
 
 // This is a C implementation that models the x86-64 AVX implementation.
 void fft_transform(double *real, double *imag) {
-	const uint64_t n = N_Values._2N;
+	const uint64_t n = Value_2N;
 
 	cl::Buffer real_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(double) * n);
 	cl::Buffer imag_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(double) * n);
@@ -42,7 +42,7 @@ void fft_transform(double *real, double *imag) {
 
 // This is a C implementation that models the x86-64 AVX implementation.
 void fft_transform_reverse(double *real, double *imag) {
-	const uint64_t n = N_Values._2N;
+	const uint64_t n = Value_2N;
 
 	cl::Buffer real_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(double) * n);
 	cl::Buffer imag_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(double) * n);

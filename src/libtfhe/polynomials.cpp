@@ -121,28 +121,28 @@ EXPORT void torusPolynomialSubMulRFFT(TorusPolynomial* result, const IntPolynomi
 /** sets to zero */
 EXPORT void LagrangeHalfCPolynomialClear(
 	LagrangeHalfCPolynomial* reps) {
-    for (int32_t i=0; i<N_Values.Ns2; i++)
+    for (int32_t i=0; i<Value_Ns2; i++)
 	reps->coefsC[i] = 0;
 }
 
 EXPORT void LagrangeHalfCPolynomialSetTorusConstant(LagrangeHalfCPolynomial* result, const Torus32 mu) {
     cplx* b = result->coefsC;
     const cplx muc = t32tod(mu);
-    for (int32_t j=0; j<N_Values.Ns2; j++)
+    for (int32_t j=0; j<Value_Ns2; j++)
     	b[j]=muc;
 }
 
 EXPORT void LagrangeHalfCPolynomialAddTorusConstant(LagrangeHalfCPolynomial* result, const Torus32 mu) {
     cplx* b = result->coefsC;
     const cplx muc = t32tod(mu);
-    for (int32_t j=0; j<N_Values.Ns2; j++)
+    for (int32_t j=0; j<Value_Ns2; j++)
     	b[j]+=muc;
 }
 
 EXPORT void LagrangeHalfCPolynomialSetXaiMinusOne(LagrangeHalfCPolynomial* result, const int32_t ai) {
     const cplx* omegaxminus1 = fpga.omegaxminus1;
-    for (int32_t i=0; i<N_Values.Ns2; i++)
-	result->coefsC[i]=omegaxminus1[((2*i+1)*ai)%N_Values._2N];
+    for (int32_t i=0; i<Value_Ns2; i++)
+	result->coefsC[i]=omegaxminus1[((2*i+1)*ai)%Value_2N];
 }
 
 /** termwise multiplication in Lagrange space */
@@ -153,7 +153,7 @@ EXPORT void LagrangeHalfCPolynomialMul(
     cplx* aa = a->coefsC;
     cplx* bb = b->coefsC;
     cplx* rr = result->coefsC;
-    for (int32_t i=0; i<N_Values.Ns2; i++)
+    for (int32_t i=0; i<Value_Ns2; i++)
 	rr[i] = aa[i]*bb[i];
 }
 
@@ -166,7 +166,7 @@ EXPORT void LagrangeHalfCPolynomialAddMul(
     cplx* aa = a->coefsC;
     cplx* bb = b->coefsC;
     cplx* rr = accum->coefsC;
-    for (int32_t i=0; i<N_Values.Ns2; i++)
+    for (int32_t i=0; i<Value_Ns2; i++)
 	rr[i] += aa[i]*bb[i];
 }
 
@@ -179,7 +179,7 @@ EXPORT void LagrangeHalfCPolynomialSubMul(
     cplx* aa = a->coefsC;
     cplx* bb = b->coefsC;
     cplx* rr = accum->coefsC;
-    for (int32_t i=0; i<N_Values.Ns2; i++)
+    for (int32_t i=0; i<Value_Ns2; i++)
 	rr[i] -= aa[i]*bb[i];
 }
 
@@ -188,44 +188,25 @@ EXPORT void LagrangeHalfCPolynomialAddTo(
 	const LagrangeHalfCPolynomial* a) {
     cplx* aa = a->coefsC;
     cplx* rr = accum->coefsC;
-    for (int32_t i=0; i<N_Values.Ns2; i++)
+    for (int32_t i=0; i<Value_Ns2; i++)
 	rr[i] += aa[i];
 }
 
-// Removed for HLS https://docs.xilinx.com/r/en-US/ug1399-vitis-hls/Assertions
-// void check_alternate_real(const double *real_inout, const double *imag_inout) {
-// #ifndef NDEBUG
-//     for (int32_t i=0; i<N_Values._2N; i++) assert(fabs(imag_inout[i])<1e-8);
-//     for (int32_t i=0; i<N_Values.N; i++) assert(fabs(real_inout[i]+real_inout[N_Values.N+i])<1e-9);
-// #endif
-// }
-
-// void check_conjugate_cplx(const double *real_inout, const double *imag_inout) {
-// #ifndef NDEBUG
-//     for (int32_t i=0; i<N_Values.N; i++) assert(fabs(real_inout[2*i])+fabs(imag_inout[2*i])<1e-20);
-//     for (int32_t i=0; i<N_Values.Ns2; i++) assert(fabs(imag_inout[2*i+1]+imag_inout[N_Values._2N-1-2*i])<1e-20);
-// #endif
-// }
-
 EXPORT void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynomial* p) {
-    // fp1024_nayuki.execute_reverse_int(result->coefsC, p->coefs);
-    // cplx* res          =>   result->coefsC
-    // const int32_t* a   =>   p->coefs
-
     cplx* res = (cplx*)result->coefsC;
     const int32_t* a = p->coefs;
 
-    double real_inout[N_Values._2N];
-    double imag_inout[N_Values._2N];
+    double real_inout[Value_2N];
+    double imag_inout[Value_2N];
 
     double* res_dbl=(double*) res;
-    for (int32_t i=0; i<N_Values.N; i++) real_inout[i]=a[i]/2.;
-    for (int32_t i=0; i<N_Values.N; i++) real_inout[N_Values.N+i]=-real_inout[i];
-    for (int32_t i=0; i<N_Values._2N; i++) imag_inout[i]=0;
+    for (int32_t i=0; i<Value_N; i++) real_inout[i]=a[i]/2.;
+    for (int32_t i=0; i<Value_N; i++) real_inout[Value_N+i]=-real_inout[i];
+    for (int32_t i=0; i<Value_2N; i++) imag_inout[i]=0;
 
     fft_transform_reverse(real_inout, imag_inout);
 
-    for (int32_t i=0; i<N_Values.N; i+=2) {
+    for (int32_t i=0; i<Value_N; i+=2) {
         res_dbl[i]=real_inout[i+1];
         res_dbl[i+1]=imag_inout[i+1];
     }
@@ -235,37 +216,37 @@ EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPol
     cplx* res = result->coefsC;
     Torus32* a = p->coefsT;
 
-    double real_inout[N_Values._2N];
-    double imag_inout[N_Values._2N];
+    double real_inout[Value_2N];
+    double imag_inout[Value_2N];
 
     static const double _2pm33 = 1./double(INT64_C(1)<<33);
     int32_t* aa = (int32_t*) a;
-    for (int32_t i=0; i<N_Values.N; i++) real_inout[i]=aa[i]*_2pm33;
-    for (int32_t i=0; i<N_Values.N; i++) real_inout[N_Values.N+i]=-real_inout[i];
-    for (int32_t i=0; i<N_Values._2N; i++) imag_inout[i]=0;
+    for (int32_t i=0; i<Value_N; i++) real_inout[i]=aa[i]*_2pm33;
+    for (int32_t i=0; i<Value_N; i++) real_inout[Value_N+i]=-real_inout[i];
+    for (int32_t i=0; i<Value_2N; i++) imag_inout[i]=0;
 
     fft_transform_reverse(real_inout, imag_inout);
 
-    for (int32_t i=0; i<N_Values.Ns2; i++) res[i]=cplx(real_inout[2*i+1],imag_inout[2*i+1]);
+    for (int32_t i=0; i<Value_Ns2; i++) res[i]=cplx(real_inout[2*i+1],imag_inout[2*i+1]);
 }
 
 EXPORT void TorusPolynomial_fft(TorusPolynomial* result, const LagrangeHalfCPolynomial* p) {
     Torus32* res = result->coefsT;
     cplx* a = p->coefsC;
 
-    double real_inout[N_Values._2N];
-    double imag_inout[N_Values._2N];
+    double real_inout[Value_2N];
+    double imag_inout[Value_2N];
 
     static const double _2p32 = double(INT64_C(1)<<32);
-    static const double _1sN = double(1)/double(N_Values.N);
+    static const double _1sN = double(1)/double(Value_N);
     //double* a_dbl=(double*) a;
-    for (int32_t i=0; i<N_Values.N; i++) real_inout[2*i]=0;
-    for (int32_t i=0; i<N_Values.N; i++) imag_inout[2*i]=0;
-    for (int32_t i=0; i<N_Values.Ns2; i++) real_inout[2*i+1]=real(a[i]);
-    for (int32_t i=0; i<N_Values.Ns2; i++) imag_inout[2*i+1]=imag(a[i]);
-    for (int32_t i=0; i<N_Values.Ns2; i++) real_inout[N_Values._2N-1-2*i]=real(a[i]);
-    for (int32_t i=0; i<N_Values.Ns2; i++) imag_inout[N_Values._2N-1-2*i]=-imag(a[i]);
+    for (int32_t i=0; i<Value_N; i++) real_inout[2*i]=0;
+    for (int32_t i=0; i<Value_N; i++) imag_inout[2*i]=0;
+    for (int32_t i=0; i<Value_Ns2; i++) real_inout[2*i+1]=real(a[i]);
+    for (int32_t i=0; i<Value_Ns2; i++) imag_inout[2*i+1]=imag(a[i]);
+    for (int32_t i=0; i<Value_Ns2; i++) real_inout[Value_2N-1-2*i]=real(a[i]);
+    for (int32_t i=0; i<Value_Ns2; i++) imag_inout[Value_2N-1-2*i]=-imag(a[i]);
     fft_transform(real_inout, imag_inout);
-    for (int32_t i=0; i<N_Values.N; i++) res[i]=Torus32(int64_t(real_inout[i]*_1sN*_2p32));
+    for (int32_t i=0; i<Value_N; i++) res[i]=Torus32(int64_t(real_inout[i]*_1sN*_2p32));
     //pas besoin du fmod... Torus32(int64_t(fmod(rev_out[i]*_1sN,1.)*_2p32));
 }
