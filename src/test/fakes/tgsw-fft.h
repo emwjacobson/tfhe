@@ -6,7 +6,7 @@
 
 namespace {
 
-    // Fake TGSW FFT structure 
+    // Fake TGSW FFT structure
     struct FakeTGswFFT {
         //TODO: parallelization
         static const int32_t FAKE_TYPE_UID = 574569852; // precaution: distinguish fakes from trues
@@ -25,7 +25,7 @@ namespace {
 
         // construct
         FakeTGswFFT(int32_t N) : fake_uid(FAKE_TYPE_UID) {
-            message = new_IntPolynomial(N);
+            message = new_IntPolynomial();
             current_variance = 0.;
         }
 
@@ -46,7 +46,7 @@ namespace {
     //TODO: parallelization
     static_assert(sizeof(FakeTGswFFT) == sizeof(TGswSampleFFT), "Error: Size is not correct");
 
-    // fake functions 
+    // fake functions
     inline FakeTGswFFT *fake(TGswSampleFFT *sample) {
         FakeTGswFFT *reps = (FakeTGswFFT *) sample;
         if (reps->fake_uid != FakeTGswFFT::FAKE_TYPE_UID) abort();
@@ -82,7 +82,7 @@ namespace {
         free(arr);
     }
 
-    // 
+    //
 #define USE_FAKE_delete_TGswSampleFFT_array \
     inline void delete_TGswSampleFFT_array(int32_t nbelts, TGswSampleFFT* samples) { \
         fake_delete_TGswSampleFFT_array(nbelts,samples); \
@@ -96,7 +96,7 @@ namespace {
         return (TGswSampleFFT *) reps;
     }
 
-    // 
+    //
 #define USE_FAKE_new_TGswSampleFFT \
     inline TGswSampleFFT* new_TGswSampleFFT(const TGswParams* params) { \
         return fake_new_TGswSampleFFT(params); \
@@ -108,7 +108,7 @@ namespace {
         free(ptr);
     }
 
-    // 
+    //
 #define USE_FAKE_delete_TGswSampleFFT \
     inline void delete_TGswSampleFFT(TGswSampleFFT* sample) { \
     fake_delete_TGswSampleFFT(sample); \
@@ -189,7 +189,7 @@ namespace {
     fake_tGswFFTClear(result, params); \
     }
 
-    // External product (*): accum = gsw (*) accum 
+    // External product (*): accum = gsw (*) accum
     inline void fake_tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, const TGswParams *params) {
         const int32_t N = params->tlwe_params->N;
         const FakeTGswFFT *fgsw = fake(gsw);
@@ -205,7 +205,7 @@ namespace {
     fake_tGswFFTExternMulToTLwe(accum, gsw, params); \
     }
 
-    // result = (X^ai -1)*bki  
+    // result = (X^ai -1)*bki
     inline void fake_tGswFFTMulByXaiMinusOne(TGswSampleFFT *result, const int32_t ai, const TGswSampleFFT *bki,
                                              const TGswParams *params) {
         FakeTGswFFT *fres = fake(result);

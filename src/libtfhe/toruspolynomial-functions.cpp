@@ -172,10 +172,9 @@ EXPORT void torusPolynomialSubMulZTo(TorusPolynomial *result, int32_t p, const T
 
 // Norme Euclidienne d'un IntPolynomial
 EXPORT double intPolynomialNormSq2(const IntPolynomial *poly) {
-    const int32_t N = poly->N;
     int32_t temp1 = 0;
 
-    for (int32_t i = 0; i < N; ++i) {
+    for (int32_t i = 0; i < Value_N; ++i) {
         int32_t temp0 = poly->coefs[i] * poly->coefs[i];
         temp1 += temp0;
     }
@@ -184,43 +183,39 @@ EXPORT double intPolynomialNormSq2(const IntPolynomial *poly) {
 
 // Sets to zero
 EXPORT void intPolynomialClear(IntPolynomial *poly) {
-    const int32_t N = poly->N;
-    for (int32_t i = 0; i < N; ++i)
+    for (int32_t i = 0; i < Value_N; ++i)
         poly->coefs[i] = 0;
 }
 
 // Sets to zero
 EXPORT void intPolynomialCopy(IntPolynomial *result, const IntPolynomial *source) {
-    const int32_t N = source->N;
-    for (int32_t i = 0; i < N; ++i)
+    for (int32_t i = 0; i < Value_N; ++i)
         result->coefs[i] = source->coefs[i];
 }
 
 /** accum += source */
 EXPORT void intPolynomialAddTo(IntPolynomial *accum, const IntPolynomial *source) {
-    const int32_t N = source->N;
-    for (int32_t i = 0; i < N; ++i)
+    for (int32_t i = 0; i < Value_N; ++i)
         accum->coefs[i] += source->coefs[i];
 }
 
 /**  result = (X^ai-1) * source */
 EXPORT void intPolynomialMulByXaiMinusOne(IntPolynomial *result, int32_t ai, const IntPolynomial *source) {
-    const int32_t N = source->N;
     int32_t *out = result->coefs;
-    int32_t *in = source->coefs;
+    const int32_t *in = source->coefs;
 
-    assert(ai >= 0 && ai < 2 * N);
+    assert(ai >= 0 && ai < 2 * Value_N);
 
-    if (ai < N) {
+    if (ai < Value_N) {
         for (int32_t i = 0; i < ai; i++)//sur que i-a<0
-            out[i] = -in[i - ai + N] - in[i];
-        for (int32_t i = ai; i < N; i++)//sur que N>i-a>=0
+            out[i] = -in[i - ai + Value_N] - in[i];
+        for (int32_t i = ai; i < Value_N; i++)//sur que N>i-a>=0
             out[i] = in[i - ai] - in[i];
     } else {
-        const int32_t aa = ai - N;
+        const int32_t aa = ai - Value_N;
         for (int32_t i = 0; i < aa; i++)//sur que i-a<0
-            out[i] = in[i - aa + N] - in[i];
-        for (int32_t i = aa; i < N; i++)//sur que N>i-a>=0
+            out[i] = in[i - aa + Value_N] - in[i];
+        for (int32_t i = aa; i < Value_N; i++)//sur que N>i-a>=0
             out[i] = -in[i - aa] - in[i];
     }
 }
@@ -247,10 +242,9 @@ EXPORT double torusPolynomialNormInftyDist(const TorusPolynomial *poly1, const T
 
 // Norme 2 d'un IntPolynomial
 EXPORT double intPolynomialNorm2sq(const IntPolynomial *poly) {
-    const int32_t N = poly->N;
     double norm = 0;
 
-    for (int32_t i = 0; i < N; ++i) {
+    for (int32_t i = 0; i < Value_N; ++i) {
         double r = poly->coefs[i];
         norm += r * r;
     }
@@ -259,12 +253,11 @@ EXPORT double intPolynomialNorm2sq(const IntPolynomial *poly) {
 
 // Norme infini de la distance entre deux IntPolynomial
 EXPORT double intPolynomialNormInftyDist(const IntPolynomial *poly1, const IntPolynomial *poly2) {
-    const int32_t N = poly1->N;
     double norm = 0;
 
 
     // Max between the coefficients of abs(poly1-poly2)
-    for (int32_t i = 0; i < N; ++i) {
+    for (int32_t i = 0; i < Value_N; ++i) {
         double r = abs(poly1->coefs[i] - poly2->coefs[i]);
         if (r > norm) { norm = r; }
     }

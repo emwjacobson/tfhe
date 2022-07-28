@@ -58,14 +58,14 @@ namespace {
 
     /*
      * Definition of the function absfrac: | frac(d) |
-     * Computes the absolute value of the fractional part of a double d 
+     * Computes the absolute value of the fractional part of a double d
      */
     double absfrac(double d) { return abs(d - rint(d)); }
 
 
     /*
      * Definition of the function fillRandom
-     * Fills a TLweSample with random Torus32 values (uniform distribution) 
+     * Fills a TLweSample with random Torus32 values (uniform distribution)
      */
     void fillRandom(TLweSample *result, const TLweParams *params) {
         const int32_t k = params->k;
@@ -103,7 +103,7 @@ namespace {
     /*
        Testing the function tLweKeyGen
      * EXPORT void tLweKeyGen(TLweKey* result);
-     * 
+     *
      * This function generates a random TLwe key for the given parameters
      * The TLwe key for the result must be allocated and initialized
      * (this means that the parameters are already in the result)
@@ -584,7 +584,7 @@ namespace {
             const int32_t pos = rand() % params->k;
             TLweSample *sample1 = new_TLweSample(params);
             TLweSample *sample1copy = new_TLweSample(params);
-            IntPolynomial *p = new IntPolynomial(N);
+            IntPolynomial *p = new IntPolynomial();
             fillRandom(sample1, params);
             for (int32_t i = 0; i < N; i++) p->coefs[i] = uniformTorus32_distrib(generator) % 1000;
             copySample(sample1copy, sample1, params);

@@ -64,7 +64,7 @@ int32_t main(int32_t argc, char **argv) {
 
     //test decompH
     cout << "Test decompH on TorusPolynomial" << endl;
-    IntPolynomial *muBDecH = new_IntPolynomial_array(l, N);
+    IntPolynomial *muBDecH = new_IntPolynomial_array(l);
     for (int32_t i = 0; i < N; ++i) {
         muB->coefsT[i] = uniformTorus32_distrib(generator);
     }
@@ -85,14 +85,14 @@ int32_t main(int32_t argc, char **argv) {
         //cout << mu->coefsT[i] << endl;
     }
     //MESSAGE RLwe
-    IntPolynomial *muA = new_IntPolynomial(N);
+    IntPolynomial *muA = new_IntPolynomial();
     for (int32_t i = 0; i < N; ++i) {
         int32_t temp = unift(generator);
         muA->coefs[i] = 1 - (temp % 3);
         //cout << mu->coefsT[i] << endl;
     }
     // PHASE, DECRYPTION
-    IntPolynomial *dechifA = new_IntPolynomial(N);
+    IntPolynomial *dechifA = new_IntPolynomial();
     TorusPolynomial *dechifB = new_TorusPolynomial(N);
     TorusPolynomial *dechifAB = new_TorusPolynomial(N);
     TorusPolynomial *muAB = new_TorusPolynomial(N);
@@ -114,7 +114,7 @@ int32_t main(int32_t argc, char **argv) {
 
     //test decompH on tLwe
     cout << "Test decompH on TLwe(muB)" << endl;
-    IntPolynomial *cipherBDecH = new_IntPolynomial_array(l * (k + 1), N);
+    IntPolynomial *cipherBDecH = new_IntPolynomial_array(l * (k + 1));
     tGswTLweDecompH(cipherBDecH, cipherB, rgsw_params);
     for (int32_t p = 0; p <= k; ++p) {
         for (int32_t i = 0; i < N; ++i) {
@@ -208,7 +208,7 @@ int32_t main(int32_t argc, char **argv) {
     delete_TorusPolynomial(dechifAB);
     delete_TorusPolynomial(muAB);
 
-    //ATTENTION, le params est utilisé dans divers destructeurs, il faut l'effacer en dernier 
+    //ATTENTION, le params est utilisé dans divers destructeurs, il faut l'effacer en dernier
     delete_TLweParams(rlwe_params); //les deux alpha mis un peu au hasard
     delete_TGswParams(rgsw_params);
 

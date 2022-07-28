@@ -26,7 +26,7 @@ int32_t main(int32_t argc, char **argv) {
     const int32_t count = 1000; //number of tests to compare the 3 types of multiplication
 
     const int32_t N = 1024;
-    IntPolynomial *a = new_IntPolynomial(N);
+    IntPolynomial *a = new_IntPolynomial();
     TorusPolynomial *b = new_TorusPolynomial(N);
     TorusPolynomial *resNaive = new_TorusPolynomial(N);
     TorusPolynomial *resFFT = new_TorusPolynomial(N);

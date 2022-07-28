@@ -25,7 +25,7 @@ TLweParams::~TLweParams() {}
 
 TLweKey::TLweKey(const TLweParams *params) :
         params(params) {
-    key = new_IntPolynomial_array(params->k, params->N);
+    key = new_IntPolynomial_array(params->k);
 }
 
 TLweKey::~TLweKey() {
@@ -40,7 +40,7 @@ TLweKey::~TLweKey() {
 //};
 
 TLweSample::TLweSample(const TLweParams *params) : k(params->k) {
-    //Small change here: 
+    //Small change here:
     //a is a table of k+1 polynomials, b is an alias for &a[k]
     //like that, we can access all the coefficients as before:
     //  &sample->a[0],...,&sample->a[k-1]  and &sample->b

@@ -1,4 +1,4 @@
-/* 
+/*
  * tgsw_fft_test.cpp
  * Tests the functions defined in /src/include/tgsw_functions.h
  * A set of parameters ad keys is defined in the beginning (N=512,1024,2048 and k=1,2)
@@ -261,7 +261,7 @@ namespace {
             tLweSampleUniform(accum, tlwe_params);
 
             //simulate the same decomposition as in the fake function
-            IntPolynomial *dec = new_IntPolynomial_array(kpl, N);
+            IntPolynomial *dec = new_IntPolynomial_array(kpl);
             for (int32_t i = 0; i <= k; i++) {
                 fake_tGswTorus32PolynomialDecompH(dec + i * l, accum->a + i, params);
             }

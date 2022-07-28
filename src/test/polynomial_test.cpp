@@ -18,7 +18,7 @@ namespace {
         const set<int32_t> powers_of_two_dimensions = {512, 1024, 2048};
     };
 
-    //  TorusPolynomial = random 
+    //  TorusPolynomial = random
     //EXPORT void torusPolynomialUniform(TorusPolynomial* result);
     TEST_F(PolynomialTest, torusPolynomialUniform) {
         //TODO: parallelization
@@ -40,7 +40,7 @@ namespace {
     }
 
 
-    //  TorusPolynomial = 0 
+    //  TorusPolynomial = 0
     //EXPORT void torusPolynomialClear(TorusPolynomial* result);
     TEST_F(PolynomialTest, torusPolynomialClear) {
         for (int32_t N: dimensions) {
@@ -55,7 +55,7 @@ namespace {
     }
 
 
-    //  TorusPolynomial = TorusPolynomial 
+    //  TorusPolynomial = TorusPolynomial
     //EXPORT void torusPolynomialCopy(TorusPolynomial* result, const TorusPolynomial*  sample);
     TEST_F(PolynomialTest, torusPolynomialCopy) {
         for (int32_t N: dimensions) {
@@ -79,7 +79,7 @@ namespace {
     }
 
 
-    //  TorusPolynomial + TorusPolynomial 
+    //  TorusPolynomial + TorusPolynomial
     //EXPORT void torusPolynomialAdd(TorusPolynomial* result, const TorusPolynomial* poly1, const TorusPolynomial* poly2);
     TEST_F(PolynomialTest, torusPolynomialAdd) {
         for (int32_t N: dimensions) {
@@ -104,7 +104,7 @@ namespace {
         }
     }
 
-    //  TorusPolynomial += TorusPolynomial 
+    //  TorusPolynomial += TorusPolynomial
     //EXPORT void torusPolynomialAddTo(TorusPolynomial* result, const TorusPolynomial* poly2);
     TEST_F(PolynomialTest, torusPolynomialAddTo) {
         for (int32_t N: dimensions) {
@@ -127,7 +127,7 @@ namespace {
         }
     }
 
-    //  TorusPolynomial - TorusPolynomial 
+    //  TorusPolynomial - TorusPolynomial
     //EXPORT void torusPolynomialSub(TorusPolynomial* result, const TorusPolynomial* poly1, const TorusPolynomial* poly2);
     TEST_F(PolynomialTest, torusPolynomialSub) {
         for (int32_t N: dimensions) {
@@ -152,7 +152,7 @@ namespace {
         }
     }
 
-    //  TorusPolynomial -= TorusPolynomial 
+    //  TorusPolynomial -= TorusPolynomial
     //EXPORT void torusPolynomialSubTo(TorusPolynomial* result, const TorusPolynomial* poly2);
     TEST_F(PolynomialTest, torusPolynomialSubTo) {
         for (int32_t N: dimensions) {
@@ -175,7 +175,7 @@ namespace {
         }
     }
 
-    //  TorusPolynomial + p*TorusPolynomial 
+    //  TorusPolynomial + p*TorusPolynomial
     //EXPORT void torusPolynomialAddMulZ(TorusPolynomial* result, const TorusPolynomial* poly1, int32_t p, const TorusPolynomial* poly2);
     TEST_F(PolynomialTest, torusPolynomialAddMulZ) {
         //TODO: parallelization
@@ -202,7 +202,7 @@ namespace {
         }
     }
 
-    //  TorusPolynomial += p*TorusPolynomial 
+    //  TorusPolynomial += p*TorusPolynomial
     //EXPORT void torusPolynomialAddMulZTo(TorusPolynomial* result, const int32_t p, const TorusPolynomial* poly2);
     TEST_F(PolynomialTest, torusPolynomialAddMulZTo) {
         //TODO: parallelization
@@ -227,7 +227,7 @@ namespace {
         }
     }
 
-    //  TorusPolynomial - p*TorusPolynomial 
+    //  TorusPolynomial - p*TorusPolynomial
     //EXPORT void torusPolynomialSubMulZ(TorusPolynomial* result, const TorusPolynomial* poly1, int32_t p, const TorusPolynomial* poly2);
     TEST_F(PolynomialTest, torusPolynomialSubMulZ) {
         //TODO: parallelization
@@ -254,7 +254,7 @@ namespace {
         }
     }
 
-    //  TorusPolynomial -= p*TorusPolynomial 
+    //  TorusPolynomial -= p*TorusPolynomial
     //EXPORT void torusPolynomialSubMulZTo(TorusPolynomial* result, const int32_t p, const TorusPolynomial* poly2);
     TEST_F(PolynomialTest, torusPolynomialSubMulZTo) {
         //TODO: parallelization
@@ -299,7 +299,7 @@ namespace {
         }
     }
 
-    //  TorusPolynomial = X^a * TorusPolynomial 
+    //  TorusPolynomial = X^a * TorusPolynomial
     //EXPORT void torusPolynomialMulByXai(TorusPolynomial* result, int32_t a, const TorusPolynomial* bk)
     TEST_F(PolynomialTest, torusPolynomialMulByXai) {
         //TODO: parallelization
@@ -327,7 +327,7 @@ namespace {
         }
     }
 
-    //  intPolynomial = (X^ai-1) * intPolynomial 
+    //  intPolynomial = (X^ai-1) * intPolynomial
     //EXPORT void intPolynomialMulByXaiMinusOne(IntPolynomial* result, int32_t a, const IntPolynomial* bk)
     TEST_F(PolynomialTest, intPolynomialMulByXaiMinusOne) {
         //TODO: parallelization
@@ -337,7 +337,7 @@ namespace {
                 //TODO: parallelization
                 static const int32_t a = (uniformTorus32_distrib(generator) % 1000000) - 500000;
                 static const int32_t ai = ((a % (2 * N)) + (2 * N)) % (2 * N);
-                IntPolynomial *pols = new_IntPolynomial_array(3, N);
+                IntPolynomial *pols = new_IntPolynomial_array(3);
                 IntPolynomial *pola = pols + 0;
                 IntPolynomial *polacopy = pols + 1;
                 IntPolynomial *polb = pols + 2;
@@ -359,7 +359,7 @@ namespace {
         }
     }
 
-    //  TorusPolynomial = (X^ai-1) * TorusPolynomial 
+    //  TorusPolynomial = (X^ai-1) * TorusPolynomial
     //EXPORT void torusPolynomialMulByXaiMinusOne(TorusPolynomial* result, int32_t a, const TorusPolynomial* bk)
     TEST_F(PolynomialTest, torusPolynomialMulByXaiMinusOne) {
         //TODO: parallelization
@@ -389,13 +389,13 @@ namespace {
         }
     }
 
-    //  Norme Euclidienne d'un IntPolynomial 
+    //  Norme Euclidienne d'un IntPolynomial
     //EXPORT double intPolynomialNormSq2(const IntPolynomial* poly);
     TEST_F(PolynomialTest, intPolynomialNormSq2) {
         //TODO: parallelization
         static const int32_t NB_TRIALS = 50;
         for (int32_t N: dimensions) {
-            IntPolynomial *pols = new_IntPolynomial_array(2, N);
+            IntPolynomial *pols = new_IntPolynomial_array(2);
             IntPolynomial *a = pols + 0;
             IntPolynomial *acopy = pols + 1;
             for (int32_t trial = 0; trial < NB_TRIALS; trial++) {
@@ -418,13 +418,13 @@ namespace {
 
     // This is the naive external multiplication of an integer polynomial
     // with a torus polynomial. (this function should yield exactly the same
-    // result as the karatsuba or fft version, but should be slower) 
+    // result as the karatsuba or fft version, but should be slower)
     //EXPORT void torusPolynomialMultNaive(TorusPolynomial* result, const IntPolynomial* poly1, const TorusPolynomial* poly2);
     TEST_F(PolynomialTest, torusPolynomialMultNaive) {
         //TODO: parallelization
         static const int32_t NB_TRIALS = 5;
         for (int32_t N: dimensions) {
-            IntPolynomial *ipols = new_IntPolynomial_array(2, N);
+            IntPolynomial *ipols = new_IntPolynomial_array(2);
             TorusPolynomial *tpols = new_TorusPolynomial_array(3, N);
             IntPolynomial *a = ipols + 0;
             IntPolynomial *acopy = ipols + 1;
@@ -454,14 +454,14 @@ namespace {
     }
 
     // This is the karatsuba external multiplication of an integer polynomial
-    // with a torus polynomial. 
+    // with a torus polynomial.
     // WARNING: for karatsuba, N must be a power of 2
     //EXPORT void torusPolynomialMultKaratsuba(TorusPolynomial* result, const IntPolynomial* poly1, const TorusPolynomial* poly2);
     TEST_F(PolynomialTest, torusPolynomialMultKaratsuba) {
         //TODO: parallelization
         static const int32_t NB_TRIALS = 5;
         for (int32_t N: powers_of_two_dimensions) {
-            IntPolynomial *ipols = new_IntPolynomial_array(2, N);
+            IntPolynomial *ipols = new_IntPolynomial_array(2);
             TorusPolynomial *tpols = new_TorusPolynomial_array(3, N);
             IntPolynomial *a = ipols + 0;
             IntPolynomial *acopy = ipols + 1;
@@ -498,7 +498,7 @@ namespace {
         //TODO: parallelization
         static const int32_t NB_TRIALS = 5;
         for (int32_t N: powers_of_two_dimensions) {
-            IntPolynomial *ipols = new_IntPolynomial_array(2, N);
+            IntPolynomial *ipols = new_IntPolynomial_array(2);
             TorusPolynomial *tpols = new_TorusPolynomial_array(4, N);
             IntPolynomial *a = ipols + 0;
             IntPolynomial *acopy = ipols + 1;
@@ -537,7 +537,7 @@ namespace {
         //TODO: parallelization
         static const int32_t NB_TRIALS = 5;
         for (int32_t N: powers_of_two_dimensions) {
-            IntPolynomial *ipols = new_IntPolynomial_array(2, N);
+            IntPolynomial *ipols = new_IntPolynomial_array(2);
             TorusPolynomial *tpols = new_TorusPolynomial_array(4, N);
             IntPolynomial *a = ipols + 0;
             IntPolynomial *acopy = ipols + 1;

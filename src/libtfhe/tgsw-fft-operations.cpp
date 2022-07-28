@@ -91,9 +91,8 @@ EXPORT void tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, 
     const int32_t k = tlwe_params->k;
     const int32_t l = params->l;
     const int32_t kpl = params->kpl;
-    const int32_t N = tlwe_params->N;
     //TODO attention, improve these new/delete...
-    IntPolynomial *deca = new_IntPolynomial_array(kpl, N); //decomposed accumulator
+    IntPolynomial *deca = new_IntPolynomial_array(kpl); //decomposed accumulator
     LagrangeHalfCPolynomial *decaFFT = new_LagrangeHalfCPolynomial_array(kpl); //fft version
     TLweSampleFFT *tmpa = new_TLweSampleFFT(tlwe_params);
 

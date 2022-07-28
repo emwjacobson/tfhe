@@ -155,10 +155,9 @@ EXPORT void tGswMulByXaiMinusOne(TGswSample *result, int32_t ai, const TGswSampl
 //accum *= sample
 EXPORT void tGswExternMulToTLwe(TLweSample *accum, const TGswSample *sample, const TGswParams *params) {
     const TLweParams *par = params->tlwe_params;
-    const int32_t N = par->N;
     const int32_t kpl = params->kpl;
     //TODO: improve this new/delete
-    IntPolynomial *dec = new_IntPolynomial_array(kpl, N);
+    IntPolynomial *dec = new_IntPolynomial_array(kpl);
 
     tGswTLweDecompH(dec, accum, params);
     tLweClear(accum, par);
@@ -219,7 +218,7 @@ EXPORT void tGswSymDecrypt(IntPolynomial *result, const TGswSample *sample, cons
     const int32_t k = rlwe_params->k;
     TorusPolynomial *testvec = new_TorusPolynomial(N);
     TorusPolynomial *tmp = new_TorusPolynomial(N);
-    IntPolynomial *decomp = new_IntPolynomial_array(l, N);
+    IntPolynomial *decomp = new_IntPolynomial_array(l);
 
     const Torus32 indic = modSwitchToTorus32(1, Msize);
     torusPolynomialClear(testvec);
@@ -415,9 +414,8 @@ tGswTorus32PolynomialDecompH(IntPolynomial *result, const TorusPolynomial *sampl
 //result = a*b
 EXPORT void tGswExternProduct(TLweSample *result, const TGswSample *a, const TLweSample *b, const TGswParams *params) {
     const TLweParams *parlwe = params->tlwe_params;
-    const int32_t N = parlwe->N;
     const int32_t kpl = params->kpl;
-    IntPolynomial *dec = new_IntPolynomial_array(kpl, N);
+    IntPolynomial *dec = new_IntPolynomial_array(kpl);
 
     tGswTLweDecompH(dec, b, params);
 

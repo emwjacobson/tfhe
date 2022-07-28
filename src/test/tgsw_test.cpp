@@ -1,4 +1,4 @@
-/* 
+/*
  * tgsw_test.cpp
  * Tests the functions defined in /src/include/tgsw_functions.h
  * A set of parameters ad keys is defined in the beginning (N=512,1024,2048 and k=1,2)
@@ -37,7 +37,7 @@ namespace {
 
     // we use the function rand because in the "const static" context the uniformly random generator doesn't work!
     IntPolynomial *new_random_IntPolynomial(const int32_t N) {
-        IntPolynomial *poly = new_IntPolynomial(N);
+        IntPolynomial *poly = new_IntPolynomial();
 
         for (int32_t i = 0; i < N; ++i)
             poly->coefs[i] = rand() % 10 - 5;
@@ -195,7 +195,7 @@ namespace {
     //EXPORT void tGswAddMuH(TGswSample* result, const IntPolynomial* message, const TGswParams* params);
     //EXPORT void tGswAddMuIntH(TGswSample* result, const int32_t message, const TGswParams* params);
     //EXPORT void tGswTorus32PolynomialDecompH(IntPolynomial* result, const TorusPolynomial* sample, const TGswParams* params);
-    //EXPORT void tGswTLweDecompH(IntPolynomial* result, const TLweSample* sample,const TGswParams* params);	
+    //EXPORT void tGswTLweDecompH(IntPolynomial* result, const TLweSample* sample,const TGswParams* params);
     class TGswDirectTest : public ::testing::Test {
     public:
 
@@ -216,7 +216,7 @@ namespace {
         }
     };
 
-    /* This class fixture is for testing tgsw functions that call other 
+    /* This class fixture is for testing tgsw functions that call other
      * already tested tgsw functions: Tgsw is faked */
     class TGswFakeTest : public ::testing::Test {
     public:
@@ -247,14 +247,14 @@ namespace {
 #if 0
     /*
      * Definition of the function absfrac: | frac(d) |
-     * Computes the absolute value of the fractional part of a double d 
+     * Computes the absolute value of the fractional part of a double d
      */
     double absfrac(double d) {return abs(d-rint(d));}
 
 
     /*
      * Definition of the function fillRandom
-     * Fills a TLweSample with random Torus32 values (uniform distribution) 
+     * Fills a TLweSample with random Torus32 values (uniform distribution)
      */
     void fillRandom(TLweSample* result, const TLweParams* params) {
     const int32_t k = params->k;
@@ -293,7 +293,7 @@ namespace {
     /*
      *  Testing the function tGswKeyGen
      * EXPORT void tLweKeyGen(TLweKey* result);
-     * 
+     *
      * This function generates a random TLwe key for the given parameters
      * The TLwe key for the result must be allocated and initialized
      * (this means that the parameters are already in the result)
@@ -365,7 +365,7 @@ namespace {
 
     // ILA: we do not decrypt TGSW, no test for now
     //EXPORT void tGswSymDecrypt(IntPolynomial* result, const TGswSample* sample, const TGswKey* key, const int32_t Msize);
-    //EXPORT int32_t tGswSymDecryptInt(const TGswSample* sample, const TGswKey* key); 
+    //EXPORT int32_t tGswSymDecryptInt(const TGswSample* sample, const TGswKey* key);
 
     //// support Functions for TGsw
     //// Result = 0
@@ -590,7 +590,7 @@ namespace {
             if (Bgbit * l < 32) toler = 1 << (32 - Bgbit * l);
             //printf("%d,%d,%d\n",Bgbit,l,toler);
 
-            IntPolynomial *result = new_IntPolynomial_array(l, N);
+            IntPolynomial *result = new_IntPolynomial_array(l);
             TorusPolynomial *sample = new_TorusPolynomial(N);
             torusPolynomialUniform(sample);
 
@@ -613,7 +613,7 @@ namespace {
 
 
 
-    //EXPORT void tGswTLweDecompH(IntPolynomial* result, const TLweSample* sample,const TGswParams* params);	
+    //EXPORT void tGswTLweDecompH(IntPolynomial* result, const TLweSample* sample,const TGswParams* params);
     // Test direct Result*H donne le bon resultat
     // sample: TLweSample composed by k+1 torus polynomials, each with N coefficients
     // result: int32_t polynomial with Nl(k+1) coefficients
@@ -631,7 +631,7 @@ namespace {
             if (Bgbit * l < 32) toler = 1 << (32 - Bgbit * l);
             //printf("%d,%d,%d\n",Bgbit,l,toler);
 
-            IntPolynomial *result = new_IntPolynomial_array(kpl, N);
+            IntPolynomial *result = new_IntPolynomial_array(kpl);
             TLweSample *sample = new_TLweSample(param->tlwe_params);
 
             // sample randomly generated
@@ -678,7 +678,7 @@ namespace {
             fullyRandomTGsw(sample, alpha, params);
             torusPolynomialUniform(fb->message);
 
-            IntPolynomial *decomp = new_IntPolynomial_array(kpl, N);
+            IntPolynomial *decomp = new_IntPolynomial_array(kpl);
             tGswTLweDecompH(decomp, b, params);
             TorusPolynomial *expectedRes = new_TorusPolynomial(N);
             TorusPolynomial *tmp = new_TorusPolynomial(N);
@@ -761,7 +761,7 @@ namespace {
             fullyRandomTGsw(sample, alpha, params);
             torusPolynomialUniform(faccum->message);
 
-            IntPolynomial *decomp = new_IntPolynomial_array(kpl, N);
+            IntPolynomial *decomp = new_IntPolynomial_array(kpl);
             tGswTLweDecompH(decomp, accum, params);
             TorusPolynomial *expectedRes = new_TorusPolynomial(N);
             TorusPolynomial *tmp = new_TorusPolynomial(N);

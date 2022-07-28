@@ -109,7 +109,7 @@ int32_t main(int32_t argc, char **argv) {
 
 
 
-    // TEST ADD, SUB, LINEAR COMBINATION, POLYNOMIAL COMBINATIONS 
+    // TEST ADD, SUB, LINEAR COMBINATION, POLYNOMIAL COMBINATIONS
 
     cout << endl;
     cout << endl;
@@ -135,7 +135,7 @@ int32_t main(int32_t argc, char **argv) {
 
 
     int32_t p = 1;
-    IntPolynomial *poly = new_IntPolynomial(N);
+    IntPolynomial *poly = new_IntPolynomial();
     for (int32_t i = 0; i < N; ++i) {
         poly->coefs[i] = distribution(generator);
     }
@@ -151,7 +151,7 @@ int32_t main(int32_t argc, char **argv) {
         tLweSymEncrypt(cipher1, mu1, alpha, key); // ENCRYPTION
 
 
-        // cipher = cipher0 + cipher1 
+        // cipher = cipher0 + cipher1
         tLweCopy(cipher, cipher0, params);
         tLweAddTo(cipher, cipher1, params);
         torusPolynomialAdd(mu, mu0, mu1); // mu = mu0 + mu1
@@ -169,7 +169,7 @@ int32_t main(int32_t argc, char **argv) {
 
 
 
-        // cipher = cipher0 - cipher1 
+        // cipher = cipher0 - cipher1
         tLweCopy(cipher, cipher0, params);
         tLweSubTo(cipher, cipher1, params);
         torusPolynomialSub(mu, mu0, mu1); // mu = mu0 - mu1
@@ -187,7 +187,7 @@ int32_t main(int32_t argc, char **argv) {
 
 
 
-        // cipher = cipher0 + p.cipher1 
+        // cipher = cipher0 + p.cipher1
         tLweCopy(cipher, cipher0, params);
         tLweAddMulTo(cipher, p, cipher1, params);
         torusPolynomialAddMulZ(mu, mu0, p, mu1); // mu = mu0 + p.mu1
@@ -206,7 +206,7 @@ int32_t main(int32_t argc, char **argv) {
 
 
 
-        // cipher = cipher0 - p.cipher1 
+        // cipher = cipher0 - p.cipher1
         tLweCopy(cipher, cipher0, params);
         tLweSubMulTo(cipher, p, cipher1, params);
         torusPolynomialSubMulZ(mu, mu0, p, mu1); // mu = mu0 - p.mu1
@@ -224,7 +224,7 @@ int32_t main(int32_t argc, char **argv) {
 
 
         /*
-        // result = result + poly.sample 
+        // result = result + poly.sample
         tLweCopy(cipher, cipher0, params);
         tLweAddMulRTo(cipher, poly, cipher1, params);
         // mu = mu0 + poly.mu1
@@ -232,14 +232,14 @@ int32_t main(int32_t argc, char **argv) {
         torusPolynomialAddMulRKaratsuba(mu, poly, mu1);
 
         tLweSymDecrypt(dechif, cipher, key, Msize); // DECRYPTION
-        
+
         cout << "Test tLweAddMulRTo Trial:" << trial << endl;
         for (int32_t i = 0; i < N; ++i)
         {
             decInt = modSwitchFromTorus32(dechif->coefsT[i], Msize);
             muInt = modSwitchFromTorus32(mu->coefsT[i], Msize);
             if (decInt != muInt)
-                cout << decInt << " =? " << muInt << " error!!!" << endl;     
+                cout << decInt << " =? " << muInt << " error!!!" << endl;
         }
         cout << cipher->current_variance << endl;
         cout << "----------------------" << endl;
@@ -263,7 +263,7 @@ int32_t main(int32_t argc, char **argv) {
 
 
 
-    // TEST ADD, SUB, LINEAR COMBINATION, POLYNOMIAL COMBINATIONS 
+    // TEST ADD, SUB, LINEAR COMBINATION, POLYNOMIAL COMBINATIONS
 
     cout << endl;
     cout << endl;
@@ -293,7 +293,7 @@ int32_t main(int32_t argc, char **argv) {
 
 
 
-        // cipher = cipher0 + cipher1 
+        // cipher = cipher0 + cipher1
         tLweCopy(cipherT, cipherT0, params);
         tLweAddTo(cipherT, cipherT1, params);
         muT = muT0 + muT1;
@@ -310,7 +310,7 @@ int32_t main(int32_t argc, char **argv) {
 
 
 
-        // cipher = cipher0 - cipher1 
+        // cipher = cipher0 - cipher1
         tLweCopy(cipherT, cipherT0, params);
         tLweSubTo(cipherT, cipherT1, params);
         muT = muT0 - muT1;
@@ -328,7 +328,7 @@ int32_t main(int32_t argc, char **argv) {
 
 
 
-        // cipher = cipher0 + p.cipher1 
+        // cipher = cipher0 + p.cipher1
         tLweCopy(cipherT, cipherT0, params);
         tLweAddMulTo(cipherT, pT, cipherT1, params);
         muT = muT0 + pT * muT1;
@@ -346,7 +346,7 @@ int32_t main(int32_t argc, char **argv) {
 
 
 
-        // result = result - p.sample 
+        // result = result - p.sample
         tLweCopy(cipherT, cipherT0, params);
         tLweSubMulTo(cipherT, pT, cipherT1, params);
         muT = muT0 - pT * muT1;
@@ -376,7 +376,7 @@ int32_t main(int32_t argc, char **argv) {
     delete_TorusPolynomial(phiT);
     delete_TorusPolynomial(dechif);
 
-    //ATTENTION, le params est utilisé dans divers destructeurs, il faut l'effacer en dernier 
+    //ATTENTION, le params est utilisé dans divers destructeurs, il faut l'effacer en dernier
     delete_TLweParams(params);
 
     return 0;

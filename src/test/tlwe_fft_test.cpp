@@ -70,7 +70,7 @@ namespace {
 
         inline void intLagrangeHalfCPolynomialUniform(LagrangeHalfCPolynomial *a, int32_t N) {
             FakeLagrangeHalfCPolynomial *fa = fake(a);
-            IntPolynomial *tmp = new_IntPolynomial(N);
+            IntPolynomial *tmp = new_IntPolynomial();
             for (int32_t i = 0; i < N; i++) {
                 tmp->coefs[i] = rand() % 1000 - 500;
             }

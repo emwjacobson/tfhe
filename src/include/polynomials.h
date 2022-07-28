@@ -13,15 +13,7 @@ constexpr static int64_t Value_Ns2 = Value_N / 2;
 
 /** This structure represents an integer polynomial modulo X^N+1 */
 struct IntPolynomial {
-   const int32_t N;
-   int32_t* coefs;
-
-#ifdef __cplusplus
-   IntPolynomial(const int32_t N);
-   ~IntPolynomial();
-   IntPolynomial(const IntPolynomial&) = delete; //forbidden
-   IntPolynomial* operator=(const IntPolynomial&) = delete; //forbidden
-#endif
+   int32_t coefs[Value_N];
 };
 
 
@@ -66,8 +58,8 @@ EXPORT void free_IntPolynomial_array(int32_t nbelts, IntPolynomial* ptr);
 
 //initialize the IntPolynomial structure
 //(equivalent of the C++ constructor)
-EXPORT void init_IntPolynomial(IntPolynomial* obj, const int32_t N);
-EXPORT void init_IntPolynomial_array(int32_t nbelts, IntPolynomial* obj, const int32_t N);
+EXPORT void init_IntPolynomial(IntPolynomial* obj);
+EXPORT void init_IntPolynomial_array(int32_t nbelts, IntPolynomial* obj);
 
 //destroys the IntPolynomial structure
 //(equivalent of the C++ destructor)
@@ -76,8 +68,8 @@ EXPORT void destroy_IntPolynomial_array(int32_t nbelts, IntPolynomial* obj);
 
 //allocates and initialize the IntPolynomial structure
 //(equivalent of the C++ new)
-EXPORT IntPolynomial* new_IntPolynomial(const int32_t N);
-EXPORT IntPolynomial* new_IntPolynomial_array(int32_t nbelts, const int32_t N);
+EXPORT IntPolynomial* new_IntPolynomial();
+EXPORT IntPolynomial* new_IntPolynomial_array(int32_t nbelts);
 
 //destroys and frees the IntPolynomial structure
 //(equivalent of the C++ delete)

@@ -5,7 +5,7 @@
 
 namespace {
 
-    // Fake TGSW structure 
+    // Fake TGSW structure
     struct FakeTGsw {
         //TODO: parallelization
         static const int64_t FAKE_TGSW_UID = 123444802642375465l; // precaution: do not confuse fakes with trues
@@ -24,7 +24,7 @@ namespace {
 
         // construct
         FakeTGsw(int32_t N) : fake_uid(FAKE_TGSW_UID) {
-            message = new_IntPolynomial(N);
+            message = new_IntPolynomial();
             current_variance = 0.;
         }
 
@@ -154,7 +154,7 @@ namespace {
     fake_tGswSymDecrypt(result, sample, key, Msize); \
     }
 
-    //EXPORT int32_t tGswSymDecryptInt(const TGswSample* sample, const TGswKey* key); 
+    //EXPORT int32_t tGswSymDecryptInt(const TGswSample* sample, const TGswKey* key);
     //do we really decrypt Gsw samples?
 
     // support Functions for TGsw
@@ -219,7 +219,7 @@ namespace {
     //fonction de decomposition
     //EXPORT void tGswTLweDecompH(IntPolynomial* result, const TLweSample* sample, const TGswParams* params);
     //EXPORT void tGswTorus32PolynomialDecompH(IntPolynomial* result, const TorusPolynomial* sample, const TGswParams* params);
-    //EXPORT void tGswTLweDecompH(IntPolynomial* result, const TLweSample* sample,const TGswParams* params);	
+    //EXPORT void tGswTLweDecompH(IntPolynomial* result, const TLweSample* sample,const TGswParams* params);
 
     // result= (X^ai-1)*bk (ligne 5 de l'algo)
     inline void fake_tGswMulByXaiMinusOne(TGswSample *result, int32_t ai, const TGswSample *bk, const TGswParams *params) {

@@ -132,7 +132,7 @@ TEST(LagrangeHalfcTest, torusPolynomialMultFFT) {
     const double toler = 1e-9;
     const int32_t N = 1024;
     for (int32_t trials = 0; trials < NBTRIALS; ++trials) {
-        IntPolynomial *a = new_IntPolynomial(N);
+        IntPolynomial *a = new_IntPolynomial();
         TorusPolynomial *b = new_TorusPolynomial(N);
         TorusPolynomial *aB = new_TorusPolynomial(N);
         TorusPolynomial *aBref = new_TorusPolynomial(N);
@@ -161,7 +161,7 @@ TEST(LagrangeHalfcTest, torusPolynomialAddMulRFFT) {
     const double toler = 1e-9;
     const int32_t N = 1024;
     for (int32_t trials = 0; trials < NBTRIALS; ++trials) {
-        IntPolynomial *a = new_IntPolynomial(N);
+        IntPolynomial *a = new_IntPolynomial();
         TorusPolynomial *b = new_TorusPolynomial(N);
         TorusPolynomial *aB = new_TorusPolynomial(N);
         TorusPolynomial *aBref = new_TorusPolynomial(N);
@@ -193,7 +193,7 @@ TEST(LagrangeHalfcTest, torusPolynomialSubMulRFFT) {
     const double toler = 1e-9;
     const int32_t N = 1024;
     for (int32_t trials = 0; trials < NBTRIALS; ++trials) {
-        IntPolynomial *a = new_IntPolynomial(N);
+        IntPolynomial *a = new_IntPolynomial();
         TorusPolynomial *b = new_TorusPolynomial(N);
         TorusPolynomial *aB = new_TorusPolynomial(N);
         TorusPolynomial *aBref = new_TorusPolynomial(N);
