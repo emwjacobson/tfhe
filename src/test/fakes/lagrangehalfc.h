@@ -3,7 +3,7 @@
 
 namespace {
 
-    // Fake TLWE structure 
+    // Fake TLWE structure
     struct FakeLagrangeHalfCPolynomial {
         //TODO: parallelization
         static const int32_t FAKE_TYPE_UID = 213579845; // precaution: distinguish fakes from trues
@@ -17,7 +17,7 @@ namespace {
         innerPolynomial value;
 
         // construct
-        FakeLagrangeHalfCPolynomial(int32_t N) : fake_uid(FAKE_TYPE_UID) {
+        FakeLagrangeHalfCPolynomial() : fake_uid(FAKE_TYPE_UID) {
             isInt = -1;
             value.as_nothing = 0;
         }
@@ -96,17 +96,17 @@ namespace {
         return reps;
     }
 
-    inline LagrangeHalfCPolynomial *fake_new_LagrangeHalfCPolynomial_array(int32_t nbelts, int32_t N) {
+    inline LagrangeHalfCPolynomial *fake_new_LagrangeHalfCPolynomial_array(int32_t nbelts) {
         FakeLagrangeHalfCPolynomial *reps = (FakeLagrangeHalfCPolynomial *) malloc(
                 nbelts * sizeof(FakeLagrangeHalfCPolynomial));
         for (int32_t i = 0; i < nbelts; i++)
-            new(reps + i) FakeLagrangeHalfCPolynomial(N);
+            new(reps + i) FakeLagrangeHalfCPolynomial();
         return (LagrangeHalfCPolynomial *) reps;
     }
 
 #define USE_FAKE_new_LagrangeHalfCPolynomial_array \
-    inline LagrangeHalfCPolynomial* new_LagrangeHalfCPolynomial_array(int32_t nbelts, int32_t N) { \
-    return fake_new_LagrangeHalfCPolynomial_array(nbelts, N); \
+    inline LagrangeHalfCPolynomial* new_LagrangeHalfCPolynomial_array(int32_t nbelts) { \
+    return fake_new_LagrangeHalfCPolynomial_array(nbelts); \
     }
 
     inline void fake_delete_LagrangeHalfCPolynomial_array(int32_t nbelts, LagrangeHalfCPolynomial *ptr) {
@@ -121,13 +121,13 @@ namespace {
     fake_delete_LagrangeHalfCPolynomial_array(nbelts, ptr); \
     }
 
-    inline LagrangeHalfCPolynomial *fake_new_LagrangeHalfCPolynomial(int32_t N) {
-        return fake_new_LagrangeHalfCPolynomial_array(1, N);
+    inline LagrangeHalfCPolynomial *fake_new_LagrangeHalfCPolynomial() {
+        return fake_new_LagrangeHalfCPolynomial_array(1);
     }
 
 #define USE_FAKE_new_LagrangeHalfCPolynomial \
-    inline LagrangeHalfCPolynomial* new_LagrangeHalfCPolynomial(int32_t N) { \
-    return fake_new_LagrangeHalfCPolynomial(N); \
+    inline LagrangeHalfCPolynomial* new_LagrangeHalfCPolynomial() { \
+    return fake_new_LagrangeHalfCPolynomial(); \
     }
 
     inline void fake_delete_LagrangeHalfCPolynomial(LagrangeHalfCPolynomial *ptr) {

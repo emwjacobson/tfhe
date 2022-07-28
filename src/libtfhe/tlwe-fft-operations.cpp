@@ -30,7 +30,7 @@ using namespace std;
 EXPORT void init_TLweSampleFFT(TLweSampleFFT *obj, const TLweParams *params) {
     //a is a table of k+1 polynomials, b is an alias for &a[k]
     const int32_t k = params->k;
-    LagrangeHalfCPolynomial *a = new_LagrangeHalfCPolynomial_array(k + 1, params->N);
+    LagrangeHalfCPolynomial *a = new_LagrangeHalfCPolynomial_array(k + 1);
     double current_variance = 0;
     new(obj) TLweSampleFFT(params, a, current_variance);
 }
@@ -95,7 +95,7 @@ EXPORT void tLweFFTAddMulRTo(TLweSampleFFT *result, const LagrangeHalfCPolynomia
 
     for (int32_t i = 0; i <= k; i++)
         LagrangeHalfCPolynomialAddMul(result->a + i, p, sample->a + i);
-    //result->current_variance += sample->current_variance; 
+    //result->current_variance += sample->current_variance;
     //TODO: how to compute the variance correctly?
 }
 #endif

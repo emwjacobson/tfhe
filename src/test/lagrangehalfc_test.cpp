@@ -9,7 +9,7 @@ using namespace std;
 
 
 /**
- * FFT functions 
+ * FFT functions
  */
 //EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPolynomial* p);
 //EXPORT void TorusPolynomial_fft(TorusPolynomial* result, const LagrangeHalfCPolynomial* p);
@@ -21,7 +21,7 @@ TEST(LagrangeHalfcTest, fftIsBijective) {
         TorusPolynomial *a = new_TorusPolynomial(N);
         TorusPolynomial *acopy = new_TorusPolynomial(N);
         TorusPolynomial *b = new_TorusPolynomial(N);
-        LagrangeHalfCPolynomial *afft = new_LagrangeHalfCPolynomial(N);
+        LagrangeHalfCPolynomial *afft = new_LagrangeHalfCPolynomial();
         torusPolynomialUniform(a);
         torusPolynomialCopy(acopy, a);
         TorusPolynomial_ifft(afft, a);
@@ -48,7 +48,7 @@ TEST(LagrangeHalfcTest, LagrangeHalfCPolynomialClear) {
     for (int32_t trials = 0; trials < NBTRIALS; ++trials) {
         TorusPolynomial *a = new_TorusPolynomial(N);
         TorusPolynomial *zero = new_TorusPolynomial(N);
-        LagrangeHalfCPolynomial *afft = new_LagrangeHalfCPolynomial(N);
+        LagrangeHalfCPolynomial *afft = new_LagrangeHalfCPolynomial();
         LagrangeHalfCPolynomialClear(afft);
         torusPolynomialUniform(a);
         torusPolynomialClear(zero);
@@ -70,7 +70,7 @@ TEST(LagrangeHalfcTest, LagrangeHalfCPolynomialSetTorusConstant) {
         Torus32 mu = uniformTorus32_distrib(generator);
         TorusPolynomial *a = new_TorusPolynomial(N);
         TorusPolynomial *cste = new_TorusPolynomial(N);
-        LagrangeHalfCPolynomial *afft = new_LagrangeHalfCPolynomial(N);
+        LagrangeHalfCPolynomial *afft = new_LagrangeHalfCPolynomial();
         torusPolynomialUniform(a);
 
         //tested function
@@ -100,7 +100,7 @@ TEST(LagrangeHalfcTest, LagrangeHalfCPolynomialAddTorusConstant) {
         TorusPolynomial *a = new_TorusPolynomial(N);
         TorusPolynomial *aPlusCste = new_TorusPolynomial(N);
         TorusPolynomial *b = new_TorusPolynomial(N);
-        LagrangeHalfCPolynomial *afft = new_LagrangeHalfCPolynomial(N);
+        LagrangeHalfCPolynomial *afft = new_LagrangeHalfCPolynomial();
 
         torusPolynomialUniform(a);
         TorusPolynomial_ifft(afft, a);
@@ -219,7 +219,7 @@ TEST(LagrangeHalfcTest, torusPolynomialSubMulRFFT) {
 
 /** termwise addTo in Lagrange space */
 //EXPORT void LagrangeHalfCPolynomialAddTo(
-//	LagrangeHalfCPolynomial* accum, 
+//	LagrangeHalfCPolynomial* accum,
 //	const LagrangeHalfCPolynomial* a);
 TEST(LagrangeHalfcTest, LagrangeHalfCPolynomialAddTo) {
     const int32_t NBTRIALS = 10;
@@ -231,8 +231,8 @@ TEST(LagrangeHalfcTest, LagrangeHalfCPolynomialAddTo) {
         TorusPolynomial *aPlusB = new_TorusPolynomial(N);
         TorusPolynomial *aPlusBbis = new_TorusPolynomial(N);
 
-        LagrangeHalfCPolynomial *afft = new_LagrangeHalfCPolynomial(N);
-        LagrangeHalfCPolynomial *bfft = new_LagrangeHalfCPolynomial(N);
+        LagrangeHalfCPolynomial *afft = new_LagrangeHalfCPolynomial();
+        LagrangeHalfCPolynomial *bfft = new_LagrangeHalfCPolynomial();
 
         torusPolynomialUniform(a);
         TorusPolynomial_ifft(afft, a);
@@ -258,19 +258,19 @@ TEST(LagrangeHalfcTest, LagrangeHalfCPolynomialAddTo) {
 /** termwise multiplication in Lagrange space */
 //NICOLAS: do not test this function (implem dependent)
 //EXPORT void LagrangeHalfCPolynomialMul(
-//	LagrangeHalfCPolynomial* result, 
-//	const LagrangeHalfCPolynomial* a, 
+//	LagrangeHalfCPolynomial* result,
+//	const LagrangeHalfCPolynomial* a,
 //	const LagrangeHalfCPolynomial* b);
 
 
 //NICOLAS: do not test this function (implem dependent)
 //EXPORT void LagrangeHalfCPolynomialAddMul(
-//	LagrangeHalfCPolynomial* accum, 
-//	const LagrangeHalfCPolynomial* a, 
+//	LagrangeHalfCPolynomial* accum,
+//	const LagrangeHalfCPolynomial* a,
 //	const LagrangeHalfCPolynomial* b);
 
 //NICOLAS: do not test this function (implem dependent)
 //EXPORT void LagrangeHalfCPolynomialSubMul(
-//	LagrangeHalfCPolynomial* accum, 
-//	const LagrangeHalfCPolynomial* a, 
+//	LagrangeHalfCPolynomial* accum,
+//	const LagrangeHalfCPolynomial* a,
 //	const LagrangeHalfCPolynomial* b);

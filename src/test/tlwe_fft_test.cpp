@@ -1,4 +1,4 @@
-/* 
+/*
  * tlwe_fft_test.cpp
  * Tests the fft functions defined in /src/include/tlwe_functions.h
  * A set of parameters ad keys is defined in the beginning (N=512,1024,2048 and k=1,2)
@@ -167,7 +167,7 @@ namespace {
             const int32_t N = params->N;
             TLweSampleFFT *result = new_TLweSampleFFT(params);
             TLweSampleFFT *sample = new_TLweSampleFFT(params);
-            LagrangeHalfCPolynomial *p = new_LagrangeHalfCPolynomial(N);
+            LagrangeHalfCPolynomial *p = new_LagrangeHalfCPolynomial();
             FakeLagrangeHalfCPolynomial *fp = fake(p);
             FakeLagrangeHalfCPolynomial *resulta = fake(result->a);
             FakeLagrangeHalfCPolynomial *samplea = fake(sample->a);

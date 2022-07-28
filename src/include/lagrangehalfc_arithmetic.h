@@ -8,7 +8,7 @@
 
 //initialize the LagrangeHalfCPolynomial structure
 //(equivalent of the C++ constructor)
-EXPORT void init_LagrangeHalfCPolynomial(LagrangeHalfCPolynomial* obj, const int32_t N);
+EXPORT void init_LagrangeHalfCPolynomial(LagrangeHalfCPolynomial* obj);
 
 //destroys the LagrangeHalfCPolynomial structure
 //(equivalent of the C++ destructor)
