@@ -37,7 +37,7 @@ void full_adder_MUX(LweSample *sum, const LweSample *x, const LweSample *y, cons
     LweSample *temp = new_LweSample_array(2, in_out_params);
 
     for (int32_t i = 0; i < nb_bits; ++i) {
-        //sumi = xi XOR yi XOR carry(i-1) 
+        //sumi = xi XOR yi XOR carry(i-1)
         bootsXOR(temp, x + i, y + i, &keyset->cloud); // temp = xi XOR yi
         bootsXOR(sum + i, temp, carry, &keyset->cloud);
 
@@ -77,7 +77,7 @@ void full_adder(LweSample *sum, const LweSample *x, const LweSample *y, const in
     LweSample *temp = new_LweSample_array(3, in_out_params);
 
     for (int32_t i = 0; i < nb_bits; ++i) {
-        //sumi = xi XOR yi XOR carry(i-1) 
+        //sumi = xi XOR yi XOR carry(i-1)
         bootsXOR(temp, x + i, y + i, &keyset->cloud); // temp = xi XOR yi
         bootsXOR(sum + i, temp, carry, &keyset->cloud);
 
@@ -137,10 +137,10 @@ int32_t main(int32_t argc, char **argv) {
 #ifndef NDEBUG
     cout << "DEBUG MODE!" << endl;
 #endif
-    const int32_t nb_bits = 16;
-    const int32_t nb_trials = 10;
+    const int32_t nb_bits = 4;
+    const int32_t nb_trials = 1;
 
-    // generate params 
+    // generate params
     int32_t minimum_lambda = 100;
     TFheGateBootstrappingParameterSet *params = new_default_gate_bootstrapping_parameters(minimum_lambda);
     const LweParams *in_out_params = params->in_out_params;
@@ -162,7 +162,7 @@ int32_t main(int32_t argc, char **argv) {
 
 
 
-        // evaluate the addition circuit 
+        // evaluate the addition circuit
         cout << "starting bootstrapping " << nb_bits << "-bits addition circuit (FA in MUX version)...trial " << trial
              << endl;
         clock_t begin1 = clock();
@@ -197,7 +197,7 @@ int32_t main(int32_t argc, char **argv) {
 
 
 
-        // evaluate the addition circuit 
+        // evaluate the addition circuit
         cout << "starting bootstrapping " << nb_bits << "-bits addition circuit (FA)...trial " << trial << endl;
         clock_t begin2 = clock();
         full_adder(sum, x, y, nb_bits, keyset);
@@ -228,7 +228,7 @@ int32_t main(int32_t argc, char **argv) {
 
 
         LweSample *comp = new_LweSample(in_out_params);
-        // evaluate the addition circuit 
+        // evaluate the addition circuit
         cout << "starting bootstrapping " << nb_bits << "-bits comparison...trial " << trial << endl;
         clock_t begin3 = clock();
         comparison_MUX(comp, x, y, nb_bits, keyset);

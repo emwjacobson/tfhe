@@ -42,10 +42,10 @@ int32_t main(int32_t argc, char **argv) {
 #ifndef NDEBUG
     cout << "DEBUG MODE!" << endl;
 #endif
-    const int32_t nb_samples = 64;
-    const int32_t nb_trials = 10;
+    const int32_t nb_samples = 2;
+    const int32_t nb_trials = 1;
 
-    // generate params 
+    // generate params
     int32_t minimum_lambda = 100;
     TFheGateBootstrappingParameterSet *params = new_default_gate_bootstrapping_parameters(minimum_lambda);
     const LweParams *in_out_params = params->in_out_params;
