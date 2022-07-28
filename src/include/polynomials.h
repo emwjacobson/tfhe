@@ -52,11 +52,8 @@ struct TorusPolynomial {
  */
 struct LagrangeHalfCPolynomial
 {
-   cplx* coefsC;
+   cplx coefsC[Value_Ns2];
    void* precomp; // This variable is likely not used, but kept for compatability
-
-   LagrangeHalfCPolynomial(int32_t N);
-   ~LagrangeHalfCPolynomial();
 };
 
 //allocate memory space for a IntPolynomial
@@ -125,8 +122,8 @@ EXPORT void free_LagrangeHalfCPolynomial_array(int32_t nbelts, LagrangeHalfCPoly
 
 //initialize the LagrangeHalfCPolynomial structure
 //(equivalent of the C++ constructor)
-EXPORT void init_LagrangeHalfCPolynomial(LagrangeHalfCPolynomial* obj, const int32_t N);
-EXPORT void init_LagrangeHalfCPolynomial_array(int32_t nbelts, LagrangeHalfCPolynomial* obj, const int32_t N);
+EXPORT void init_LagrangeHalfCPolynomial(LagrangeHalfCPolynomial* obj);
+EXPORT void init_LagrangeHalfCPolynomial_array(int32_t nbelts, LagrangeHalfCPolynomial* obj);
 
 //destroys the LagrangeHalfCPolynomial structure
 //(equivalent of the C++ destructor)
@@ -135,8 +132,8 @@ EXPORT void destroy_LagrangeHalfCPolynomial_array(int32_t nbelts, LagrangeHalfCP
 
 //allocates and initialize the LagrangeHalfCPolynomial structure
 //(equivalent of the C++ new)
-EXPORT LagrangeHalfCPolynomial* new_LagrangeHalfCPolynomial(const int32_t N);
-EXPORT LagrangeHalfCPolynomial* new_LagrangeHalfCPolynomial_array(int32_t nbelts, const int32_t N);
+EXPORT LagrangeHalfCPolynomial* new_LagrangeHalfCPolynomial();
+EXPORT LagrangeHalfCPolynomial* new_LagrangeHalfCPolynomial_array(int32_t nbelts);
 
 //destroys and frees the LagrangeHalfCPolynomial structure
 //(equivalent of the C++ delete)
