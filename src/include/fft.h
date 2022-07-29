@@ -37,8 +37,6 @@ extern "C" {
 
 void fft_transform(double *real, double *imag);
 
-void fft_transform_reverse(double *real, double *imag);
-
 #ifdef __cplusplus
 }
 #endif
