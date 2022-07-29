@@ -19,6 +19,7 @@ public:
   cl::Kernel k_fft_transform_reverse;
   cl::Kernel k_fft_transform;
   cl::Kernel k_IntPolynomial_ifft;
+  cl::Kernel k_TorusPolynomial_ifft;
 
   cplx* omegaxminus1;
 

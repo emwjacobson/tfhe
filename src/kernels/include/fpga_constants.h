@@ -34,6 +34,7 @@ typedef std::complex<double> cplx;
 extern "C" void fft_transform_reverse(double *_real, double *_imag);
 extern "C" void fft_transform(double *_real, double *_imag);
 extern "C" void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynomial* p);
+extern "C" void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPolynomial* p);
 
 // These should be implemented as a ROM in the final design
 static double trig_table_reverse[] = {

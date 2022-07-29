@@ -203,21 +203,24 @@ EXPORT void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynom
 }
 
 EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPolynomial* p) {
-    cplx* res = result->coefsC;
-    const Torus32* a = p->coefsT;
+    cl::Buffer result_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(LagrangeHalfCPolynomial));
+    cl::Buffer p_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TorusPolynomial));
 
-    double real_inout[Value_2N];
-    double imag_inout[Value_2N];
+	LagrangeHalfCPolynomial *result_map = (LagrangeHalfCPolynomial *)fpga.q.enqueueMapBuffer(result_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(LagrangeHalfCPolynomial));
+	TorusPolynomial *p_map = (TorusPolynomial *)fpga.q.enqueueMapBuffer(p_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TorusPolynomial));
 
-    static const double _2pm33 = 1./double(INT64_C(1)<<33);
-    int32_t* aa = (int32_t*) a;
-    for (int32_t i=0; i<Value_N; i++) real_inout[i]=aa[i]*_2pm33;
-    for (int32_t i=0; i<Value_N; i++) real_inout[Value_N+i]=-real_inout[i];
-    for (int32_t i=0; i<Value_2N; i++) imag_inout[i]=0;
+	memcpy(p_map->coefsT, p->coefsT, sizeof(int32_t) * Value_N);
 
-    fft_transform_reverse(real_inout, imag_inout);
+	fpga.k_TorusPolynomial_ifft.setArg(0, result_buf);
+	fpga.k_TorusPolynomial_ifft.setArg(1, p_buf);
 
-    for (int32_t i=0; i<Value_Ns2; i++) res[i]=cplx(real_inout[2*i+1],imag_inout[2*i+1]);
+	fpga.q.enqueueMigrateMemObjects({ result_buf, p_buf }, 0 /* 0 means from host*/);
+	fpga.q.enqueueTask(fpga.k_TorusPolynomial_ifft);
+	fpga.q.enqueueMigrateMemObjects({ result_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
+
+	fpga.q.finish();
+
+	memcpy(result->coefsC, result_map->coefsC, sizeof(cplx) * Value_Ns2);
 }
 
 EXPORT void TorusPolynomial_fft(TorusPolynomial* result, const LagrangeHalfCPolynomial* p) {

@@ -28,6 +28,7 @@ FPGA_Processor::FPGA_Processor() {
     k_fft_transform_reverse = cl::Kernel(program, "fft_transform_reverse", &err);
     k_fft_transform = cl::Kernel(program, "fft_transform", &err);
     k_IntPolynomial_ifft = cl::Kernel(program, "IntPolynomial_ifft", &err);
+    k_TorusPolynomial_ifft = cl::Kernel(program, "TorusPolynomial_ifft", &err);
     printf("Finished loading FPGA kernels\n");
 }
 
