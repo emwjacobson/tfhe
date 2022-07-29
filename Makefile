@@ -55,7 +55,7 @@ PLATFORM := xilinx_u280_xdma_201920_3
 TARGET := sw_emu
 CONFIG_NAME := config.cfg
 KERNEL_XO := fft_transform_reverse.xo fft_transform.xo
-KERNEL_INCLUDE := ./src/libtfhe/kernels/include/
+KERNEL_INCLUDE := ./src/kernels/include/
 PROJECT_NAME := fft
 
 VPP_XCLBIN_FLAGS := -l --profile_kernel data:all:all:all -O1 --platform $(PLATFORM) -t $(TARGET) --config $(CONFIG_NAME) -I$(KERNEL_INCLUDE) $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
@@ -65,7 +65,7 @@ xclbin: $(KERNEL_XO)
 	$(VPP) $(VPP_XCLBIN_FLAGS)
 	emconfigutil --platform $(PLATFORM) --nd 1
 
-%.xo: src/libtfhe/kernels/%.cpp
+%.xo: src/kernels/%.cpp
 	$(VPP) $(VPP_XO_FLAGS) -k $(basename $(notdir $<)) $< -o $@
 
 runtest: test xclbin
