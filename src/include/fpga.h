@@ -23,7 +23,9 @@ public:
 
 private:
   std::vector<cl::Device> get_xilinx_devices();
-  char* read_binary_file(const std::string &xclbin_file_name, unsigned &nb);
+  std::vector<unsigned char> read_binary_file(const std::string &xclbin_file_name);
+
+  cl::Program program;
 };
 
 extern FPGA_Processor fpga;

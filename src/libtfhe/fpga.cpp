@@ -16,14 +16,14 @@ FPGA_Processor::FPGA_Processor() {
 
     // Initialize OpenCL Environment
     cl_int err;
-    unsigned fileBufSize;
     std::vector<cl::Device> devices = get_xilinx_devices();
     devices.resize(1);
     cl::Device device = devices[0];
     context = cl::Context(device, NULL, NULL, NULL, &err);
-    char* fileBuf = read_binary_file("fft.xclbin", fileBufSize);
-    cl::Program::Binaries bins{{fileBuf, fileBufSize}};
-    cl::Program program(context, devices, bins, NULL, &err);
+    auto filebuf = read_binary_file("fft.xclbin");
+    cl::Program::Binaries bins{{filebuf.data(), filebuf.size()}};
+
+    program = cl::Program(context, devices, bins, NULL, &err);
     q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
     k_fft_transform_reverse = cl::Kernel(program, "fft_transform_reverse", &err);
     k_fft_transform = cl::Kernel(program, "fft_transform", &err);
@@ -59,19 +59,22 @@ std::vector<cl::Device> FPGA_Processor::get_xilinx_devices() {
     return devices;
 }
 
-char* FPGA_Processor::read_binary_file(const std::string &xclbin_file_name, unsigned &nb) {
-    if(access(xclbin_file_name.c_str(), R_OK) != 0) {
-        printf("ERROR: %s xclbin not available please build\n", xclbin_file_name.c_str());
+std::vector<unsigned char> FPGA_Processor::read_binary_file(const std::string &xclbin_file_name) {
+    std::cout << "INFO: Reading " << xclbin_file_name << std::endl;
+
+    if (access(xclbin_file_name.c_str(), R_OK) != 0) {
+        printf("ERROR: %s xclbin not available please build\n",
+               xclbin_file_name.c_str());
         exit(EXIT_FAILURE);
     }
     //Loading XCL Bin into char buffer
-    std::cout << "INFO: Loading '" << xclbin_file_name << "'\n";
+    std::cout << "Loading: '" << xclbin_file_name.c_str() << "'\n";
     std::ifstream bin_file(xclbin_file_name.c_str(), std::ifstream::binary);
-    bin_file.seekg (0, bin_file.end);
-    nb = bin_file.tellg();
-    bin_file.seekg (0, bin_file.beg);
-    // char *buf = new char [nb];
-		char *buf = (char *)malloc(nb * sizeof(char));
-    bin_file.read(buf, nb);
+    bin_file.seekg(0, bin_file.end);
+    auto nb = bin_file.tellg();
+    bin_file.seekg(0, bin_file.beg);
+    std::vector<unsigned char> buf;
+    buf.resize(nb);
+    bin_file.read(reinterpret_cast<char*>(buf.data()), nb);
     return buf;
 }

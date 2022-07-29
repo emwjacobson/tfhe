@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/include/"
+                "/usr/include/",
+                "${workspaceFolder}/src/kernels/include/"
             ],
             "defines": [],
             "compilerPath": "/tools/Xilinx/Vitis/2020.1/gnu/aarch32/lin/gcc-arm-none-eabi/bin/arm-none-eabi-gcc",

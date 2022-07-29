@@ -58,8 +58,8 @@ KERNEL_XO := fft_transform_reverse.xo fft_transform.xo
 KERNEL_INCLUDE := ./src/kernels/include/
 PROJECT_NAME := fft
 
-VPP_XCLBIN_FLAGS := -l --profile_kernel data:all:all:all -O1 --platform $(PLATFORM) -t $(TARGET) --config $(CONFIG_NAME) -I$(KERNEL_INCLUDE) $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
-VPP_XO_FLAGS := -c --platform $(PLATFORM) -t $(TARGET) -I$(KERNEL_INCLUDE)
+VPP_XCLBIN_FLAGS := -l --profile_kernel data:all:all:all -O1 --platform $(PLATFORM) -t $(TARGET) --input_files $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
+VPP_XO_FLAGS := -c -O1 --platform $(PLATFORM) -t $(TARGET) -I$(KERNEL_INCLUDE)
 
 xclbin: $(KERNEL_XO)
 	$(VPP) $(VPP_XCLBIN_FLAGS)
