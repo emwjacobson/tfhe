@@ -3,10 +3,37 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <complex>
+typedef std::complex<double> cplx;
 
 #define N 1024
 #define _2N 2*N
 #define Ns2 N/2
+
+// namespace fpga {
+
+  typedef int32_t Torus32; //avant uint32_t
+
+  /** This structure represents an integer polynomial modulo X^N+1 */
+  struct IntPolynomial {
+    int32_t coefs[N];
+  };
+
+  /** This structure represents an torus polynomial modulo X^N+1 */
+  struct TorusPolynomial {
+    Torus32 coefsT[N];
+  };
+
+  struct LagrangeHalfCPolynomial {
+    cplx coefsC[Ns2];
+    void* precomp; // This variable is likely not used, but kept for compatability
+  };
+
+// }
+
+extern "C" void fft_transform_reverse(double *_real, double *_imag);
+extern "C" void fft_transform(double *_real, double *_imag);
+extern "C" void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynomial* p);
 
 // These should be implemented as a ROM in the final design
 static double trig_table_reverse[] = {

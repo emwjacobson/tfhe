@@ -54,7 +54,7 @@ VPP := v++
 PLATFORM := xilinx_u280_xdma_201920_3
 TARGET := sw_emu
 CONFIG_NAME := config.cfg
-KERNEL_XO := fft_transform_reverse.xo fft_transform.xo
+KERNEL_XO := IntPolynomial_ifft.xo fft_transform_reverse.xo fft_transform.xo
 KERNEL_INCLUDE := ./src/kernels/include/
 PROJECT_NAME := fft
 
