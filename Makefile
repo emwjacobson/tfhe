@@ -13,7 +13,7 @@ clean: build
 	make -C build clean
 
 distclean:
-	rm -rf build builddtests buildotests *.log _x .Xil *.compile_summary *.xo *.info *.link_summary *.csv *.run_summary .run/; true
+	rm -rf build builddtests buildotests *.log _x .Xil *.compile_summary *.xo* *.info *.link_summary *.csv *.run_summary .run/ fft.xclbin.*; true
 
 # test: builddtests src/test/googletest/CMakeLists.txt
 test: builddtests buildotests src/test/googletest/CMakeLists.txt
@@ -54,7 +54,7 @@ VPP := v++
 PLATFORM := xilinx_u280_xdma_201920_3
 TARGET := sw_emu
 CONFIG_NAME := config.cfg
-KERNEL_XO := IntPolynomial_ifft.xo TorusPolynomial_ifft.xo fft_transform_reverse.xo fft_transform.xo
+KERNEL_XO := IntPolynomial_ifft.xo TorusPolynomial_ifft.xo fft_transform_reverse.xo fft_transform.xo TorusPolynomial_fft.xo
 KERNEL_INCLUDE := ./src/kernels/include/
 PROJECT_NAME := fft
 
