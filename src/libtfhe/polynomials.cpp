@@ -182,13 +182,13 @@ EXPORT void LagrangeHalfCPolynomialAddTo(
 }
 
 EXPORT void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynomial* p) {
-    cl::Buffer result_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(LagrangeHalfCPolynomial));
-    cl::Buffer p_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(IntPolynomial));
+    cl::Buffer result_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(LagrangeHalfCPolynomial_Collapsed));
+    cl::Buffer p_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(IntPolynomial_Collapsed));
 
-	LagrangeHalfCPolynomial *result_map = (LagrangeHalfCPolynomial *)fpga.q.enqueueMapBuffer(result_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(LagrangeHalfCPolynomial));
-	IntPolynomial *p_map = (IntPolynomial *)fpga.q.enqueueMapBuffer(p_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(IntPolynomial));
+	LagrangeHalfCPolynomial_Collapsed *result_map = (LagrangeHalfCPolynomial_Collapsed *)fpga.q.enqueueMapBuffer(result_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(LagrangeHalfCPolynomial_Collapsed));
+	IntPolynomial_Collapsed *p_map = (IntPolynomial_Collapsed *)fpga.q.enqueueMapBuffer(p_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(IntPolynomial_Collapsed));
 
-	memcpy(p_map->coefs, p->coefs, sizeof(int32_t) * Value_N);
+	memcpy(p_map, p->coefs, sizeof(int32_t) * Value_N);
 
 	fpga.k_IntPolynomial_ifft.setArg(0, result_buf);
 	fpga.k_IntPolynomial_ifft.setArg(1, p_buf);
@@ -199,17 +199,17 @@ EXPORT void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynom
 
 	fpga.q.finish();
 
-	memcpy(result->coefsC, result_map->coefsC, sizeof(cplx) * Value_Ns2);
+	memcpy(result->coefsC, result_map, sizeof(cplx) * Value_Ns2);
 }
 
 EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPolynomial* p) {
-    cl::Buffer result_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(LagrangeHalfCPolynomial));
-    cl::Buffer p_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TorusPolynomial));
+    cl::Buffer result_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(LagrangeHalfCPolynomial_Collapsed));
+    cl::Buffer p_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TorusPolynomial_Collapsed));
 
-	LagrangeHalfCPolynomial *result_map = (LagrangeHalfCPolynomial *)fpga.q.enqueueMapBuffer(result_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(LagrangeHalfCPolynomial));
-	TorusPolynomial *p_map = (TorusPolynomial *)fpga.q.enqueueMapBuffer(p_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TorusPolynomial));
+	LagrangeHalfCPolynomial_Collapsed *result_map = (LagrangeHalfCPolynomial_Collapsed *)fpga.q.enqueueMapBuffer(result_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(LagrangeHalfCPolynomial_Collapsed));
+	TorusPolynomial_Collapsed *p_map = (TorusPolynomial_Collapsed *)fpga.q.enqueueMapBuffer(p_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TorusPolynomial_Collapsed));
 
-	memcpy(p_map->coefsT, p->coefsT, sizeof(int32_t) * Value_N);
+	memcpy(p_map, p->coefsT, sizeof(int32_t) * Value_N);
 
 	fpga.k_TorusPolynomial_ifft.setArg(0, result_buf);
 	fpga.k_TorusPolynomial_ifft.setArg(1, p_buf);
@@ -220,17 +220,17 @@ EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPol
 
 	fpga.q.finish();
 
-	memcpy(result->coefsC, result_map->coefsC, sizeof(cplx) * Value_Ns2);
+	memcpy(result->coefsC, result_map, sizeof(cplx) * Value_Ns2);
 }
 
 EXPORT void TorusPolynomial_fft(TorusPolynomial* result, const LagrangeHalfCPolynomial* p) {
-    cl::Buffer result_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TorusPolynomial));
-    cl::Buffer p_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(LagrangeHalfCPolynomial));
+    cl::Buffer result_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TorusPolynomial_Collapsed));
+    cl::Buffer p_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(LagrangeHalfCPolynomial_Collapsed));
 
-	TorusPolynomial *result_map = (TorusPolynomial *)fpga.q.enqueueMapBuffer(result_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TorusPolynomial));
-	LagrangeHalfCPolynomial *p_map = (LagrangeHalfCPolynomial *)fpga.q.enqueueMapBuffer(p_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(LagrangeHalfCPolynomial));
+	TorusPolynomial_Collapsed *result_map = (TorusPolynomial_Collapsed *)fpga.q.enqueueMapBuffer(result_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TorusPolynomial_Collapsed));
+	LagrangeHalfCPolynomial_Collapsed *p_map = (LagrangeHalfCPolynomial_Collapsed *)fpga.q.enqueueMapBuffer(p_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(LagrangeHalfCPolynomial_Collapsed));
 
-	memcpy(p_map->coefsC, p->coefsC, sizeof(cplx) * Value_Ns2);
+	memcpy(p_map, p->coefsC, sizeof(cplx) * Value_Ns2);
 
 	fpga.k_TorusPolynomial_fft.setArg(0, result_buf);
 	fpga.k_TorusPolynomial_fft.setArg(1, p_buf);
@@ -241,7 +241,7 @@ EXPORT void TorusPolynomial_fft(TorusPolynomial* result, const LagrangeHalfCPoly
 
 	fpga.q.finish();
 
-	memcpy(result->coefsT, result_map->coefsT, sizeof(Torus32) * Value_N);
+	memcpy(result->coefsT, result_map, sizeof(Torus32) * Value_N);
 
 
 

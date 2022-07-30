@@ -18,24 +18,27 @@ typedef std::complex<double> cplx;
   struct IntPolynomial {
     int32_t coefs[N];
   };
+  typedef int32_t IntPolynomial_Collapsed[N];
 
   /** This structure represents an torus polynomial modulo X^N+1 */
   struct TorusPolynomial {
     Torus32 coefsT[N];
   };
+  typedef Torus32 TorusPolynomial_Collapsed[N];
 
   struct LagrangeHalfCPolynomial {
     cplx coefsC[Ns2];
     void* precomp; // This variable is likely not used, but kept for compatability
   };
+  typedef cplx LagrangeHalfCPolynomial_Collapsed[Ns2];
 
 // }
 
 extern "C" void fft_transform_reverse(double *_real, double *_imag);
 extern "C" void fft_transform(double *_real, double *_imag);
-extern "C" void IntPolynomial_ifft(LagrangeHalfCPolynomial* result, const IntPolynomial* p);
-extern "C" void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPolynomial* p);
-extern "C" void TorusPolynomial_fft(TorusPolynomial* result, const LagrangeHalfCPolynomial* p);
+extern "C" void IntPolynomial_ifft(LagrangeHalfCPolynomial_Collapsed result, const IntPolynomial_Collapsed p);
+extern "C" void TorusPolynomial_ifft(LagrangeHalfCPolynomial_Collapsed result, const TorusPolynomial_Collapsed p);
+extern "C" void TorusPolynomial_fft(TorusPolynomial_Collapsed result, const LagrangeHalfCPolynomial_Collapsed p);
 
 // These should be implemented as a ROM in the final design
 static double trig_table_reverse[] = {

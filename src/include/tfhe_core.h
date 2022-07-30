@@ -10,6 +10,10 @@
 #include <complex>
 typedef std::complex< double > cplx; // https://stackoverflow.com/a/31800404
 
+constexpr static int64_t Value_N = 1024;
+constexpr static int64_t Value_2N = 2 * Value_N;
+constexpr static int64_t Value_Ns2 = Value_N / 2;
+
 EXPORT void die_dramatically(const char* message);
 
 
@@ -22,6 +26,12 @@ EXPORT void die_dramatically(const char* message);
 // natural at all.
 typedef int32_t Torus32; //avant uint32_t
 //typedef int64_t Torus64; //avant uint64_t
+
+// "Collapsed" representation of datatypes that avoid using structs
+// Must be defined identixcally to `fpga_constants.h`
+typedef int32_t IntPolynomial_Collapsed[Value_N];
+typedef Torus32 TorusPolynomial_Collapsed[Value_N];
+typedef cplx LagrangeHalfCPolynomial_Collapsed[Value_Ns2];
 
 struct LweParams;
 struct LweKey;

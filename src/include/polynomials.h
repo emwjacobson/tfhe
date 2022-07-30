@@ -7,10 +7,6 @@
 #include "tfhe_core.h"
 #include "fft.h"
 
-constexpr static int64_t Value_N = 1024;
-constexpr static int64_t Value_2N = 2 * Value_N;
-constexpr static int64_t Value_Ns2 = Value_N / 2;
-
 /** This structure represents an integer polynomial modulo X^N+1 */
 struct IntPolynomial {
    int32_t coefs[Value_N];
