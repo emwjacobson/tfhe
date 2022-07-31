@@ -6,7 +6,6 @@
 #include "lagrangehalfc_arithmetic.h"
 #include "numeric_functions.h"
 #include "polynomials.h"
-#include "fft.h"
 #include "fpga.h"
 
 using namespace std;

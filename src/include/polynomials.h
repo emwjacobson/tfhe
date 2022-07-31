@@ -5,7 +5,6 @@
 ///@brief This file contains the declaration of polynomials structures
 
 #include "tfhe_core.h"
-#include "fft.h"
 
 /** This structure represents an integer polynomial modulo X^N+1 */
 struct IntPolynomial {

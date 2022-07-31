@@ -31,7 +31,6 @@ set(SRCS
     tfhe_garbage_collector.cpp
     tfhe_gate_bootstrapping.cpp
     tfhe_gate_bootstrapping_structures.cpp
-    fft.cpp
     fpga.cpp
     )
 
