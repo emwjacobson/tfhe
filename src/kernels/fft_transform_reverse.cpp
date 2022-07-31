@@ -8,19 +8,7 @@
 extern "C" {
 
 	// This is a HLS implementation that models the x86-64 AVX implementation.
-	void fft_transform_reverse(double *_real, double *_imag) {
-		#pragma HLS INTERFACE m_axi port=_real bundle=inout_real
-		#pragma HLS INTERFACE m_axi port=_imag bundle=inout_imag
-
-		double real[_2N];
-		double imag[_2N];
-		#pragma HLS ARRAY_PARTITION variable=real type=complete
-		#pragma HLS ARRAY_PARTITION variable=imag type=complete
-
-		// Pull data from interface into function
-		memcpy(&real, _real, sizeof(double) * _2N);
-		memcpy(&imag, _imag, sizeof(double) * _2N);
-
+	void fft_transform_reverse(double *real, double *imag) {
 		// Bit-reversed addressing permutation
 		uint64_t i;
 		for (i = 0; i < _2N; i++) {
@@ -100,9 +88,6 @@ extern "C" {
 				break;
 			trigtables += size;
 		}
-
-		memcpy(_real, &real, sizeof(double) * _2N);
-		memcpy(_imag, &imag, sizeof(double) * _2N);
 
 		return;
 	}

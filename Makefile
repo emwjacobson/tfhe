@@ -54,19 +54,28 @@ VPP := v++
 PLATFORM := xilinx_u280_xdma_201920_3
 TARGET := sw_emu
 CONFIG_NAME := config.cfg
-KERNEL_XO := IntPolynomial_ifft.xo TorusPolynomial_ifft.xo fft_transform_reverse.xo fft_transform.xo TorusPolynomial_fft.xo
-KERNEL_INCLUDE := ./src/kernels/include/
+KERNEL_XO := IntPolynomial_ifft.xo TorusPolynomial_ifft.xo TorusPolynomial_fft.xo
+KERNEL_SOURCES := fft_transform_reverse.cpp fft_transform.cpp
+KERNEL_FOLDER := ./src/kernels
 PROJECT_NAME := fft
 
-VPP_XCLBIN_FLAGS := -l --profile_kernel data:all:all:all -O1 --platform $(PLATFORM) -t $(TARGET) --input_files $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
-VPP_XO_FLAGS := -c -O1 --platform $(PLATFORM) -t $(TARGET) -I$(KERNEL_INCLUDE)
+ifeq ($(TARGET), sw_emu) # sw_emu needs the sources, easiest to generate their xo files to include the sources. hw(_emu) have sources manually included
+	KERNEL_XO += fft_transform_reverse.xo fft_transform.xo
+endif
+
+VPP_XCLBIN_FLAGS := -l -j $(shell nproc) --profile_kernel data:all:all:all -O1 --platform $(PLATFORM) -t $(TARGET) --input_files $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
+VPP_XO_FLAGS := -c -O1 --platform $(PLATFORM) -t $(TARGET) -I$(KERNEL_FOLDER)/include/
 
 xclbin: $(KERNEL_XO)
 	$(VPP) $(VPP_XCLBIN_FLAGS)
 	emconfigutil --platform $(PLATFORM) --nd 1
 
 %.xo: src/kernels/%.cpp
+ifeq ($(TARGET), sw_emu)
 	$(VPP) $(VPP_XO_FLAGS) -k $(basename $(notdir $<)) $< -o $@
+else
+	$(VPP) $(VPP_XO_FLAGS) -k $(basename $(notdir $<)) $< $(addprefix $(KERNEL_FOLDER)/, $(KERNEL_SOURCES)) -o $@
+endif
 
 runtest: test xclbin
 	cp $(PROJECT_NAME).xclbin emconfig.json ./builddtests/test
@@ -76,3 +85,4 @@ runtest: test xclbin
 	XCL_EMULATION_MODE=$(TARGET) ./builddtests/test/test-lwe-fpga
 	XCL_EMULATION_MODE=$(TARGET) ./builddtests/test/test-multiplication-fpga
 	XCL_EMULATION_MODE=$(TARGET) ./builddtests/test/test-addition-boot-fpga
+	XCL_EMULATION_MODE=$(TARGET) ./builddtests/test/test-long-run-fpga

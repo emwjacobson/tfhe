@@ -26,7 +26,6 @@ FPGA_Processor::FPGA_Processor() {
     program = cl::Program(context, devices, bins, NULL, &err);
     q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
     k_TorusPolynomial_fft = cl::Kernel(program, "TorusPolynomial_fft", &err);
-    k_fft_transform = cl::Kernel(program, "fft_transform", &err);
     k_IntPolynomial_ifft = cl::Kernel(program, "IntPolynomial_ifft", &err);
     k_TorusPolynomial_ifft = cl::Kernel(program, "TorusPolynomial_ifft", &err);
     printf("Finished loading FPGA kernels\n");
