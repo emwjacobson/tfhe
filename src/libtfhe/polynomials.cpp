@@ -241,26 +241,4 @@ EXPORT void TorusPolynomial_fft(TorusPolynomial* result, const LagrangeHalfCPoly
 	fpga.q.finish();
 
 	memcpy(result->coefsT, result_map, sizeof(Torus32) * Value_N);
-
-
-
-
-    // Torus32* res = result->coefsT;
-    // const cplx* a = p->coefsC;
-
-    // double real_inout[Value_2N];
-    // double imag_inout[Value_2N];
-
-    // static const double _2p32 = double(INT64_C(1)<<32);
-    // static const double _1sN = double(1)/double(Value_N);
-    // //double* a_dbl=(double*) a;
-    // for (int32_t i=0; i<Value_N; i++) real_inout[2*i]=0;
-    // for (int32_t i=0; i<Value_N; i++) imag_inout[2*i]=0;
-    // for (int32_t i=0; i<Value_Ns2; i++) real_inout[2*i+1]=real(a[i]);
-    // for (int32_t i=0; i<Value_Ns2; i++) imag_inout[2*i+1]=imag(a[i]);
-    // for (int32_t i=0; i<Value_Ns2; i++) real_inout[Value_2N-1-2*i]=real(a[i]);
-    // for (int32_t i=0; i<Value_Ns2; i++) imag_inout[Value_2N-1-2*i]=-imag(a[i]);
-    // fft_transform(real_inout, imag_inout);
-    // for (int32_t i=0; i<Value_N; i++) res[i]=Torus32(int64_t(real_inout[i]*_1sN*_2p32));
-    // //pas besoin du fmod... Torus32(int64_t(fmod(rev_out[i]*_1sN,1.)*_2p32));
 }
