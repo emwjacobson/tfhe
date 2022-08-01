@@ -6,16 +6,16 @@
 #include <complex>
 typedef std::complex<double> cplx;
 
-#define N 1024
-#define _2N 2*N
-#define Ns2 N/2
+#define param_N 1024
+#define param_2N 2*param_N
+#define param_Ns2 param_N/2
 #define param_k 1
-#define kpl 3
+#define param_kpl 3
 #define param_l 3
-#define Bgbit 7
-#define maskMod 127
-#define halfBg 64
-#define offset 2164391936 // tgsw.cpp - TGswParams::TGswParams()
+#define param_Bgbit 7
+#define param_maskMod 127
+#define param_halfBg 64
+#define param_offset 2164391936 // tgsw.cpp - TGswParams::TGswParams()
 
 // namespace fpga {
 
@@ -23,21 +23,21 @@ typedef std::complex<double> cplx;
 
   /** This structure represents an integer polynomial modulo X^N+1 */
   struct IntPolynomial {
-    int32_t coefs[N];
+    int32_t coefs[param_N];
   };
-  typedef int32_t IntPolynomial_Collapsed[N];
+  typedef int32_t IntPolynomial_Collapsed[param_N];
 
   /** This structure represents an torus polynomial modulo X^N+1 */
   struct TorusPolynomial {
-    Torus32 coefsT[N];
+    Torus32 coefsT[param_N];
   };
-  typedef Torus32 TorusPolynomial_Collapsed[N];
+  typedef Torus32 TorusPolynomial_Collapsed[param_N];
 
   struct LagrangeHalfCPolynomial {
-    cplx coefsC[Ns2];
+    cplx coefsC[param_Ns2];
     void* precomp; // This variable is likely not used, but kept for compatability
   };
-  typedef cplx LagrangeHalfCPolynomial_Collapsed[Ns2];
+  typedef cplx LagrangeHalfCPolynomial_Collapsed[param_Ns2];
 
 // }
 

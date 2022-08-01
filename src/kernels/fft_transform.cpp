@@ -11,7 +11,7 @@ extern "C" {
 	void fft_transform(double *real, double *imag) {
 		// Bit-reversed addressing permutation
 		uint64_t i;
-		for (i = 0; i < _2N; i++) {
+		for (i = 0; i < param_2N; i++) {
 			uint64_t j = bit_reversed[i];
 			if (i < j) {
 				double tp0re = real[i];
@@ -26,8 +26,8 @@ extern "C" {
 		}
 
 		// Size 2 merge (special)
-		if (_2N >= 2) {
-			for (i = 0; i < _2N; i += 2) {
+		if (param_2N >= 2) {
+			for (i = 0; i < param_2N; i += 2) {
 				double tpre = real[i];
 				double tpim = imag[i];
 				real[i] += real[i + 1];
@@ -38,8 +38,8 @@ extern "C" {
 		}
 
 		// Size 4 merge (special)
-		if (_2N >= 4) {
-			for (i = 0; i < _2N; i += 4) {
+		if (param_2N >= 4) {
+			for (i = 0; i < param_2N; i += 4) {
 				// Even indices
 				double tpre, tpim;
 				tpre = real[i];
@@ -63,10 +63,10 @@ extern "C" {
 		// Size 8 and larger merges (general)
 		double *trigtables = trig_table_direct;
 		uint64_t size;
-		for (size = 8; size <= _2N; size <<= 1) {
+		for (size = 8; size <= param_2N; size <<= 1) {
 			uint64_t halfsize = size >> 1;
 			uint64_t i;
-			for (i = 0; i < _2N; i += size) {
+			for (i = 0; i < param_2N; i += size) {
 				uint64_t j, off;
 				for (j = 0, off = 0; j < halfsize; j += 4, off += 8) {
 					uint64_t k;
@@ -84,7 +84,7 @@ extern "C" {
 					}
 				}
 			}
-			if (size == _2N)
+			if (size == param_2N)
 				break;
 			trigtables += size;
 		}
