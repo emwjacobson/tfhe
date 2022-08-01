@@ -22,8 +22,8 @@ EXPORT void destroy_LagrangeHalfCPolynomial(LagrangeHalfCPolynomial* obj);
  * FFT functions
  */
 EXPORT void IntPolynomial_ifft(LagrangeHalfCPolynomial_Collapsed result, const IntPolynomial_Collapsed p);
-EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial* result, const TorusPolynomial* p);
-EXPORT void TorusPolynomial_fft(TorusPolynomial* result, const LagrangeHalfCPolynomial* p);
+EXPORT void TorusPolynomial_ifft(LagrangeHalfCPolynomial_Collapsed result, const TorusPolynomial_Collapsed p);
+EXPORT void TorusPolynomial_fft(TorusPolynomial_Collapsed result, const LagrangeHalfCPolynomial_Collapsed p);
 
 //MISC OPERATIONS
 /** sets to zero */

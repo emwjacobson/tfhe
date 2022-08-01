@@ -53,7 +53,7 @@ EXPORT void tLweToFFTConvert(TLweSampleFFT *result, const TLweSample *source, co
     const int32_t k = params->k;
 
     for (int32_t i = 0; i <= k; ++i)
-        TorusPolynomial_ifft(result->a + i, source->a + i);
+        TorusPolynomial_ifft(result->a[i].coefsC, source->a[i].coefsT);
     result->current_variance = source->current_variance;
 }
 #endif
@@ -66,7 +66,7 @@ EXPORT void tLweFromFFTConvert(TLweSample *result, const TLweSampleFFT *source, 
     const int32_t k = params->k;
 
     for (int32_t i = 0; i <= k; ++i)
-        TorusPolynomial_fft(result->a + i, source->a + i);
+        TorusPolynomial_fft(result->a[i].coefsT, source->a[i].coefsC);
     result->current_variance = source->current_variance;
 }
 #endif

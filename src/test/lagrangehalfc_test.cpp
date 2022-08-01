@@ -23,8 +23,8 @@ TEST(LagrangeHalfcTest, fftIsBijective) {
         LagrangeHalfCPolynomial *afft = new_LagrangeHalfCPolynomial();
         torusPolynomialUniform(a);
         torusPolynomialCopy(acopy, a);
-        TorusPolynomial_ifft(afft, a);
-        TorusPolynomial_fft(b, afft);
+        TorusPolynomial_ifft(afft->coefsC, a->coefsT);
+        TorusPolynomial_fft(b->coefsT, afft->coefsC);
         ASSERT_EQ(torusPolynomialNormInftyDist(a, acopy), 0);
         ASSERT_LE(torusPolynomialNormInftyDist(a, b), toler);
         delete_LagrangeHalfCPolynomial(afft);
@@ -50,7 +50,7 @@ TEST(LagrangeHalfcTest, LagrangeHalfCPolynomialClear) {
         LagrangeHalfCPolynomialClear(afft);
         torusPolynomialUniform(a);
         torusPolynomialClear(zero);
-        TorusPolynomial_fft(a, afft);
+        TorusPolynomial_fft(a->coefsT, afft->coefsC);
         ASSERT_EQ(torusPolynomialNormInftyDist(zero, a), 0);
         delete_LagrangeHalfCPolynomial(afft);
         delete_TorusPolynomial(zero);
@@ -72,7 +72,7 @@ TEST(LagrangeHalfcTest, LagrangeHalfCPolynomialSetTorusConstant) {
 
         //tested function
         LagrangeHalfCPolynomialSetTorusConstant(afft, mu);
-        TorusPolynomial_fft(a, afft);
+        TorusPolynomial_fft(a->coefsT, afft->coefsC);
 
         //expected result
         torusPolynomialClear(cste);
@@ -99,9 +99,9 @@ TEST(LagrangeHalfcTest, LagrangeHalfCPolynomialAddTorusConstant) {
         LagrangeHalfCPolynomial *afft = new_LagrangeHalfCPolynomial();
 
         torusPolynomialUniform(a);
-        TorusPolynomial_ifft(afft, a);
+        TorusPolynomial_ifft(afft->coefsC, a->coefsT);
         LagrangeHalfCPolynomialAddTorusConstant(afft, mu);
-        TorusPolynomial_fft(b, afft);
+        TorusPolynomial_fft(b->coefsT, afft->coefsC);
 
         torusPolynomialCopy(aPlusCste, a);
         aPlusCste->coefsT[0] += mu;
@@ -230,12 +230,12 @@ TEST(LagrangeHalfcTest, LagrangeHalfCPolynomialAddTo) {
         LagrangeHalfCPolynomial *bfft = new_LagrangeHalfCPolynomial();
 
         torusPolynomialUniform(a);
-        TorusPolynomial_ifft(afft, a);
+        TorusPolynomial_ifft(afft->coefsC, a->coefsT);
         torusPolynomialUniform(b);
-        TorusPolynomial_ifft(bfft, b);
+        TorusPolynomial_ifft(bfft->coefsC, b->coefsT);
 
         LagrangeHalfCPolynomialAddTo(afft, bfft);
-        TorusPolynomial_fft(aPlusBbis, afft);
+        TorusPolynomial_fft(aPlusBbis->coefsT, afft->coefsC);
 
         torusPolynomialAdd(aPlusB, b, a);
 
