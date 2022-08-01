@@ -9,6 +9,13 @@ typedef std::complex<double> cplx;
 #define N 1024
 #define _2N 2*N
 #define Ns2 N/2
+#define param_k 1
+#define kpl 3
+#define param_l 3
+#define Bgbit 7
+#define maskMod 127
+#define halfBg 64
+#define offset 2164391936 // tgsw.cpp - TGswParams::TGswParams()
 
 // namespace fpga {
 
@@ -39,6 +46,7 @@ extern "C" void fft_transform(double *_real, double *_imag);
 extern "C" void IntPolynomial_ifft(LagrangeHalfCPolynomial_Collapsed result, const IntPolynomial_Collapsed p);
 extern "C" void TorusPolynomial_ifft(LagrangeHalfCPolynomial_Collapsed result, const TorusPolynomial_Collapsed p);
 extern "C" void TorusPolynomial_fft(TorusPolynomial_Collapsed result, const LagrangeHalfCPolynomial_Collapsed p);
+extern "C" void tGswTorus32PolynomialDecompH(IntPolynomial_Collapsed *result, const TorusPolynomial_Collapsed sample);
 
 // These should be implemented as a ROM in the final design
 static double trig_table_reverse[] = {
