@@ -101,7 +101,7 @@ EXPORT void tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, 
     // LagrangeHalfCPolynomial_Collapsed decaFFT = LagrangeHalfCPolynomial_Collapsed[kpl];
 
     for (int32_t i = 0; i <= k; i++)
-        tGswTorus32PolynomialDecompH(deca + i * l, accum->a + i); // TODO: Convert to HLS
+        tGswTorus32PolynomialDecompH(deca + i * l, accum->a + i);
     for (int32_t p = 0; p < kpl; p++)
         IntPolynomial_ifft(decaFFT[p].coefsC, deca[p].coefs);
 
