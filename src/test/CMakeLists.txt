@@ -49,10 +49,10 @@ set(RUNTIME_LIBS
         ${OpenCL_LIBRARIES}
         )
 
-#the unittests are compiled with the google test framework
-add_executable(unittests-fpga ${GOOGLETEST_SOURCES} ${TFHE_HEADERS})
-target_link_libraries(unittests-fpga ${RUNTIME_LIBS} gtest gtest_main -lpthread -lpthread -lrt -lstdc++)
-add_test(unittests-fpga unittests-fpga)
+# #the unittests are compiled with the google test framework
+# add_executable(unittests-fpga ${GOOGLETEST_SOURCES} ${TFHE_HEADERS})
+# target_link_libraries(unittests-fpga ${RUNTIME_LIBS} gtest gtest_main -lpthread -lpthread -lrt -lstdc++)
+# add_test(unittests-fpga unittests-fpga)
 
 #the integration tests must be single source code, and are compiled as a standalone application
 #we first compile the C++ tests

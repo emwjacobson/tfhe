@@ -99,7 +99,7 @@ EXPORT void tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, 
     for (int32_t i = 0; i <= k; i++)
         tGswTorus32PolynomialDecompH(deca + i * l, accum->a + i, params);
     for (int32_t p = 0; p < kpl; p++)
-        IntPolynomial_ifft(decaFFT + p, deca + p);
+        IntPolynomial_ifft(&decaFFT[p], &deca[p]);
 
     tLweFFTClear(tmpa, tlwe_params);
     for (int32_t p = 0; p < kpl; p++) {

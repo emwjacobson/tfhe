@@ -76,19 +76,19 @@ EXPORT void delete_LagrangeHalfCPolynomial_array(int32_t nbelts, LagrangeHalfCPo
 /** multiplication via direct FFT (it must know the implem of LagrangeHalfCPolynomial because of the tmp+1 notation */
 EXPORT void torusPolynomialMultFFT(TorusPolynomial* result, const IntPolynomial* poly1, const TorusPolynomial* poly2) {
     LagrangeHalfCPolynomial* tmp = new_LagrangeHalfCPolynomial_array(3);
-    IntPolynomial_ifft(tmp+0,poly1);
-    TorusPolynomial_ifft(tmp+1,poly2);
-    LagrangeHalfCPolynomialMul(tmp+2,tmp+0,tmp+1);
-    TorusPolynomial_fft(result, tmp+2);
+    IntPolynomial_ifft(&tmp[0], poly1);
+    TorusPolynomial_ifft(&tmp[1],poly2);
+    LagrangeHalfCPolynomialMul(&tmp[2],&tmp[0],&tmp[1]);
+    TorusPolynomial_fft(result, &tmp[2]);
     delete_LagrangeHalfCPolynomial_array(3,tmp);
 }
 EXPORT void torusPolynomialAddMulRFFT(TorusPolynomial* result, const IntPolynomial* poly1, const TorusPolynomial* poly2) {
     LagrangeHalfCPolynomial* tmp = new_LagrangeHalfCPolynomial_array(3);
     TorusPolynomial* tmpr = new_TorusPolynomial();
-    IntPolynomial_ifft(tmp+0,poly1);
-    TorusPolynomial_ifft(tmp+1,poly2);
-    LagrangeHalfCPolynomialMul(tmp+2,tmp+0,tmp+1);
-    TorusPolynomial_fft(tmpr, tmp+2);
+    IntPolynomial_ifft(&tmp[0],poly1);
+    TorusPolynomial_ifft(&tmp[1],poly2);
+    LagrangeHalfCPolynomialMul(&tmp[2],&tmp[0],&tmp[1]);
+    TorusPolynomial_fft(tmpr, &tmp[2]);
     torusPolynomialAddTo(result, tmpr);
     delete_TorusPolynomial(tmpr);
     delete_LagrangeHalfCPolynomial_array(3,tmp);
@@ -96,10 +96,10 @@ EXPORT void torusPolynomialAddMulRFFT(TorusPolynomial* result, const IntPolynomi
 EXPORT void torusPolynomialSubMulRFFT(TorusPolynomial* result, const IntPolynomial* poly1, const TorusPolynomial* poly2) {
     LagrangeHalfCPolynomial* tmp = new_LagrangeHalfCPolynomial_array(3);
     TorusPolynomial* tmpr = new_TorusPolynomial();
-    IntPolynomial_ifft(tmp+0,poly1);
-    TorusPolynomial_ifft(tmp+1,poly2);
-    LagrangeHalfCPolynomialMul(tmp+2,tmp+0,tmp+1);
-    TorusPolynomial_fft(tmpr, tmp+2);
+    IntPolynomial_ifft(&tmp[0],poly1);
+    TorusPolynomial_ifft(&tmp[1],poly2);
+    LagrangeHalfCPolynomialMul(&tmp[2],&tmp[0],&tmp[1]);
+    TorusPolynomial_fft(tmpr, &tmp[2]);
     torusPolynomialSubTo(result, tmpr);
     delete_TorusPolynomial(tmpr);
     delete_LagrangeHalfCPolynomial_array(3,tmp);
