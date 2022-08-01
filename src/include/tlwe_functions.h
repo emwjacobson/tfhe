@@ -64,7 +64,7 @@ EXPORT void tLweExtractKey(LweKey *result, const TLweKey *); //sans doute un par
 
 EXPORT void tLweToFFTConvert(TLweSampleFFT *result, const TLweSample *source, const TLweParams *params);
 EXPORT void tLweFromFFTConvert(TLweSample *result, const TLweSampleFFT *source, const TLweParams *params);
-EXPORT void tLweFFTClear(TLweSampleFFT *result, const TLweParams *params);
+EXPORT void tLweFFTClear(TLweSampleFFT *result);
 EXPORT void tLweFFTAddMulRTo(TLweSampleFFT *result, const LagrangeHalfCPolynomial *p, const TLweSampleFFT *sample,
                              const TLweParams *params);
 

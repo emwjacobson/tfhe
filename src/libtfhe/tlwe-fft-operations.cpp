@@ -76,10 +76,8 @@ EXPORT void tLweFromFFTConvert(TLweSample *result, const TLweSampleFFT *source, 
 #undef INCLUDE_TLWE_FFT_CLEAR
 //Arithmetic operations on TLwe samples
 /** result = (0,0) */
-EXPORT void tLweFFTClear(TLweSampleFFT *result, const TLweParams *params) {
-    int32_t k = params->k;
-
-    for (int32_t i = 0; i <= k; ++i)
+EXPORT void tLweFFTClear(TLweSampleFFT *result) {
+    for (int32_t i = 0; i <= Value_k; ++i)
         LagrangeHalfCPolynomialClear(&result->a[i]);
     result->current_variance = 0.;
 }

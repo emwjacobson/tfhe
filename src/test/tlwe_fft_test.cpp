@@ -148,7 +148,7 @@ namespace {
 
             tlweSampleFFTUniform(result, params);
 
-            tLweFFTClear(result, params);
+            tLweFFTClear(result);
 
             for (int32_t i = 0; i <= k; i++)
                 ASSERT_EQ(torusPolynomialNormInftyDist(resulta[i].getTorusPolynomialPtr(), zero), 0);

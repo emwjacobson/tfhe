@@ -82,7 +82,7 @@ EXPORT void tGswFFTClear(TGswSampleFFT *result, const TGswParams *params) {
     const int32_t kpl = params->kpl;
 
     for (int32_t p = 0; p < kpl; p++)
-        tLweFFTClear(result->all_samples + p, params->tlwe_params);
+        tLweFFTClear(result->all_samples + p);
 }
 
 // External product (*): accum = gsw (*) accum
@@ -105,7 +105,7 @@ EXPORT void tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, 
     for (int32_t p = 0; p < kpl; p++)
         IntPolynomial_ifft(decaFFT[p].coefsC, deca[p].coefs);
 
-    tLweFFTClear(tmpa, tlwe_params); // TODO: Convert to HLS
+    tLweFFTClear(tmpa); // TODO: Convert to HLS
     for (int32_t p = 0; p < kpl; p++) {
         tLweFFTAddMulRTo(tmpa, decaFFT + p, gsw->all_samples + p, tlwe_params); // TODO: Convert to HLS
     }
