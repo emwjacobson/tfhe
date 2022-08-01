@@ -295,116 +295,23 @@ Torus32PolynomialDecompH_old(IntPolynomial *result, const TorusPolynomial *sampl
 #undef INCLUDE_TGSW_TORUS32POLYNOMIAL_DECOMP_H
 EXPORT void
 tGswTorus32PolynomialDecompH(IntPolynomial *result, const TorusPolynomial *sample, const TGswParams *params) {
-    const int32_t N = params->tlwe_params->N;
-    const int32_t l = params->l;
-    const int32_t Bgbit = params->Bgbit;
     uint32_t *buf = (uint32_t *) sample->coefsT;
-//#define __AVX2__ //(to test)
-#ifndef __AVX2__
-    const uint32_t maskMod = params->maskMod;
-    const int32_t halfBg = params->halfBg;
-    const uint32_t offset = params->offset;
-#else
-    const uint32_t* maskMod_addr = &params->maskMod;
-    const int32_t* halfBg_addr = &params->halfBg;
-    const uint32_t* offset_addr = &params->offset;
-    //const uint32_t offset = params->offset;
-    //const uint32_t maskMod = params->maskMod;
-    //const int32_t halfBg = params->halfBg;
-#endif
 
     //First, add offset to everyone
-#ifndef __AVX2__
-    for (int32_t j = 0; j < N; ++j) buf[j] += offset;
-#else
-    {
-    const uint32_t* sit = buf;
-    const uint32_t* send = buf+N;
-    __asm__ __volatile__ (
-        "vpbroadcastd (%2),%%ymm0\n"
-        "0:\n"
-        "vmovdqu (%0),%%ymm3\n"
-        "vpaddd %%ymm0,%%ymm3,%%ymm3\n" // add offset
-        "vmovdqu %%ymm3,(%0)\n"
-        "addq $32,%0\n"
-        "cmpq %1,%0\n"
-        "jb 0b\n"
-        : "=r"(sit),"=r"(send),"=r"(offset_addr)
-        :  "0"(sit), "1"(send), "2"(offset_addr)
-        : "%ymm0","%ymm3","memory"
-        );
-    }
-#endif
+    for (int32_t j = 0; j < Value_N; ++j) buf[j] += Value_offset;
 
     //then, do the decomposition (in parallel)
-    for (int32_t p = 0; p < l; ++p) {
-        const int32_t decal = (32 - (p + 1) * Bgbit);
-#ifndef __AVX2__
+    for (int32_t p = 0; p < Value_l; ++p) {
+        const int32_t decal = (32 - (p + 1) * Value_Bgbit);
         int32_t *res_p = result[p].coefs;
-        for (int32_t j = 0; j < N; ++j) {
-            uint32_t temp1 = (buf[j] >> decal) & maskMod;
-            res_p[j] = temp1 - halfBg;
+        for (int32_t j = 0; j < Value_N; ++j) {
+            uint32_t temp1 = (buf[j] >> decal) & Value_maskMod;
+            res_p[j] = temp1 - Value_halfBg;
         }
-#else
-        int32_t* dst = result[p].coefs;
-        const uint32_t* sit = buf;
-        const uint32_t* send = buf+N;
-        const int32_t* decal_addr = &decal;
-        __asm__ __volatile__ (
-            "vpbroadcastd (%4),%%ymm0\n"
-            "vpbroadcastd (%5),%%ymm1\n"
-            "vmovd (%3),%%xmm2\n"
-            "1:\n"
-            "vmovdqu (%1),%%ymm3\n"
-            "VPSRLD %%xmm2,%%ymm3,%%ymm3\n" // shift by decal
-            "VPAND %%ymm1,%%ymm3,%%ymm3\n"  // and maskMod
-            "VPSUBD %%ymm0,%%ymm3,%%ymm3\n" // sub halfBg
-            "vmovdqu %%ymm3,(%0)\n"
-            "addq $32,%0\n"
-            "addq $32,%1\n"
-            "cmpq %2,%1\n"
-            "jb 1b\n"
-            : "=r"(dst),"=r"(sit),"=r"(send),"=r"(decal_addr),"=r"(halfBg_addr),"=r"(maskMod_addr)
-            :  "0"(dst), "1"(sit), "2"(send), "3"(decal_addr), "4"(halfBg_addr) ,"5"(maskMod_addr)
-            : "%ymm0","%ymm1","%ymm2","%ymm3","memory"
-            );
-        /* // verify that the assembly block was ok
-        int32_t* res_p = result[p].coefs;
-        for (int32_t j = 0; j < N; ++j)
-        {
-            uint32_t temp1 = (buf[j] >> decal) & maskMod;
-            if (res_p[j] != int32_t(temp1 - halfBg)) {
-            fprintf(stderr, "j=%d,buf[j]=%u,decal=%u,mask=%u,halfbg=%d,res_p[j]=%d\n",j,buf[j],decal,maskMod,halfBg,res_p[j]);
-            abort();
-            }
-        }*/
-
-#endif
     }
 
     //finally, remove offset to everyone
-#ifndef __AVX2__
-    for (int32_t j = 0; j < N; ++j) buf[j] -= offset;
-#else
-    {
-    const uint32_t* sit = buf;
-    const uint32_t* send = buf+N;
-    __asm__ __volatile__ (
-        "vpbroadcastd (%2),%%ymm0\n"
-        "2:\n"
-        "vmovdqu (%0),%%ymm3\n"
-        "vpsubd %%ymm0,%%ymm3,%%ymm3\n" // add offset
-        "vmovdqu %%ymm3,(%0)\n"
-        "addq $32,%0\n"
-        "cmpq %1,%0\n"
-        "jb 2b\n"
-        "vzeroall\n"
-        : "=r"(sit),"=r"(send),"=r"(offset_addr)
-        :  "0"(sit), "1"(send), "2"(offset_addr)
-        : "%ymm0","%ymm3","memory"
-        );
-    }
-#endif
+    for (int32_t j = 0; j < Value_N; ++j) buf[j] -= Value_offset;
 }
 #endif
 

@@ -13,6 +13,13 @@ typedef std::complex< double > cplx; // https://stackoverflow.com/a/31800404
 constexpr static int64_t Value_N = 1024;
 constexpr static int64_t Value_2N = 2 * Value_N;
 constexpr static int64_t Value_Ns2 = Value_N / 2;
+constexpr static int32_t Value_k = 1;
+constexpr static int32_t Value_kpl = 3;
+constexpr static int32_t Value_l = 3;
+constexpr static int32_t Value_Bgbit = 7;
+constexpr static int32_t Value_maskMod = 127;
+constexpr static int32_t Value_halfBg = 64;
+constexpr static uint32_t Value_offset = 2164391936; // tgsw.cpp - TGswParams::TGswParams()
 
 EXPORT void die_dramatically(const char* message);
 

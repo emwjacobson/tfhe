@@ -81,7 +81,7 @@ runtest: test xclbin
 	cp $(PROJECT_NAME).xclbin emconfig.json ./builddtests/test
 	XCL_EMULATION_MODE=$(TARGET) ./builddtests/test/test-bootstrapping-fft-fpga
 	XCL_EMULATION_MODE=$(TARGET) ./builddtests/test/test-gate-bootstrapping-fpga
-	XCL_EMULATION_MODE=$(TARGET) ./builddtests/test/test-decomp-tgsw-fpga
+# XCL_EMULATION_MODE=$(TARGET) ./builddtests/test/test-decomp-tgsw-fpga
 	XCL_EMULATION_MODE=$(TARGET) ./builddtests/test/test-lwe-fpga
 	XCL_EMULATION_MODE=$(TARGET) ./builddtests/test/test-multiplication-fpga
 	XCL_EMULATION_MODE=$(TARGET) ./builddtests/test/test-addition-boot-fpga
