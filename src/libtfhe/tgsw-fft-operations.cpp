@@ -93,7 +93,7 @@ EXPORT void tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, 
     const int32_t kpl = params->kpl;
 
     //TODO attention, improve these new/delete...
-    IntPolynomial *deca = new_IntPolynomial_array(kpl); //decomposed accumulator // Emerson Note: I think this should be kpl * k. tGswTorus32PolynomialDecompH jumps by
+    IntPolynomial *deca = new_IntPolynomial_array(kpl); //decomposed accumulator // Emerson Note: I think this should be kpl * k. tGswTorus32PolynomialDecompH implementation jumps by k
     LagrangeHalfCPolynomial *decaFFT = new_LagrangeHalfCPolynomial_array(kpl); //fft version
     TLweSampleFFT *tmpa = new_TLweSampleFFT(tlwe_params);
 
@@ -101,7 +101,7 @@ EXPORT void tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, 
     // LagrangeHalfCPolynomial_Collapsed decaFFT = LagrangeHalfCPolynomial_Collapsed[kpl];
 
     for (int32_t i = 0; i <= k; i++)
-        tGswTorus32PolynomialDecompH(deca + i * l, accum->a + i, params); // TODO: Convert to HLS
+        tGswTorus32PolynomialDecompH(deca + i * l, accum->a + i); // TODO: Convert to HLS
     for (int32_t p = 0; p < kpl; p++)
         IntPolynomial_ifft(decaFFT[p].coefsC, deca[p].coefs);
 

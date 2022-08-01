@@ -14,7 +14,7 @@ using namespace std;
 
 
 EXPORT void
-tGswTorus32PolynomialDecompH(IntPolynomial *result, const TorusPolynomial *sample, const TGswParams *params);
+tGswTorus32PolynomialDecompH(IntPolynomial *result, const TorusPolynomial *sample);
 
 // **********************************************************************************
 // ********************************* MAIN *******************************************
@@ -68,7 +68,7 @@ int32_t main(int32_t argc, char **argv) {
     for (int32_t i = 0; i < N; ++i) {
         muB->coefsT[i] = uniformTorus32_distrib(generator);
     }
-    tGswTorus32PolynomialDecompH(muBDecH, muB, rgsw_params);
+    tGswTorus32PolynomialDecompH(muBDecH, muB);
     for (int32_t i = 0; i < N; ++i) {
         Torus32 expected = muB->coefsT[i];
         Torus32 actual = 0;

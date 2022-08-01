@@ -33,7 +33,7 @@ EXPORT void tGswEncryptZero(TGswSample *result, double alpha, const TGswKey *key
 EXPORT void tGswTLweDecompH(IntPolynomial *result, const TLweSample *sample, const TGswParams *params);
 
 EXPORT void
-tGswTorus32PolynomialDecompH(IntPolynomial *result, const TorusPolynomial *sample, const TGswParams *params);
+tGswTorus32PolynomialDecompH(IntPolynomial *result, const TorusPolynomial *sample);
 EXPORT void tGswTLweDecompH(IntPolynomial *result, const TLweSample *sample, const TGswParams *params);
 
 //TODO: Ilaria.Theoreme3.5

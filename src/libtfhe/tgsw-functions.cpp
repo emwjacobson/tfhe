@@ -223,7 +223,7 @@ EXPORT void tGswSymDecrypt(IntPolynomial *result, const TGswSample *sample, cons
     const Torus32 indic = modSwitchToTorus32(1, Msize);
     torusPolynomialClear(testvec);
     testvec->coefsT[0] = indic;
-    tGswTorus32PolynomialDecompH(decomp, testvec, params);
+    tGswTorus32PolynomialDecompH(decomp, testvec);
 
     torusPolynomialClear(testvec);
     for (int32_t i = 0; i < l; i++) {
@@ -265,7 +265,7 @@ EXPORT void tGswTLweDecompH(IntPolynomial *result, const TLweSample *sample, con
     const int32_t l = params->l;
 
     for (int32_t i = 0; i <= k; ++i) // b=a[k]
-        tGswTorus32PolynomialDecompH(result + (i * l), &sample->a[i], params);
+        tGswTorus32PolynomialDecompH(result + (i * l), &sample->a[i]);
 }
 #endif
 
@@ -294,7 +294,7 @@ Torus32PolynomialDecompH_old(IntPolynomial *result, const TorusPolynomial *sampl
 #if defined INCLUDE_ALL || defined INCLUDE_TGSW_TORUS32POLYNOMIAL_DECOMP_H
 #undef INCLUDE_TGSW_TORUS32POLYNOMIAL_DECOMP_H
 EXPORT void
-tGswTorus32PolynomialDecompH(IntPolynomial *result, const TorusPolynomial *sample, const TGswParams *params) {
+tGswTorus32PolynomialDecompH(IntPolynomial *result, const TorusPolynomial *sample) {
     uint32_t *buf = (uint32_t *) sample->coefsT;
 
     //First, add offset to everyone
