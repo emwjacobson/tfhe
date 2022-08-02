@@ -146,8 +146,46 @@ EXPORT void tLweFFTClear(TLweSampleFFT *result) {
 #undef INCLUDE_TLWE_FFT_ADDMULRTO
 // result = result + p*sample
 EXPORT void tLweFFTAddMulRTo(TLweSampleFFT *result, const LagrangeHalfCPolynomial *p, const TLweSampleFFT *sample) {
-    for (int32_t i = 0; i <= Value_k; i++)
-        LagrangeHalfCPolynomialAddMul(result->a + i, p, sample->a + i);
+    cl::Buffer result_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSampleFFT_FPGA));
+    cl::Buffer p_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(LagrangeHalfCPolynomial_Collapsed));
+    cl::Buffer sample_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSampleFFT_FPGA));
+
+	TLweSampleFFT_FPGA *result_map = (TLweSampleFFT_FPGA *)fpga.q.enqueueMapBuffer(result_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TLweSampleFFT_FPGA));
+    cplx *p_map = (cplx *)fpga.q.enqueueMapBuffer(p_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(LagrangeHalfCPolynomial_Collapsed));
+    TLweSampleFFT_FPGA *sample_map = (TLweSampleFFT_FPGA *)fpga.q.enqueueMapBuffer(sample_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TLweSampleFFT_FPGA));
+
+    result_map->current_variance = result->current_variance;
+    for(int i=0; i<=Value_k; i++) {
+        for(int j=0; j<Value_Ns2; j++) {
+            result_map->a[i][j] = result->a[i].coefsC[j];
+        }
+    }
+
+    memcpy(p_map, p->coefsC, sizeof(cplx) * Value_Ns2);
+
+    sample_map->current_variance = sample->current_variance;
+    for(int i=0; i<=Value_k; i++) {
+        for(int j=0; j<Value_Ns2; j++) {
+            sample_map->a[i][j] = sample->a[i].coefsC[j];
+        }
+    }
+
+	fpga.k_tLweFFTAddMulRTo.setArg(0, result_buf);
+	fpga.k_tLweFFTAddMulRTo.setArg(1, p_buf);
+	fpga.k_tLweFFTAddMulRTo.setArg(2, sample_buf);
+
+	fpga.q.enqueueMigrateMemObjects({ result_buf, p_buf, sample_buf }, 0 /* 0 means from host*/);
+	fpga.q.enqueueTask(fpga.k_tLweFFTAddMulRTo);
+	fpga.q.enqueueMigrateMemObjects({ result_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
+
+	fpga.q.finish();
+
+    result->current_variance = result_map->current_variance;
+    for(int i=0; i<=Value_k; i++) {
+        for(int j=0; j<Value_Ns2; j++) {
+            result->a[i].coefsC[j] = result_map->a[i][j];
+        }
+    }
 }
 #endif
 
