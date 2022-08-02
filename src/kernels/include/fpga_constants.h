@@ -47,6 +47,13 @@ typedef std::complex<double> cplx;
     double current_variance; ///< avg variance of the sample
   } TLweSampleFFT_FPGA;
 
+  typedef struct {
+    TorusPolynomial_Collapsed a[param_k + 1]; ///< array of length k+1: mask + right term
+    // TODO: Reimplement `b` once needed...
+    // TorusPolynomial *b; ///< alias of a[k] to get the right term
+    double current_variance; ///< avg variance of the sample
+  } TLweSample_FPGA;
+
 // }
 
 // Top level kernel functions

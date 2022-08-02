@@ -66,9 +66,44 @@ EXPORT void tLweToFFTConvert(TLweSampleFFT *result, const TLweSample *source, co
 #undef INCLUDE_TLWE_FROM_FFT_CONVERT
 // Computes the FFT of the coefficients of the TLWEfft sample
 EXPORT void tLweFromFFTConvert(TLweSample *result, const TLweSampleFFT *source) {
-    for (int32_t i = 0; i <= Value_k; ++i)
-        TorusPolynomial_fft(result->a[i].coefsT, source->a[i].coefsC);
-    result->current_variance = source->current_variance;
+    cl::Buffer result_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSample_FPGA));
+    cl::Buffer source_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSampleFFT_FPGA));
+
+	TLweSample_FPGA *result_map = (TLweSample_FPGA *)fpga.q.enqueueMapBuffer(result_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TLweSample_FPGA));
+	TLweSampleFFT_FPGA *source_map = (TLweSampleFFT_FPGA *)fpga.q.enqueueMapBuffer(source_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TLweSampleFFT_FPGA));
+
+    result_map->current_variance = result->current_variance;
+    source_map->current_variance = source->current_variance;
+
+    for(int i=0; i<=Value_k; i++) {
+        for(int j=0; j<Value_N; j++) {
+            result_map->a[i][j] = result->a[i].coefsT[j];
+        }
+
+        for(int j=0; j<Value_Ns2; j++) {
+            source_map->a[i][j] = source->a[i].coefsC[j];
+        }
+    }
+
+
+	fpga.k_tLweFromFFTConvert.setArg(0, result_buf);
+	fpga.k_tLweFromFFTConvert.setArg(1, source_buf);
+
+	fpga.q.enqueueMigrateMemObjects({ result_buf, source_buf }, 0 /* 0 means from host*/);
+	fpga.q.enqueueTask(fpga.k_tLweFromFFTConvert);
+	fpga.q.enqueueMigrateMemObjects({ result_buf, source_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
+
+	fpga.q.finish();
+
+    for(int i=0; i<=Value_k; i++) {
+        for(int j=0; j<Value_N; j++) {
+            result->a[i].coefsT[j] = result_map->a[i][j];
+        }
+
+        for(int j=0; j<Value_Ns2; j++) {
+            source->a[i].coefsC[j] = source_map->a[i][j];
+        }
+    }
 }
 #endif
 
@@ -82,7 +117,6 @@ EXPORT void tLweFFTClear(TLweSampleFFT *result) {
 
 	TLweSampleFFT_FPGA *result_map = (TLweSampleFFT_FPGA *)fpga.q.enqueueMapBuffer(result_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TLweSampleFFT_FPGA));
 
-	// memcpy(p_map, p, sizeof(int32_t) * Value_N);
     result_map->current_variance = result->current_variance;
     for(int i=0; i<Value_k; i++) {
         for(int j=0; j<Value_Ns2; j++) {
@@ -98,9 +132,8 @@ EXPORT void tLweFFTClear(TLweSampleFFT *result) {
 
 	fpga.q.finish();
 
-	// memcpy(result, result_map, sizeof(cplx) * Value_Ns2);
     result->current_variance = result_map->current_variance;
-    for(int i=0; i<Value_k; i++) {
+    for(int i=0; i<=Value_k; i++) {
         for(int j=0; j<Value_Ns2; j++) {
             result->a[i].coefsC[j] = result_map->a[i][j];
         }

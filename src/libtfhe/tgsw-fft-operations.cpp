@@ -114,29 +114,6 @@ EXPORT void tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, 
     delete_TLweSampleFFT(tmpa);
     delete_LagrangeHalfCPolynomial_array(kpl, decaFFT);
     delete_IntPolynomial_array(kpl, deca);
-
-
-
-
-
-    // cl::Buffer result_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(LagrangeHalfCPolynomial_Collapsed));
-    // cl::Buffer p_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(IntPolynomial_Collapsed));
-
-	// cplx *result_map = (cplx *)fpga.q.enqueueMapBuffer(result_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(LagrangeHalfCPolynomial_Collapsed));
-	// int32_t *p_map = (int32_t *)fpga.q.enqueueMapBuffer(p_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(IntPolynomial_Collapsed));
-
-	// memcpy(p_map, p, sizeof(int32_t) * Value_N);
-
-	// fpga.k_IntPolynomial_ifft.setArg(0, result_buf);
-	// fpga.k_IntPolynomial_ifft.setArg(1, p_buf);
-
-	// fpga.q.enqueueMigrateMemObjects({ result_buf, p_buf }, 0 /* 0 means from host*/);
-	// fpga.q.enqueueTask(fpga.k_IntPolynomial_ifft);
-	// fpga.q.enqueueMigrateMemObjects({ result_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
-
-	// fpga.q.finish();
-
-	// memcpy(result, result_map, sizeof(cplx) * Value_Ns2);
 }
 
 // result = (X^ai -1)*bki

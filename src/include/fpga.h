@@ -21,6 +21,7 @@ public:
   cl::Kernel k_TorusPolynomial_fft;
   cl::Kernel k_tGswTorus32PolynomialDecompH;
   cl::Kernel k_tLweFFTClear;
+  cl::Kernel k_tLweFromFFTConvert;
 
   cplx* omegaxminus1;
 
