@@ -107,13 +107,6 @@ EXPORT void tLweFFTClear(TLweSampleFFT *result) {
             result->a[i].coefsC[j] = result_map->a[i][j];
         }
     }
-
-
-
-
-    // for (int32_t i = 0; i <= Value_k; ++i)
-    //     LagrangeHalfCPolynomialClear(&result->a[i]);
-    // result->current_variance = 0.;
 }
 #endif
 

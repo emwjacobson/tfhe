@@ -105,7 +105,7 @@ EXPORT void tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, 
     for (int32_t p = 0; p < kpl; p++)
         IntPolynomial_ifft(decaFFT[p].coefsC, deca[p].coefs);
 
-    tLweFFTClear(tmpa); // TODO: Convert to HLS
+    tLweFFTClear(tmpa);
     for (int32_t p = 0; p < kpl; p++) {
         tLweFFTAddMulRTo(tmpa, decaFFT + p, gsw->all_samples + p, tlwe_params); // TODO: Convert to HLS
     }
