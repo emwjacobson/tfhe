@@ -65,10 +65,8 @@ EXPORT void tLweToFFTConvert(TLweSampleFFT *result, const TLweSample *source, co
 #if defined INCLUDE_ALL || defined INCLUDE_TLWE_FROM_FFT_CONVERT
 #undef INCLUDE_TLWE_FROM_FFT_CONVERT
 // Computes the FFT of the coefficients of the TLWEfft sample
-EXPORT void tLweFromFFTConvert(TLweSample *result, const TLweSampleFFT *source, const TLweParams *params) {
-    const int32_t k = params->k;
-
-    for (int32_t i = 0; i <= k; ++i)
+EXPORT void tLweFromFFTConvert(TLweSample *result, const TLweSampleFFT *source) {
+    for (int32_t i = 0; i <= Value_k; ++i)
         TorusPolynomial_fft(result->a[i].coefsT, source->a[i].coefsC);
     result->current_variance = source->current_variance;
 }
