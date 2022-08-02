@@ -62,7 +62,8 @@ extern "C" void TorusPolynomial_ifft(LagrangeHalfCPolynomial_Collapsed result, c
 extern "C" void TorusPolynomial_fft(TorusPolynomial_Collapsed result, const LagrangeHalfCPolynomial_Collapsed p);
 extern "C" void tGswTorus32PolynomialDecompH(IntPolynomial_Collapsed *result, const TorusPolynomial_Collapsed sample);
 extern "C" void tLweFFTClear(TLweSampleFFT_FPGA *result);
-
+extern "C" void tLweFromFFTConvert(TLweSample_FPGA *result, const TLweSampleFFT_FPGA *source);
+extern "C" void tLweFFTAddMulRTo(TLweSampleFFT_FPGA *result, const LagrangeHalfCPolynomial_Collapsed p, const TLweSampleFFT_FPGA *sample);
 
 extern "C" void fft_transform_reverse(double *_real, double *_imag);
 extern "C" void fft_transform(double *_real, double *_imag);

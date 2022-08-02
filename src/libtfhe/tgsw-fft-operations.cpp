@@ -107,9 +107,9 @@ EXPORT void tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, 
 
     tLweFFTClear(tmpa);
     for (int32_t p = 0; p < kpl; p++) {
-        tLweFFTAddMulRTo(tmpa, decaFFT + p, gsw->all_samples + p, tlwe_params); // TODO: Convert to HLS
+        tLweFFTAddMulRTo(tmpa, decaFFT + p, gsw->all_samples + p); // TODO: Convert to HLS
     }
-    tLweFromFFTConvert(accum, tmpa); // TODO: Convert to HLS
+    tLweFromFFTConvert(accum, tmpa);
 
     delete_TLweSampleFFT(tmpa);
     delete_LagrangeHalfCPolynomial_array(kpl, decaFFT);

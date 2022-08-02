@@ -31,6 +31,7 @@ FPGA_Processor::FPGA_Processor() {
     k_tGswTorus32PolynomialDecompH = cl::Kernel(program, "tGswTorus32PolynomialDecompH", &err);
     k_tLweFFTClear = cl::Kernel(program, "tLweFFTClear", &err);
     k_tLweFromFFTConvert = cl::Kernel(program, "tLweFromFFTConvert", &err);
+    k_tLweFFTAddMulRTo = cl::Kernel(program, "tLweFFTAddMulRTo", &err);
     printf("Finished loading FPGA kernels\n");
 }
 

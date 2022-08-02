@@ -145,14 +145,9 @@ EXPORT void tLweFFTClear(TLweSampleFFT *result) {
 #if defined INCLUDE_ALL || defined INCLUDE_TLWE_FFT_ADDMULRTO
 #undef INCLUDE_TLWE_FFT_ADDMULRTO
 // result = result + p*sample
-EXPORT void tLweFFTAddMulRTo(TLweSampleFFT *result, const LagrangeHalfCPolynomial *p, const TLweSampleFFT *sample,
-                             const TLweParams *params) {
-    const int32_t k = params->k;
-
-    for (int32_t i = 0; i <= k; i++)
+EXPORT void tLweFFTAddMulRTo(TLweSampleFFT *result, const LagrangeHalfCPolynomial *p, const TLweSampleFFT *sample) {
+    for (int32_t i = 0; i <= Value_k; i++)
         LagrangeHalfCPolynomialAddMul(result->a + i, p, sample->a + i);
-    //result->current_variance += sample->current_variance;
-    //TODO: how to compute the variance correctly?
 }
 #endif
 

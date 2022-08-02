@@ -185,7 +185,7 @@ namespace {
             //double norm2p = intPolynomialNormSq2(fp->getIntPolynomialPtr());
 
             //do the tested operation
-            tLweFFTAddMulRTo(result, p, sample, params);
+            tLweFFTAddMulRTo(result, p, sample);
 
             //check the result
             for (int32_t i = 0; i <= k; i++) {
