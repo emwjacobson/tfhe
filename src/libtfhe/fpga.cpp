@@ -29,6 +29,7 @@ FPGA_Processor::FPGA_Processor() {
     k_IntPolynomial_ifft = cl::Kernel(program, "IntPolynomial_ifft", &err);
     k_TorusPolynomial_ifft = cl::Kernel(program, "TorusPolynomial_ifft", &err);
     k_tGswTorus32PolynomialDecompH = cl::Kernel(program, "tGswTorus32PolynomialDecompH", &err);
+    k_tLweFFTClear = cl::Kernel(program, "tLweFFTClear", &err);
     printf("Finished loading FPGA kernels\n");
 }
 

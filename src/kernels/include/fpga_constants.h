@@ -39,14 +39,26 @@ typedef std::complex<double> cplx;
   };
   typedef cplx LagrangeHalfCPolynomial_Collapsed[param_Ns2];
 
+
+  typedef struct {
+    LagrangeHalfCPolynomial_Collapsed a[param_k + 1]; ///< array of length k+1: mask + right term
+    // TODO: Reimplement `b` once needed...
+    // LagrangeHalfCPolynomial_Collapsed b; ///< alias of a[k] to get the right term
+    double current_variance; ///< avg variance of the sample
+  } TLweSampleFFT_FPGA;
+
 // }
 
-extern "C" void fft_transform_reverse(double *_real, double *_imag);
-extern "C" void fft_transform(double *_real, double *_imag);
+// Top level kernel functions
 extern "C" void IntPolynomial_ifft(LagrangeHalfCPolynomial_Collapsed result, const IntPolynomial_Collapsed p);
 extern "C" void TorusPolynomial_ifft(LagrangeHalfCPolynomial_Collapsed result, const TorusPolynomial_Collapsed p);
 extern "C" void TorusPolynomial_fft(TorusPolynomial_Collapsed result, const LagrangeHalfCPolynomial_Collapsed p);
 extern "C" void tGswTorus32PolynomialDecompH(IntPolynomial_Collapsed *result, const TorusPolynomial_Collapsed sample);
+extern "C" void tLweFFTClear(TLweSampleFFT_FPGA *result);
+
+
+extern "C" void fft_transform_reverse(double *_real, double *_imag);
+extern "C" void fft_transform(double *_real, double *_imag);
 
 // These should be implemented as a ROM in the final design
 static double trig_table_reverse[] = {

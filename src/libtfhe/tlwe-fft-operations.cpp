@@ -25,6 +25,9 @@ using namespace std;
 #endif
 
 
+#include "fpga.h"
+
+
 #if defined INCLUDE_ALL || defined INCLUDE_INIT_TLWESAMPLE_FFT
 #undef INCLUDE_INIT_TLWESAMPLE_FFT
 EXPORT void init_TLweSampleFFT(TLweSampleFFT *obj, const TLweParams *params) {
@@ -77,9 +80,40 @@ EXPORT void tLweFromFFTConvert(TLweSample *result, const TLweSampleFFT *source, 
 //Arithmetic operations on TLwe samples
 /** result = (0,0) */
 EXPORT void tLweFFTClear(TLweSampleFFT *result) {
-    for (int32_t i = 0; i <= Value_k; ++i)
-        LagrangeHalfCPolynomialClear(&result->a[i]);
-    result->current_variance = 0.;
+    cl::Buffer result_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSampleFFT_FPGA));
+
+	TLweSampleFFT_FPGA *result_map = (TLweSampleFFT_FPGA *)fpga.q.enqueueMapBuffer(result_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TLweSampleFFT_FPGA));
+
+	// memcpy(p_map, p, sizeof(int32_t) * Value_N);
+    result_map->current_variance = result->current_variance;
+    for(int i=0; i<Value_k; i++) {
+        for(int j=0; j<Value_Ns2; j++) {
+            result_map->a[i][j] = result->a[i].coefsC[j];
+        }
+    }
+
+	fpga.k_tLweFFTClear.setArg(0, result_buf);
+
+	fpga.q.enqueueMigrateMemObjects({ result_buf }, 0 /* 0 means from host*/);
+	fpga.q.enqueueTask(fpga.k_tLweFFTClear);
+	fpga.q.enqueueMigrateMemObjects({ result_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
+
+	fpga.q.finish();
+
+	// memcpy(result, result_map, sizeof(cplx) * Value_Ns2);
+    result->current_variance = result_map->current_variance;
+    for(int i=0; i<Value_k; i++) {
+        for(int j=0; j<Value_Ns2; j++) {
+            result->a[i].coefsC[j] = result_map->a[i][j];
+        }
+    }
+
+
+
+
+    // for (int32_t i = 0; i <= Value_k; ++i)
+    //     LagrangeHalfCPolynomialClear(&result->a[i]);
+    // result->current_variance = 0.;
 }
 #endif
 

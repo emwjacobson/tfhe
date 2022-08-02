@@ -40,6 +40,13 @@ typedef int32_t IntPolynomial_Collapsed[Value_N];
 typedef Torus32 TorusPolynomial_Collapsed[Value_N];
 typedef cplx LagrangeHalfCPolynomial_Collapsed[Value_Ns2];
 
+typedef struct {
+    LagrangeHalfCPolynomial_Collapsed a[Value_k + 1]; ///< array of length k+1: mask + right term
+    // TODO: Reimplement `b` once needed...
+    // LagrangeHalfCPolynomial_Collapsed b; ///< alias of a[k] to get the right term
+    double current_variance; ///< avg variance of the sample
+} TLweSampleFFT_FPGA;
+
 struct LweParams;
 struct LweKey;
 struct LweSample;
