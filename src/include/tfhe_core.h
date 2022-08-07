@@ -14,7 +14,7 @@ constexpr static int64_t Value_N = 1024;
 constexpr static int64_t Value_2N = 2 * Value_N;
 constexpr static int64_t Value_Ns2 = Value_N / 2;
 constexpr static int32_t Value_k = 1;
-constexpr static int32_t Value_kpl = 3;
+constexpr static int32_t Value_kpl = 6;
 constexpr static int32_t Value_l = 3;
 constexpr static int32_t Value_Bgbit = 7;
 constexpr static int32_t Value_maskMod = 127;
@@ -53,6 +53,15 @@ typedef struct {
     // TorusPolynomial *b; ///< alias of a[k] to get the right term
     double current_variance; ///< avg variance of the sample
 } TLweSample_FPGA;
+
+typedef struct {
+    TLweSampleFFT_FPGA all_samples[(Value_k+1) * Value_l]; ///< TLweSample* all_sample; (k+1)l TLwe Sample
+    // TODO: Reimplement `sample` when needed
+    // TLweSampleFFT_FPGA *sample; ///< accès optionnel aux différents blocs de taille l. (optional access to the various blocks of size l.)
+    //double current_variance;
+    int32_t k;
+    int32_t l;
+} TGswSampleFFT_FPGA;
 
 struct LweParams;
 struct LweKey;

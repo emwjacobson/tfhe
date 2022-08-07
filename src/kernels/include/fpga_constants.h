@@ -10,7 +10,7 @@ typedef std::complex<double> cplx;
 #define param_2N 2*param_N
 #define param_Ns2 param_N/2
 #define param_k 1
-#define param_kpl 3
+#define param_kpl 6
 #define param_l 3
 #define param_Bgbit 7
 #define param_maskMod 127
@@ -54,6 +54,15 @@ typedef std::complex<double> cplx;
     double current_variance; ///< avg variance of the sample
   } TLweSample_FPGA;
 
+  typedef struct {
+    TLweSampleFFT_FPGA all_samples[(param_k+1) * param_l]; ///< TLweSample* all_sample; (k+1)l TLwe Sample
+    // TODO: Reimplement `sample` when needed
+    // TLweSampleFFT_FPGA *sample; ///< accès optionnel aux différents blocs de taille l. (optional access to the various blocks of size l.)
+    //double current_variance;
+    int32_t k;
+    int32_t l;
+  } TGswSampleFFT_FPGA;
+
 // }
 
 // Top level kernel functions
@@ -65,6 +74,7 @@ extern "C" void tLweFFTClear(TLweSampleFFT_FPGA *result);
 extern "C" void tLweFromFFTConvert(TLweSample_FPGA *result, const TLweSampleFFT_FPGA *source);
 extern "C" void tLweFFTAddMulRTo(TLweSampleFFT_FPGA *result, const LagrangeHalfCPolynomial_Collapsed p, const TLweSampleFFT_FPGA *sample);
 
+// "Backend" helper functions
 extern "C" void fft_transform_reverse(double *_real, double *_imag);
 extern "C" void fft_transform(double *_real, double *_imag);
 

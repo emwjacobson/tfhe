@@ -54,8 +54,8 @@ VPP := v++
 PLATFORM := xilinx_u280_xdma_201920_3
 TARGET := sw_emu
 CONFIG_NAME := config.cfg
-KERNEL_XO := IntPolynomial_ifft.xo TorusPolynomial_ifft.xo TorusPolynomial_fft.xo tGswTorus32PolynomialDecompH.xo tLweFFTClear.xo tLweFromFFTConvert.xo tLweFFTAddMulRTo.xo
-KERNEL_SOURCES := fft_transform_reverse.cpp fft_transform.cpp TorusPolynomial_fft.cpp
+KERNEL_XO := IntPolynomial_ifft.xo TorusPolynomial_ifft.xo TorusPolynomial_fft.xo tGswTorus32PolynomialDecompH.xo tLweFFTClear.xo tLweFromFFTConvert.xo tLweFFTAddMulRTo.xo tGswFFTExternMulToTLwe.xo
+KERNEL_SOURCES := fft_transform_reverse.cpp fft_transform.cpp TorusPolynomial_fft.cpp tGswTorus32PolynomialDecompH.cpp IntPolynomial_ifft.cpp tLweFFTClear.cpp tLweFFTAddMulRTo.cpp tLweFromFFTConvert.cpp
 KERNEL_FOLDER := ./src/kernels
 PROJECT_NAME := fft
 

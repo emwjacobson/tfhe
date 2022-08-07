@@ -32,6 +32,7 @@ FPGA_Processor::FPGA_Processor() {
     k_tLweFFTClear = cl::Kernel(program, "tLweFFTClear", &err);
     k_tLweFromFFTConvert = cl::Kernel(program, "tLweFromFFTConvert", &err);
     k_tLweFFTAddMulRTo = cl::Kernel(program, "tLweFFTAddMulRTo", &err);
+    k_tGswFFTExternMulToTLwe = cl::Kernel(program, "tGswFFTExternMulToTLwe", &err);
     printf("Finished loading FPGA kernels\n");
 }
 

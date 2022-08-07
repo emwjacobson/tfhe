@@ -23,6 +23,7 @@ public:
   cl::Kernel k_tLweFFTClear;
   cl::Kernel k_tLweFromFFTConvert;
   cl::Kernel k_tLweFFTAddMulRTo;
+  cl::Kernel k_tGswFFTExternMulToTLwe;
 
   cplx* omegaxminus1;
 
