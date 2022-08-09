@@ -6,7 +6,7 @@ extern "C" {
     double imag_inout[param_2N];
 
     // static const double _const = (double(1)/double(param_N))*double(INT64_C(1)<<32);
-    static const double _const = (double)(4194304.0)
+    static const double _const = (double)(4194304.0);
     //double* a_dbl=(double*) a;
     for (int32_t i=0; i<param_N; i++) real_inout[2*i]=0;
     for (int32_t i=0; i<param_N; i++) imag_inout[2*i]=0;
