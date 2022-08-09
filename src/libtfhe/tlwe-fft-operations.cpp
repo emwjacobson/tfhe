@@ -95,14 +95,15 @@ EXPORT void tLweFromFFTConvert(TLweSample *result, const TLweSampleFFT *source) 
 
 	fpga.q.finish();
 
+    result->current_variance = result_map->current_variance;
     for(int i=0; i<=Value_k; i++) {
         for(int j=0; j<Value_N; j++) {
             result->a[i].coefsT[j] = result_map->a[i][j];
         }
 
-        for(int j=0; j<Value_Ns2; j++) {
-            source->a[i].coefsC[j] = source_map->a[i][j];
-        }
+        // for(int j=0; j<Value_Ns2; j++) {
+        //     source->a[i].coefsC[j] = source_map->a[i][j];
+        // }
     }
 }
 #endif
