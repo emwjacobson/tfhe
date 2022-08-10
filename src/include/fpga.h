@@ -16,13 +16,6 @@ public:
   ~FPGA_Processor();
   cl::Context context;
   cl::CommandQueue q;
-  cl::Kernel k_IntPolynomial_ifft;
-  cl::Kernel k_TorusPolynomial_ifft;
-  cl::Kernel k_TorusPolynomial_fft;
-  cl::Kernel k_tGswTorus32PolynomialDecompH;
-  cl::Kernel k_tLweFFTClear;
-  cl::Kernel k_tLweFromFFTConvert;
-  cl::Kernel k_tLweFFTAddMulRTo;
   cl::Kernel k_tGswFFTExternMulToTLwe;
 
   cplx* omegaxminus1;

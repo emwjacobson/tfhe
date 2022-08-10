@@ -35,6 +35,9 @@ struct LagrangeHalfCPolynomial
    void* precomp; // This variable is likely not used, but kept for compatability
 };
 
+EXPORT void fft_transform_reverse(double *real, double *imag);
+EXPORT void fft_transform(double *real, double *imag);
+
 //allocate memory space for a IntPolynomial
 EXPORT IntPolynomial* alloc_IntPolynomial();
 EXPORT IntPolynomial* alloc_IntPolynomial_array(int32_t nbelts);

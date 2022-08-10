@@ -296,27 +296,14 @@ Torus32PolynomialDecompH_old(IntPolynomial *result, const TorusPolynomial *sampl
 #undef INCLUDE_TGSW_TORUS32POLYNOMIAL_DECOMP_H
 EXPORT void
 tGswTorus32PolynomialDecompH(IntPolynomial *result, const TorusPolynomial *sample) {
-    uint32_t *buf = (uint32_t *)sample;
-
-    cl::Buffer result_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(IntPolynomial_Collapsed) * Value_l);
-    cl::Buffer sample_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TorusPolynomial_Collapsed));
-
-	IntPolynomial_Collapsed *result_map = (IntPolynomial_Collapsed *)fpga.q.enqueueMapBuffer(result_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(IntPolynomial_Collapsed) * Value_l);
-	int32_t *sample_map = (int32_t *)fpga.q.enqueueMapBuffer(sample_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TorusPolynomial_Collapsed));
-
-	memcpy(sample_map, sample, sizeof(int32_t) * Value_N);
-
-	fpga.k_tGswTorus32PolynomialDecompH.setArg(0, result_buf);
-	fpga.k_tGswTorus32PolynomialDecompH.setArg(1, sample_buf);
-
-	fpga.q.enqueueMigrateMemObjects({ result_buf, sample_buf }, 0 /* 0 means from host*/);
-	fpga.q.enqueueTask(fpga.k_tGswTorus32PolynomialDecompH);
-	fpga.q.enqueueMigrateMemObjects({ result_buf, sample_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
-
-	fpga.q.finish();
-
-	memcpy(buf, sample_map, sizeof(int32_t) * Value_N);
-	memcpy(result, result_map, sizeof(IntPolynomial_Collapsed) * Value_l);
+    for (int32_t p = 0; p < Value_l; ++p) {
+        const int32_t decal = (32 - (p + 1) * Value_Bgbit);
+        int32_t *res_p = &result->coefs[p];
+        for (int32_t j = 0; j < Value_N; ++j) {
+            uint32_t temp1 = ((sample->coefsT[j] + Value_offset) >> decal) & Value_maskMod;
+            res_p[j] = temp1 - Value_halfBg;
+        }
+    }
 }
 #endif
 

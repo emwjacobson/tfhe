@@ -56,7 +56,7 @@ EXPORT void tLweToFFTConvert(TLweSampleFFT *result, const TLweSample *source, co
     const int32_t k = params->k;
 
     for (int32_t i = 0; i <= k; ++i)
-        TorusPolynomial_ifft(result->a[i].coefsC, source->a[i].coefsT);
+        TorusPolynomial_ifft(&result->a[i], &source->a[i]);
     result->current_variance = source->current_variance;
 }
 #endif
@@ -66,45 +66,9 @@ EXPORT void tLweToFFTConvert(TLweSampleFFT *result, const TLweSample *source, co
 #undef INCLUDE_TLWE_FROM_FFT_CONVERT
 // Computes the FFT of the coefficients of the TLWEfft sample
 EXPORT void tLweFromFFTConvert(TLweSample *result, const TLweSampleFFT *source) {
-    cl::Buffer result_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSample_FPGA));
-    cl::Buffer source_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSampleFFT_FPGA));
-
-	TLweSample_FPGA *result_map = (TLweSample_FPGA *)fpga.q.enqueueMapBuffer(result_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TLweSample_FPGA));
-	TLweSampleFFT_FPGA *source_map = (TLweSampleFFT_FPGA *)fpga.q.enqueueMapBuffer(source_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TLweSampleFFT_FPGA));
-
-    result_map->current_variance = result->current_variance;
-    source_map->current_variance = source->current_variance;
-
-    for(int i=0; i<=Value_k; i++) {
-        for(int j=0; j<Value_N; j++) {
-            result_map->a[i][j] = result->a[i].coefsT[j];
-        }
-
-        for(int j=0; j<Value_Ns2; j++) {
-            source_map->a[i][j] = source->a[i].coefsC[j];
-        }
-    }
-
-
-	fpga.k_tLweFromFFTConvert.setArg(0, result_buf);
-	fpga.k_tLweFromFFTConvert.setArg(1, source_buf);
-
-	fpga.q.enqueueMigrateMemObjects({ result_buf, source_buf }, 0 /* 0 means from host*/);
-	fpga.q.enqueueTask(fpga.k_tLweFromFFTConvert);
-	fpga.q.enqueueMigrateMemObjects({ result_buf, source_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
-
-	fpga.q.finish();
-
-    result->current_variance = result_map->current_variance;
-    for(int i=0; i<=Value_k; i++) {
-        for(int j=0; j<Value_N; j++) {
-            result->a[i].coefsT[j] = result_map->a[i][j];
-        }
-
-        // for(int j=0; j<Value_Ns2; j++) {
-        //     source->a[i].coefsC[j] = source_map->a[i][j];
-        // }
-    }
+    for (int32_t i = 0; i <= Value_k; ++i)
+        TorusPolynomial_fft(&result->a[i], &source->a[i]);
+    result->current_variance = source->current_variance;
 }
 #endif
 
@@ -114,31 +78,9 @@ EXPORT void tLweFromFFTConvert(TLweSample *result, const TLweSampleFFT *source) 
 //Arithmetic operations on TLwe samples
 /** result = (0,0) */
 EXPORT void tLweFFTClear(TLweSampleFFT *result) {
-    cl::Buffer result_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSampleFFT_FPGA));
-
-	TLweSampleFFT_FPGA *result_map = (TLweSampleFFT_FPGA *)fpga.q.enqueueMapBuffer(result_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TLweSampleFFT_FPGA));
-
-    result_map->current_variance = result->current_variance;
-    for(int i=0; i<Value_k; i++) {
-        for(int j=0; j<Value_Ns2; j++) {
-            result_map->a[i][j] = result->a[i].coefsC[j];
-        }
-    }
-
-	fpga.k_tLweFFTClear.setArg(0, result_buf);
-
-	fpga.q.enqueueMigrateMemObjects({ result_buf }, 0 /* 0 means from host*/);
-	fpga.q.enqueueTask(fpga.k_tLweFFTClear);
-	fpga.q.enqueueMigrateMemObjects({ result_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
-
-	fpga.q.finish();
-
-    result->current_variance = result_map->current_variance;
-    for(int i=0; i<=Value_k; i++) {
-        for(int j=0; j<Value_Ns2; j++) {
-            result->a[i].coefsC[j] = result_map->a[i][j];
-        }
-    }
+    for (int32_t i = 0; i <= Value_k; ++i)
+        LagrangeHalfCPolynomialClear(&result->a[i]);
+    result->current_variance = 0.;
 }
 #endif
 
@@ -147,46 +89,8 @@ EXPORT void tLweFFTClear(TLweSampleFFT *result) {
 #undef INCLUDE_TLWE_FFT_ADDMULRTO
 // result = result + p*sample
 EXPORT void tLweFFTAddMulRTo(TLweSampleFFT *result, const LagrangeHalfCPolynomial *p, const TLweSampleFFT *sample) {
-    cl::Buffer result_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSampleFFT_FPGA));
-    cl::Buffer p_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(LagrangeHalfCPolynomial_Collapsed));
-    cl::Buffer sample_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSampleFFT_FPGA));
-
-	TLweSampleFFT_FPGA *result_map = (TLweSampleFFT_FPGA *)fpga.q.enqueueMapBuffer(result_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TLweSampleFFT_FPGA));
-    cplx *p_map = (cplx *)fpga.q.enqueueMapBuffer(p_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(LagrangeHalfCPolynomial_Collapsed));
-    TLweSampleFFT_FPGA *sample_map = (TLweSampleFFT_FPGA *)fpga.q.enqueueMapBuffer(sample_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TLweSampleFFT_FPGA));
-
-    result_map->current_variance = result->current_variance;
-    for(int i=0; i<=Value_k; i++) {
-        for(int j=0; j<Value_Ns2; j++) {
-            result_map->a[i][j] = result->a[i].coefsC[j];
-        }
-    }
-
-    memcpy(p_map, p->coefsC, sizeof(cplx) * Value_Ns2);
-
-    sample_map->current_variance = sample->current_variance;
-    for(int i=0; i<=Value_k; i++) {
-        for(int j=0; j<Value_Ns2; j++) {
-            sample_map->a[i][j] = sample->a[i].coefsC[j];
-        }
-    }
-
-	fpga.k_tLweFFTAddMulRTo.setArg(0, result_buf);
-	fpga.k_tLweFFTAddMulRTo.setArg(1, p_buf);
-	fpga.k_tLweFFTAddMulRTo.setArg(2, sample_buf);
-
-	fpga.q.enqueueMigrateMemObjects({ result_buf, p_buf, sample_buf }, 0 /* 0 means from host*/);
-	fpga.q.enqueueTask(fpga.k_tLweFFTAddMulRTo);
-	fpga.q.enqueueMigrateMemObjects({ result_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
-
-	fpga.q.finish();
-
-    result->current_variance = result_map->current_variance;
-    for(int i=0; i<=Value_k; i++) {
-        for(int j=0; j<Value_Ns2; j++) {
-            result->a[i].coefsC[j] = result_map->a[i][j];
-        }
-    }
+    for (int32_t i = 0; i <= Value_k; i++)
+        LagrangeHalfCPolynomialAddMul(&result->a[i], p, &sample->a[i]);
 }
 #endif
 

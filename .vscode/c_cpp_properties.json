@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/usr/include/",
-                "${workspaceFolder}/src/kernels/include/"
+                "${workspaceFolder}/src/kernels/include/",
+                "${env:XILINX_VITIS}/include/"
             ],
             "defines": [],
             "compilerPath": "/tools/Xilinx/Vitis/2020.1/gnu/aarch32/lin/gcc-arm-none-eabi/bin/arm-none-eabi-gcc",
