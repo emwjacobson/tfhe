@@ -8,16 +8,17 @@
 typedef ap_fixed<64, 32> ap_cplx;
 typedef std::complex<double> cplx;
 
-#define param_N 1024
-#define param_2N 2*param_N
-#define param_Ns2 param_N/2
-#define param_k 1
-#define param_kpl 6
-#define param_l 3
-#define param_Bgbit 7
-#define param_maskMod 127
-#define param_halfBg 64
-#define param_offset 2164391936 // tgsw.cpp - TGswParams::TGswParams()
+constexpr static int64_t param_N = 1024;
+constexpr static int64_t param_2N = 2 * param_N;
+constexpr static int64_t param_Ns2 = param_N / 2;
+constexpr static int32_t param_k = 1;
+constexpr static int32_t param_l = 3;
+constexpr static int32_t param_kpl = (param_k + 1) * param_l;
+constexpr static int32_t param_Bgbit = 7;
+constexpr static int32_t param_Bg = 1 << param_Bgbit;
+constexpr static int32_t param_maskMod = param_Bg - 1;
+constexpr static int32_t param_halfBg = param_Bg / 2;
+constexpr static uint32_t param_offset = 2164391936; // tgsw.cpp - TGswParams::TGswParams()
 
 // namespace fpga {
 

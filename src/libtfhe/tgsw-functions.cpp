@@ -296,14 +296,37 @@ Torus32PolynomialDecompH_old(IntPolynomial *result, const TorusPolynomial *sampl
 #undef INCLUDE_TGSW_TORUS32POLYNOMIAL_DECOMP_H
 EXPORT void
 tGswTorus32PolynomialDecompH(IntPolynomial *result, const TorusPolynomial *sample) {
+    // uint32_t *buf = (uint32_t *) sample->coefsT;
+    uint32_t buf[Value_N];
+
+    //First, add offset to everyone
+    // for (int32_t j = 0; j < Value_N; ++j) buf[j] += Value_offset;
+    for (int32_t j = 0; j < Value_N; ++j) buf[j] = sample->coefsT[j] + Value_offset;
+
+    //then, do the decomposition (in parallel)
     for (int32_t p = 0; p < Value_l; ++p) {
         const int32_t decal = (32 - (p + 1) * Value_Bgbit);
-        int32_t *res_p = &result->coefs[p];
+        int32_t *res_p = result[p].coefs;
         for (int32_t j = 0; j < Value_N; ++j) {
-            uint32_t temp1 = ((sample->coefsT[j] + Value_offset) >> decal) & Value_maskMod;
+            uint32_t temp1 = (buf[j] >> decal) & Value_maskMod;
             res_p[j] = temp1 - Value_halfBg;
         }
     }
+
+    // //finally, remove offset to everyone
+    // for (int32_t j = 0; j < Value_N; ++j) buf[j] -= Value_offset;
+
+
+    // OLD, INCORRECT VERSION
+    // `((sample->coefsT[j] + Value_offset) >> decal)` does not account for wrapping of 32-bit uint correctly!
+    // for (int32_t p = 0; p < Value_l; ++p) {
+    //     const int32_t decal = (32 - (p + 1) * Value_Bgbit);
+    //     int32_t *res_p = &result->coefs[p];
+    //     for (int32_t j = 0; j < Value_N; ++j) {
+    //         uint32_t temp1 = ((sample->coefsT[j] + Value_offset) >> decal) & Value_maskMod;
+    //         res_p[j] = temp1 - Value_halfBg;
+    //     }
+    // }
 }
 #endif
 

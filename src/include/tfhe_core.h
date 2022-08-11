@@ -14,11 +14,12 @@ constexpr static int64_t Value_N = 1024;
 constexpr static int64_t Value_2N = 2 * Value_N;
 constexpr static int64_t Value_Ns2 = Value_N / 2;
 constexpr static int32_t Value_k = 1;
-constexpr static int32_t Value_kpl = 6;
 constexpr static int32_t Value_l = 3;
+constexpr static int32_t Value_kpl = (Value_k + 1) * Value_l;
 constexpr static int32_t Value_Bgbit = 7;
-constexpr static int32_t Value_maskMod = 127;
-constexpr static int32_t Value_halfBg = 64;
+constexpr static int32_t Value_Bg = 1 << Value_Bgbit;
+constexpr static int32_t Value_maskMod = Value_Bg - 1;
+constexpr static int32_t Value_halfBg = Value_Bg / 2;
 constexpr static uint32_t Value_offset = 2164391936; // tgsw.cpp - TGswParams::TGswParams()
 
 static const double trig_table_reverse[] = {
