@@ -6,8 +6,11 @@ extern "C" {
         const LagrangeHalfCPolynomial_Collapsed a,
         const LagrangeHalfCPolynomial_Collapsed b)
     {
+        const cplx* aa = a;
+        const cplx* bb = b;
+        cplx* rr = accum;
         for (int32_t i=0; i<param_Ns2; i++)
-        accum[i] += a[i]*b[i];
+            rr[i] += aa[i]*bb[i];
     }
 
     void tLweFFTAddMulRTo(TLweSampleFFT_FPGA *result, const LagrangeHalfCPolynomial_Collapsed p, const TLweSampleFFT_FPGA *sample) {

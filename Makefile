@@ -52,30 +52,30 @@ alltests:
 
 VPP := v++
 PLATFORM := xilinx_u280_xdma_201920_3
-TARGET := sw_emu
+TARGET := hw
 CONFIG_NAME := config.cfg
-KERNEL_XO := tGswFFTExternMulToTLwe.xo
-KERNEL_SOURCES := fft_transform_reverse.cpp fft_transform.cpp TorusPolynomial_fft.cpp tGswTorus32PolynomialDecompH.cpp IntPolynomial_ifft.cpp tLweFFTClear.cpp tLweFFTAddMulRTo.cpp tLweFromFFTConvert.cpp TorusPolynomial_ifft.cpp
+KERNEL_XO := tGswFFTExternMulToTLwe.xo tGswTorus32PolynomialDecompH.xo IntPolynomial_ifft.xo tLweFFTClear.xo tLweFFTAddMulRTo.xo tLweFromFFTConvert.xo
+KERNEL_SOURCES := fft_transform_reverse.cpp fft_transform.cpp TorusPolynomial_fft.cpp TorusPolynomial_ifft.cpp tGswTorus32PolynomialDecompH.cpp IntPolynomial_ifft.cpp tLweFFTClear.cpp tLweFFTAddMulRTo.cpp tLweFromFFTConvert.cpp
 KERNEL_FOLDER := ./src/kernels
 PROJECT_NAME := fft
 
-# ifeq ($(TARGET), sw_emu) # sw_emu needs the sources, easiest to generate their xo files to include the sources. hw(_emu) have sources manually included
-# 	KERNEL_XO += fft_transform_reverse.xo fft_transform.xo
-# endif
+ifeq ($(TARGET), sw_emu) # sw_emu needs the sources, easiest to generate their xo files to include the sources. hw(_emu) have sources manually included
+	KERNEL_XO += fft_transform_reverse.xo fft_transform.xo TorusPolynomial_fft.xo TorusPolynomial_ifft.xo
+endif
 
-VPP_XCLBIN_FLAGS := -l -j $(shell nproc) --profile_kernel data:all:all:all -O1 --platform $(PLATFORM) -t $(TARGET) --input_files $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
-VPP_XO_FLAGS := -c -O1 --platform $(PLATFORM) -t $(TARGET) -I$(KERNEL_FOLDER)/include/
+VPP_XCLBIN_FLAGS := -l -j $(shell nproc) --profile_kernel data:all:all:all --platform $(PLATFORM) -t $(TARGET) --input_files $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
+VPP_XO_FLAGS := -c --platform $(PLATFORM) -t $(TARGET) -I$(KERNEL_FOLDER)/include/
 
 xclbin: $(KERNEL_XO)
 	$(VPP) $(VPP_XCLBIN_FLAGS)
 	emconfigutil --platform $(PLATFORM) --nd 1
 
 %.xo: src/kernels/%.cpp
-# ifeq ($(TARGET), sw_emu)
-# 	$(VPP) $(VPP_XO_FLAGS) -k $(basename $(notdir $<)) $< -o $@
-# else
+ifeq ($(TARGET), sw_emu)
+	$(VPP) $(VPP_XO_FLAGS) -k $(basename $(notdir $<)) $< -o $@
+else
 	$(VPP) $(VPP_XO_FLAGS) -k $(basename $(notdir $<)) $< $(addprefix $(KERNEL_FOLDER)/, $(KERNEL_SOURCES)) -o $@
-# endif
+endif
 
 runtest: test xclbin
 	cp $(PROJECT_NAME).xclbin emconfig.json ./builddtests/test

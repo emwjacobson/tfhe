@@ -301,7 +301,8 @@ tGswTorus32PolynomialDecompH(IntPolynomial *result, const TorusPolynomial *sampl
 
     //First, add offset to everyone
     // for (int32_t j = 0; j < Value_N; ++j) buf[j] += Value_offset;
-    for (int32_t j = 0; j < Value_N; ++j) buf[j] = sample->coefsT[j] + Value_offset;
+    for (int32_t j = 0; j < Value_N; ++j)
+        buf[j] = sample->coefsT[j] + Value_offset;
 
     //then, do the decomposition (in parallel)
     for (int32_t p = 0; p < Value_l; ++p) {

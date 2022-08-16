@@ -13,8 +13,8 @@ extern "C" {
 
     double* res_dbl = (double*)result;
     for (int32_t i=0; i<param_N; i+=2) {
-        res_dbl[i]=real_inout[i+1];
-        res_dbl[i+1]=imag_inout[i+1];
+      res_dbl[i]=real_inout[i+1];
+      res_dbl[i+1]=imag_inout[i+1];
     }
   }
 }
