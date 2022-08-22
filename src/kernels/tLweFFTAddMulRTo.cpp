@@ -2,19 +2,19 @@
 
 extern "C" {
     void LagrangeHalfCPolynomialAddMul(
-        LagrangeHalfCPolynomial_Collapsed accum,
-        const LagrangeHalfCPolynomial_Collapsed a,
-        const LagrangeHalfCPolynomial_Collapsed b)
+        LagrangeHalfCPolynomial *accum,
+        LagrangeHalfCPolynomial *a,
+        LagrangeHalfCPolynomial *b)
     {
-        const cplx* aa = a;
-        const cplx* bb = b;
-        cplx* rr = accum;
+        cplx* aa = a->coefsC;
+        cplx* bb = b->coefsC;
+        cplx* rr = accum->coefsC;
         for (int32_t i=0; i<param_Ns2; i++)
             rr[i] += aa[i]*bb[i];
     }
 
-    void tLweFFTAddMulRTo(TLweSampleFFT_FPGA *result, const LagrangeHalfCPolynomial_Collapsed p, const TLweSampleFFT_FPGA *sample) {
+    void tLweFFTAddMulRTo(TLweSampleFFT_FPGA *result, LagrangeHalfCPolynomial *p, TLweSampleFFT_FPGA *sample) {
         for (int32_t i = 0; i <= param_k; i++)
-            LagrangeHalfCPolynomialAddMul(result->a[i], p, sample->a[i]);
+            LagrangeHalfCPolynomialAddMul(&result->a[i], p, &sample->a[i]);
     }
 }

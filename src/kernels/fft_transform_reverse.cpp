@@ -10,8 +10,7 @@ extern "C" {
 	// This is a HLS implementation that models the x86-64 AVX implementation.
 	void fft_transform_reverse(double *real, double *imag) {
 		// Bit-reversed addressing permutation
-		uint64_t i;
-		for (i = 0; i < param_2N; i++) {
+		for (uint64_t i = 0; i < param_2N; i++) {
 			uint64_t j = bit_reversed[i];
 			if (i < j) {
 				double tp0re = real[i];
@@ -27,7 +26,7 @@ extern "C" {
 
 		// Size 2 merge (special)
 		if (param_2N >= 2) {
-			for (i = 0; i < param_2N; i += 2) {
+			for (uint64_t i = 0; i < param_2N; i += 2) {
 				double tpre = real[i];
 				double tpim = imag[i];
 				real[i] += real[i + 1];
@@ -39,7 +38,7 @@ extern "C" {
 
 		// Size 4 merge (special)
 		if (param_2N >= 4) {
-			for (i = 0; i < param_2N; i += 4) {
+			for (uint64_t i = 0; i < param_2N; i += 4) {
 				// Even indices
 				double tpre, tpim;
 				tpre = real[i];
@@ -61,16 +60,13 @@ extern "C" {
 		}
 
 		// Size 8 and larger merges (general)
-		double *trigtables = trig_table_reverse;
-		uint64_t size;
-		for (size = 8; size <= param_2N; size <<= 1) {
+		double *trigtables = &trig_table_reverse[0];
+		for (uint64_t size = 8; size <= param_2N; size <<= 1) {
 			uint64_t halfsize = size >> 1;
-			uint64_t i;
-			for (i = 0; i < param_2N; i += size) {
-				uint64_t j, off;
-				for (j = 0, off = 0; j < halfsize; j += 4, off += 8) {
-					uint64_t k;
-					for (k = 0; k < 4; k++) {  // To simulate x86 AVX 4-vectors
+			for (uint64_t i = 0; i < param_2N; i += size) {
+				uint64_t off = 0;
+				for (uint64_t j = 0; j < halfsize; j += 4) {
+					for (uint64_t k = 0; k < 4; k++) {  // To simulate x86 AVX 4-vectors
 						uint64_t vi = i + j + k;  // Vector index
 						uint64_t ti = off + k;    // Table index
 						double re = real[vi + halfsize];
@@ -82,10 +78,9 @@ extern "C" {
 						real[vi] += tpre;
 						imag[vi] += tpim;
 					}
+					off += 8;
 				}
 			}
-			if (size == param_2N)
-				break;
 			trigtables += size;
 		}
 

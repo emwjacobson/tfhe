@@ -24,6 +24,13 @@ public:
   cl::Kernel k_tLweFFTAddMulRTo;
   cl::Kernel k_tLweFromFFTConvert;
 
+  cl::Kernel k_IntPolynomial_ifft_loop;
+  cl::Kernel k_tGswTorus32PolynomialDecompH_loop;
+  cl::Kernel k_tLweFFTAddMulRTo_loop;
+
+  cl::Kernel k_first2;
+  cl::Kernel k_second3;
+
   cplx* omegaxminus1;
 
 private:

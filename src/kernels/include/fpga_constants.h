@@ -25,39 +25,35 @@ constexpr static uint32_t param_offset = 2164391936; // tgsw.cpp - TGswParams::T
   typedef int32_t Torus32; //avant uint32_t
 
   /** This structure represents an integer polynomial modulo X^N+1 */
-  struct IntPolynomial {
+  typedef struct IntPolynomial {
     int32_t coefs[param_N];
-  };
-  typedef int32_t IntPolynomial_Collapsed[param_N];
+  } IntPolynomial;
 
   /** This structure represents an torus polynomial modulo X^N+1 */
-  struct TorusPolynomial {
+  typedef struct TorusPolynomial {
     Torus32 coefsT[param_N];
-  };
-  typedef Torus32 TorusPolynomial_Collapsed[param_N];
+  } TorusPolynomial;
 
-  struct LagrangeHalfCPolynomial {
+  typedef struct LagrangeHalfCPolynomial {
     cplx coefsC[param_Ns2];
-    void* precomp; // This variable is likely not used, but kept for compatability
-  };
-  typedef cplx LagrangeHalfCPolynomial_Collapsed[param_Ns2];
+  } LagrangeHalfCPolynomial;
 
 
-  typedef struct {
-    LagrangeHalfCPolynomial_Collapsed a[param_k + 1]; ///< array of length k+1: mask + right term
+  typedef struct TLweSampleFFT_FPGA {
+    LagrangeHalfCPolynomial a[param_k + 1]; ///< array of length k+1: mask + right term
     // TODO: Reimplement `b` once needed...
     // LagrangeHalfCPolynomial_Collapsed b; ///< alias of a[k] to get the right term
     double current_variance; ///< avg variance of the sample
   } TLweSampleFFT_FPGA;
 
-  typedef struct {
-    TorusPolynomial_Collapsed a[param_k + 1]; ///< array of length k+1: mask + right term
+  typedef struct TLweSample_FPGA {
+    TorusPolynomial a[param_k + 1]; ///< array of length k+1: mask + right term
     // TODO: Reimplement `b` once needed...
     // TorusPolynomial *b; ///< alias of a[k] to get the right term
     double current_variance; ///< avg variance of the sample
   } TLweSample_FPGA;
 
-  typedef struct {
+  typedef struct TGswSampleFFT_FPGA {
     TLweSampleFFT_FPGA all_samples[(param_k+1) * param_l]; ///< TLweSample* all_sample; (k+1)l TLwe Sample
     // TODO: Reimplement `sample` when needed
     // TLweSampleFFT_FPGA *sample; ///< accès optionnel aux différents blocs de taille l. (optional access to the various blocks of size l.)
@@ -69,13 +65,17 @@ constexpr static uint32_t param_offset = 2164391936; // tgsw.cpp - TGswParams::T
 // }
 
 // Top level kernel functions
-extern "C" void IntPolynomial_ifft(LagrangeHalfCPolynomial_Collapsed result, const IntPolynomial_Collapsed p);
-extern "C" void TorusPolynomial_ifft(LagrangeHalfCPolynomial_Collapsed result, const TorusPolynomial_Collapsed p);
-extern "C" void TorusPolynomial_fft(TorusPolynomial_Collapsed result, const LagrangeHalfCPolynomial_Collapsed p);
-extern "C" void tGswTorus32PolynomialDecompH(IntPolynomial_Collapsed *result, const TorusPolynomial_Collapsed sample);
+extern "C" void IntPolynomial_ifft(LagrangeHalfCPolynomial *result, IntPolynomial *p);
+extern "C" void TorusPolynomial_ifft(LagrangeHalfCPolynomial *result, TorusPolynomial *p);
+extern "C" void TorusPolynomial_fft(TorusPolynomial *result, LagrangeHalfCPolynomial *p);
+extern "C" void tGswTorus32PolynomialDecompH(IntPolynomial *result, TorusPolynomial *sample);
 extern "C" void tLweFFTClear(TLweSampleFFT_FPGA *result);
-extern "C" void tLweFromFFTConvert(TLweSample_FPGA *result, const TLweSampleFFT_FPGA *source);
-extern "C" void tLweFFTAddMulRTo(TLweSampleFFT_FPGA *result, const LagrangeHalfCPolynomial_Collapsed p, const TLweSampleFFT_FPGA *sample);
+extern "C" void tLweFromFFTConvert(TLweSample_FPGA *result, TLweSampleFFT_FPGA *source);
+extern "C" void tLweFFTAddMulRTo(TLweSampleFFT_FPGA *result, LagrangeHalfCPolynomial *p, TLweSampleFFT_FPGA *sample);
+
+extern "C" void tGswTorus32PolynomialDecompH_l(IntPolynomial *deca, TLweSample_FPGA *accum);
+extern "C" void IntPolynomial_ifft_loop(LagrangeHalfCPolynomial *decaFFT, IntPolynomial *deca);
+extern "C" void tLweFFTAddMulRTo_loop(TLweSampleFFT_FPGA *tmpa, LagrangeHalfCPolynomial* decaFFT, TGswSampleFFT_FPGA *gsw);
 
 // "Backend" helper functions
 extern "C" void fft_transform_reverse(double *_real, double *_imag);

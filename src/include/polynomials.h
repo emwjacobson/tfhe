@@ -7,15 +7,15 @@
 #include "tfhe_core.h"
 
 /** This structure represents an integer polynomial modulo X^N+1 */
-struct IntPolynomial {
+typedef struct IntPolynomial {
    int32_t coefs[Value_N];
-};
+} IntPolynomial;
 
 
 /** This structure represents an torus polynomial modulo X^N+1 */
-struct TorusPolynomial {
+typedef struct TorusPolynomial {
    Torus32 coefsT[Value_N];
-};
+} TorusPolynomial;
 
 /**
  * This structure is used for FFT operations, and is a representation
@@ -29,11 +29,34 @@ struct TorusPolynomial {
  * P(w), P(w^3), ..., P(w^(N-1))
  * where w is exp(i.pi/N)
  */
-struct LagrangeHalfCPolynomial
+typedef struct LagrangeHalfCPolynomial
 {
    cplx coefsC[Value_Ns2];
-   void* precomp; // This variable is likely not used, but kept for compatability
-};
+   // void* precomp; // This variable is likely not used, but kept for compatability
+} LagrangeHalfCPolynomial;
+
+typedef struct TLweSampleFFT_FPGA {
+    LagrangeHalfCPolynomial a[Value_k + 1]; ///< array of length k+1: mask + right term
+    // TODO: Reimplement `b` once needed...
+    // LagrangeHalfCPolynomial b; ///< alias of a[k] to get the right term
+    double current_variance; ///< avg variance of the sample
+} TLweSampleFFT_FPGA;
+
+typedef struct TLweSample_FPGA {
+    TorusPolynomial a[Value_k + 1]; ///< array of length k+1: mask + right term
+    // TODO: Reimplement `b` once needed...
+    // TorusPolynomial *b; ///< alias of a[k] to get the right term
+    double current_variance; ///< avg variance of the sample
+} TLweSample_FPGA;
+
+typedef struct TGswSampleFFT_FPGA {
+    TLweSampleFFT_FPGA all_samples[(Value_k+1) * Value_l]; ///< TLweSample* all_sample; (k+1)l TLwe Sample
+    // TODO: Reimplement `sample` when needed
+    // TLweSampleFFT_FPGA *sample; ///< accès optionnel aux différents blocs de taille l. (optional access to the various blocks of size l.)
+    //double current_variance;
+    int32_t k;
+    int32_t l;
+} TGswSampleFFT_FPGA;
 
 EXPORT void fft_transform_reverse(double *real, double *imag);
 EXPORT void fft_transform(double *real, double *imag);
