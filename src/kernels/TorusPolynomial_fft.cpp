@@ -1,7 +1,7 @@
 #include "fpga_constants.h"
 
 extern "C" {
-  void TorusPolynomial_fft(TorusPolynomial *result, LagrangeHalfCPolynomial *p) {
+  void TorusPolynomial_fft(TorusPolynomial *result, const LagrangeHalfCPolynomial *p) {
     double real_inout[param_2N];
     double imag_inout[param_2N];
 

@@ -2,7 +2,7 @@
 
 extern "C"
 {
-  void tGswTorus32PolynomialDecompH(IntPolynomial *result, TorusPolynomial *sample){
+  void tGswTorus32PolynomialDecompH(IntPolynomial *result, const TorusPolynomial *sample){
     uint32_t buf[param_N];
 
     //First, add offset to everyone

@@ -1,7 +1,7 @@
 #include "fpga_constants.h"
 
 extern "C" {
-  void IntPolynomial_ifft(LagrangeHalfCPolynomial *result, IntPolynomial *p) {
+  void IntPolynomial_ifft(LagrangeHalfCPolynomial *result, const IntPolynomial *p) {
     double real_inout[param_2N];
     double imag_inout[param_2N];
 

@@ -65,17 +65,17 @@ constexpr static uint32_t param_offset = 2164391936; // tgsw.cpp - TGswParams::T
 // }
 
 // Top level kernel functions
-extern "C" void IntPolynomial_ifft(LagrangeHalfCPolynomial *result, IntPolynomial *p);
-extern "C" void TorusPolynomial_ifft(LagrangeHalfCPolynomial *result, TorusPolynomial *p);
-extern "C" void TorusPolynomial_fft(TorusPolynomial *result, LagrangeHalfCPolynomial *p);
-extern "C" void tGswTorus32PolynomialDecompH(IntPolynomial *result, TorusPolynomial *sample);
+extern "C" void IntPolynomial_ifft(LagrangeHalfCPolynomial *result, const IntPolynomial *p);
+extern "C" void TorusPolynomial_ifft(LagrangeHalfCPolynomial *result, const TorusPolynomial *p);
+extern "C" void TorusPolynomial_fft(TorusPolynomial *result, const LagrangeHalfCPolynomial *p);
+extern "C" void tGswTorus32PolynomialDecompH(IntPolynomial *result, const TorusPolynomial *sample);
 extern "C" void tLweFFTClear(TLweSampleFFT_FPGA *result);
-extern "C" void tLweFromFFTConvert(TLweSample_FPGA *result, TLweSampleFFT_FPGA *source);
-extern "C" void tLweFFTAddMulRTo(TLweSampleFFT_FPGA *result, LagrangeHalfCPolynomial *p, TLweSampleFFT_FPGA *sample);
+extern "C" void tLweFromFFTConvert(TLweSample_FPGA *result, const TLweSampleFFT_FPGA *source);
+extern "C" void tLweFFTAddMulRTo(TLweSampleFFT_FPGA *result, const LagrangeHalfCPolynomial *p, const TLweSampleFFT_FPGA *sample);
 
-extern "C" void tGswTorus32PolynomialDecompH_l(IntPolynomial *deca, TLweSample_FPGA *accum);
-extern "C" void IntPolynomial_ifft_loop(LagrangeHalfCPolynomial *decaFFT, IntPolynomial *deca);
-extern "C" void tLweFFTAddMulRTo_loop(TLweSampleFFT_FPGA *tmpa, LagrangeHalfCPolynomial* decaFFT, TGswSampleFFT_FPGA *gsw);
+extern "C" void tGswTorus32PolynomialDecompH_l(IntPolynomial *deca, const TLweSample_FPGA *accum);
+extern "C" void IntPolynomial_ifft_loop(LagrangeHalfCPolynomial *decaFFT, const IntPolynomial *deca);
+extern "C" void tLweFFTAddMulRTo_loop(TLweSampleFFT_FPGA *tmpa, const LagrangeHalfCPolynomial* decaFFT, const TGswSampleFFT_FPGA *gsw);
 
 // "Backend" helper functions
 extern "C" void fft_transform_reverse(double *_real, double *_imag);
