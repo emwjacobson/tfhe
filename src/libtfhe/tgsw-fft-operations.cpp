@@ -363,100 +363,6 @@ void tLweFromFFTConvert_FPGA(TLweSample *result, const TLweSampleFFT *source) {
     // }
   }
 }
-void first2_FPGA(LagrangeHalfCPolynomial *decaFFT, IntPolynomial *deca, TLweSample *accum) {
-    cl::Buffer decaFFT_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(LagrangeHalfCPolynomial) * Value_kpl);
-    cl::Buffer accum_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSample_FPGA));
-    cl::Buffer deca_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(IntPolynomial) * Value_kpl);
-
-	LagrangeHalfCPolynomial *decaFFT_map = (LagrangeHalfCPolynomial *)fpga.q.enqueueMapBuffer(decaFFT_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(LagrangeHalfCPolynomial) * Value_kpl);
-	TLweSample_FPGA *accum_map = (TLweSample_FPGA *)fpga.q.enqueueMapBuffer(accum_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TLweSample_FPGA));
-    IntPolynomial *deca_map = (IntPolynomial *)fpga.q.enqueueMapBuffer(deca_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(IntPolynomial) * Value_kpl);
-
-    for(int i=0; i<Value_kpl; i++) {
-        for(int j=0; j<Value_Ns2; j++) {
-            decaFFT_map[i].coefsC[j] = decaFFT[i].coefsC[j];
-        }
-    }
-
-    for(int i=0; i<=Value_k; i++) {
-        for(int j=0; j<Value_N; j++) {
-            accum_map->a[i].coefsT[j] = accum->a[i].coefsT[j];
-        }
-    }
-
-	fpga.k_first2.setArg(0, decaFFT_buf);
-	fpga.k_first2.setArg(1, deca_buf);
-	fpga.k_first2.setArg(2, accum_buf);
-
-	fpga.q.enqueueMigrateMemObjects({ decaFFT_buf, deca_buf, accum_buf }, 0 /* 0 means from host*/);
-	fpga.q.enqueueTask(fpga.k_first2);
-	fpga.q.enqueueMigrateMemObjects({ decaFFT_buf, deca_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
-
-	fpga.q.finish();
-
-    for(int i=0; i<Value_kpl; i++) {
-      for(int j=0; j<Value_N; j++) {
-        deca[i].coefs[j] = deca_map[i].coefs[j];
-      }
-    }
-
-    for(int i=0; i<Value_kpl; i++) {
-        for(int j=0; j<Value_Ns2; j++) {
-            decaFFT[i].coefsC[j] = decaFFT_map[i].coefsC[j];
-        }
-    }
-}
-void second3_FPGA(TLweSample *accum, LagrangeHalfCPolynomial *decaFFT, const TGswSampleFFT *gsw) {
-    cl::Buffer accum_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSample_FPGA));
-    cl::Buffer decaFFT_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(LagrangeHalfCPolynomial) * Value_kpl);
-    cl::Buffer gsw_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TGswSampleFFT_FPGA));
-
-	TLweSample_FPGA *accum_map = (TLweSample_FPGA *)fpga.q.enqueueMapBuffer(accum_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TLweSample_FPGA));
-	LagrangeHalfCPolynomial *decaFFT_map = (LagrangeHalfCPolynomial *)fpga.q.enqueueMapBuffer(decaFFT_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(LagrangeHalfCPolynomial) * Value_kpl);
-	TGswSampleFFT_FPGA *gsw_map = (TGswSampleFFT_FPGA *)fpga.q.enqueueMapBuffer(gsw_buf, CL_TRUE, CL_MAP_WRITE | CL_MAP_READ, 0, sizeof(TGswSampleFFT_FPGA));
-
-    accum_map->current_variance = accum->current_variance;
-    for(int i=0; i<=Value_k; i++) {
-        for(int j=0; j<Value_N; j++) {
-            accum_map->a[i].coefsT[j] = accum->a[i].coefsT[j];
-        }
-    }
-
-    for(int i=0; i<Value_kpl; i++) {
-        for(int j=0; j<Value_Ns2; j++) {
-            decaFFT_map[i].coefsC[j] = decaFFT[i].coefsC[j];
-        }
-    }
-
-    gsw_map->k = gsw->k;
-    gsw_map->l = gsw->l;
-    for(int i=0; i<(Value_k + 1) * Value_l; i++) {
-        gsw_map->all_samples[i].current_variance = gsw->all_samples[i].current_variance;
-        for(int j=0; j<=Value_k; j++) {
-            for(int k=0; k<Value_Ns2; k++) {
-                gsw_map->all_samples[i].a[j].coefsC[k] = gsw->all_samples[i].a[j].coefsC[k];
-            }
-        }
-    }
-
-	fpga.k_second3.setArg(0, accum_buf);
-	fpga.k_second3.setArg(1, decaFFT_buf);
-	fpga.k_second3.setArg(2, gsw_buf);
-
-	fpga.q.enqueueMigrateMemObjects({ accum_buf, decaFFT_buf, gsw_buf }, 0 /* 0 means from host*/);
-	fpga.q.enqueueTask(fpga.k_second3);
-	fpga.q.enqueueMigrateMemObjects({ accum_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
-
-	fpga.q.finish();
-
-    accum->current_variance = accum_map->current_variance;
-    for(int i=0; i<=Value_k; i++) {
-        for(int j=0; j<Value_N; j++) {
-            accum->a[i].coefsT[j] = accum_map->a[i].coefsT[j];
-        }
-    }
-}
-
 
 // External product (*): accum = gsw (*) accum
 EXPORT void tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, const TGswParams *params) {
@@ -561,28 +467,6 @@ EXPORT void tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, 
     //     }
     // }
 
-
-
-    // first2_FPGA(decaFFT_FPGA, deca_FPGA, accum);
-    // for(int i=0; i<Value_kpl; i++) {
-    //     for(int j=0; j<Value_N; j++) {
-    //         if (deca_CPU[i].coefs[j] != deca_FPGA[i].coefs[j]) {
-    //             printf("ERROR deca doesnt match! Interation [%i][%i] CPU %i, FPGA %i\n", i, j, deca_CPU[i].coefs[j], deca_FPGA[i].coefs[j]);
-    //             // exit(1);
-    //         }
-    //     }
-    // }
-    // for(int i=0; i<Value_kpl; i++) {
-    //     for(int j=0; j<Value_Ns2; j++) {
-    //         if (fabs(decaFFT_CPU[i].coefsC[j].real() - decaFFT_FPGA[i].coefsC[j].real()) > EPSILON || fabs(decaFFT_CPU[i].coefsC[j].imag() - decaFFT_FPGA[i].coefsC[j].imag()) > EPSILON) {
-    //             printf("ERROR decaFFT doesnt match! Interation [%i][%i] CPU (%.15f, %.15f), FPGA (%.15f, %.15f)\n", i, j, decaFFT_CPU[i].coefsC[j].real(), decaFFT_CPU[i].coefsC[j].imag(), decaFFT_FPGA[i].coefsC[j].real(), decaFFT_FPGA[i].coefsC[j].imag());
-    //             // exit(1);
-    //         }
-    //     }
-    // }
-
-
-
     tLweFFTClear(tmpa_CPU);
     // tLweFFTClear_FPGA(tmpa_FPGA);
     // for(int i=0; i<=Value_k; i++) {
@@ -617,8 +501,6 @@ EXPORT void tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, 
     //         }
     //     }
     // }
-
-    // second3_FPGA(fpga_accum, decaFFT_FPGA, gsw);
 
     union d_convert {
         double dVal;

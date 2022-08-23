@@ -30,6 +30,7 @@ extern "C" {
     LagrangeHalfCPolynomial decaFFT[param_kpl];
     TLweSampleFFT_FPGA tmpa;
 
+    #pragma HLS dataflow
     tGswTorus32PolynomialDecompH_l(deca, &accum);
     IntPolynomial_ifft_loop(decaFFT, deca);
     tLweFFTClear(&tmpa);

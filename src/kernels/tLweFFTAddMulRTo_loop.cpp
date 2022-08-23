@@ -15,11 +15,9 @@ extern "C" {
 
     void tLweFFTAddMulRTo_loop(TLweSampleFFT_FPGA *tmpa, LagrangeHalfCPolynomial *decaFFT, TGswSampleFFT_FPGA *gsw) {
         for(int p=0; p<param_kpl; p++) {
-            #pragma HLS pipeline off
             LagrangeHalfCPolynomial *_p = &decaFFT[p];
 
             for (int32_t i = 0; i <= param_k; i++) {
-                #pragma HLS pipeline off
                 LagrangeHalfCPolynomialAddMul_2(&tmpa->a[i], _p, &gsw->all_samples[p].a[i]);
             }
         }

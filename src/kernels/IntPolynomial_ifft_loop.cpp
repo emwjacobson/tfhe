@@ -3,7 +3,6 @@
 extern "C" {
   void IntPolynomial_ifft_loop(LagrangeHalfCPolynomial *decaFFT, IntPolynomial *deca) {
     for(int p=0; p<param_kpl; p++) {
-      #pragma HLS pipeline off
       LagrangeHalfCPolynomial *result = &decaFFT[p];
       IntPolynomial *_p = &deca[p];
 
