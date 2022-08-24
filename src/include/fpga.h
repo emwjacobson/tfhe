@@ -18,18 +18,12 @@ public:
   cl::CommandQueue q;
   cl::Kernel k_tGswFFTExternMulToTLwe;
 
-  cl::Kernel k_tGswTorus32PolynomialDecompH;
-  cl::Kernel k_IntPolynomial_ifft;
   cl::Kernel k_tLweFFTClear;
-  cl::Kernel k_tLweFFTAddMulRTo;
   cl::Kernel k_tLweFromFFTConvert;
 
   cl::Kernel k_IntPolynomial_ifft_loop;
   cl::Kernel k_tGswTorus32PolynomialDecompH_loop;
   cl::Kernel k_tLweFFTAddMulRTo_loop;
-
-  cl::Kernel k_first2;
-  cl::Kernel k_second3;
 
   cplx* omegaxminus1;
 

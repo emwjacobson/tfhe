@@ -54,8 +54,8 @@ VPP := v++
 PLATFORM := xilinx_u280_xdma_201920_3
 TARGET := hw
 CONFIG_NAME := config.cfg
-KERNEL_XO := tGswFFTExternMulToTLwe.xo tGswTorus32PolynomialDecompH.xo IntPolynomial_ifft.xo tLweFFTClear.xo tLweFFTAddMulRTo.xo tLweFromFFTConvert.xo IntPolynomial_ifft_loop.xo tGswTorus32PolynomialDecompH_l.xo tLweFFTAddMulRTo_loop.xo first2.xo second3.xo
-KERNEL_SOURCES := fft_transform_reverse.cpp fft_transform.cpp TorusPolynomial_fft.cpp TorusPolynomial_ifft.cpp tGswTorus32PolynomialDecompH.cpp IntPolynomial_ifft.cpp tLweFFTClear.cpp tLweFFTAddMulRTo.cpp tLweFromFFTConvert.cpp IntPolynomial_ifft_loop.cpp tGswTorus32PolynomialDecompH_l.cpp tLweFFTAddMulRTo_loop.cpp
+KERNEL_XO := tGswFFTExternMulToTLwe.xo tLweFFTClear.xo tLweFromFFTConvert.xo IntPolynomial_ifft_loop.xo tGswTorus32PolynomialDecompH_l.xo tLweFFTAddMulRTo_loop.xo
+KERNEL_SOURCES := fft_transform_reverse.cpp fft_transform.cpp TorusPolynomial_fft.cpp TorusPolynomial_ifft.cpp tLweFFTClear.cpp tLweFromFFTConvert.cpp IntPolynomial_ifft_loop.cpp tGswTorus32PolynomialDecompH_l.cpp tLweFFTAddMulRTo_loop.cpp
 KERNEL_FOLDER := ./src/kernels
 PROJECT_NAME := fft
 
