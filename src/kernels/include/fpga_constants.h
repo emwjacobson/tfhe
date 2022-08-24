@@ -69,9 +69,10 @@ extern "C" void TorusPolynomial_ifft(LagrangeHalfCPolynomial *result, const Toru
 extern "C" void TorusPolynomial_fft(TorusPolynomial *result, const LagrangeHalfCPolynomial *p);
 extern "C" void tLweFFTClear(TLweSampleFFT_FPGA *result);
 extern "C" void tLweFromFFTConvert(TLweSample_FPGA *result, const TLweSampleFFT_FPGA *source);
-extern "C" void tGswTorus32PolynomialDecompH_l(IntPolynomial *deca, const TLweSample_FPGA *accum);
-extern "C" void IntPolynomial_ifft_loop(LagrangeHalfCPolynomial *decaFFT, const IntPolynomial *deca);
-extern "C" void tLweFFTAddMulRTo_loop(TLweSampleFFT_FPGA *tmpa, const LagrangeHalfCPolynomial* decaFFT, const TGswSampleFFT_FPGA *gsw);
+
+extern "C" void tGswTorus32PolynomialDecompH(IntPolynomial *deca, const TLweSample_FPGA *accum);
+extern "C" void IntPolynomial_ifft(LagrangeHalfCPolynomial *decaFFT, const IntPolynomial *deca);
+extern "C" void tLweFFTAddMulRTo(TLweSampleFFT_FPGA *tmpa, const LagrangeHalfCPolynomial* decaFFT, const TGswSampleFFT_FPGA *gsw);
 
 // "Backend" helper functions
 extern "C" void fft_transform_reverse(double *_real, double *_imag);

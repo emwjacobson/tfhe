@@ -31,10 +31,10 @@ extern "C" {
     TLweSampleFFT_FPGA tmpa;
 
     #pragma HLS dataflow
-    tGswTorus32PolynomialDecompH_l(deca, &accum);
-    IntPolynomial_ifft_loop(decaFFT, deca);
+    tGswTorus32PolynomialDecompH(deca, &accum);
+    IntPolynomial_ifft(decaFFT, deca);
     tLweFFTClear(&tmpa);
-    tLweFFTAddMulRTo_loop(&tmpa, decaFFT, &gsw);
+    tLweFFTAddMulRTo(&tmpa, decaFFT, &gsw);
     tLweFromFFTConvert(&accum, &tmpa);
 
     _accum->current_variance = accum.current_variance;

@@ -27,13 +27,6 @@ FPGA_Processor::FPGA_Processor() {
     q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
     k_tGswFFTExternMulToTLwe = cl::Kernel(program, "tGswFFTExternMulToTLwe", &err);
 
-    k_tLweFFTClear = cl::Kernel(program, "tLweFFTClear", &err);
-    k_tLweFromFFTConvert = cl::Kernel(program, "tLweFromFFTConvert", &err);
-
-    k_IntPolynomial_ifft_loop = cl::Kernel(program, "IntPolynomial_ifft_loop", &err);
-    k_tGswTorus32PolynomialDecompH_loop = cl::Kernel(program, "tGswTorus32PolynomialDecompH_l", &err);
-    k_tLweFFTAddMulRTo_loop = cl::Kernel(program, "tLweFFTAddMulRTo_loop", &err);
-
     printf("Finished loading FPGA kernels\n");
 }
 

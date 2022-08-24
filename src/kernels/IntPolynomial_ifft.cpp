@@ -1,7 +1,7 @@
 #include "fpga_constants.h"
 
 extern "C" {
-  void IntPolynomial_ifft_loop(LagrangeHalfCPolynomial *decaFFT, const IntPolynomial *deca) {
+  void IntPolynomial_ifft(LagrangeHalfCPolynomial *decaFFT, const IntPolynomial *deca) {
     for(int p=0; p<param_kpl; p++) {
       LagrangeHalfCPolynomial *result = &decaFFT[p];
       const IntPolynomial *_p = &deca[p];
