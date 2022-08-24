@@ -6,6 +6,7 @@ extern "C" {
         const LagrangeHalfCPolynomial *a,
         const LagrangeHalfCPolynomial *b)
     {
+    #pragma HLS inline
         const cplx* aa = a->coefsC;
         const cplx* bb = b->coefsC;
         cplx* rr = accum->coefsC;
@@ -14,6 +15,7 @@ extern "C" {
     }
 
     void tLweFFTAddMulRTo(TLweSampleFFT_FPGA *tmpa, const LagrangeHalfCPolynomial *decaFFT, const TGswSampleFFT_FPGA *gsw) {
+    #pragma HLS inline
         for(int p=0; p<param_kpl; p++) {
             const LagrangeHalfCPolynomial *_p = &decaFFT[p];
 

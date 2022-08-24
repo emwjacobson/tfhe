@@ -3,6 +3,7 @@
 extern "C"
 {
   void tGswTorus32PolynomialDecompH(IntPolynomial *deca, const TLweSample_FPGA *accum){
+    #pragma HLS inline
     for(int i=0; i<=param_k; i++) {
       IntPolynomial* result = &deca[i * param_l];
 
