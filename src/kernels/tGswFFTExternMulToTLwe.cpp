@@ -8,8 +8,8 @@ extern "C" {
 
     TLweSample_FPGA accum;
     accum.current_variance = _accum->current_variance;
-    for(int i=0; i<=param_k; i++) {
-      for(int j=0; j<param_N; j++) {
+    tGswFFTExternMulToTLwe_load_1: for(int i=0; i<=param_k; i++) {
+      tGswFFTExternMulToTLwe_load_2: for(int j=0; j<param_N; j++) {
         accum.a[i].coefsT[j] = _accum->a[i].coefsT[j];
       }
     }
@@ -17,10 +17,10 @@ extern "C" {
     TGswSampleFFT_FPGA gsw;
     gsw.k = _gsw->k;
     gsw.l = _gsw->l;
-    for(int i=0; i<(param_k + 1) * param_l; i++) {
+    tGswFFTExternMulToTLwe_load_3: for(int i=0; i<(param_k + 1) * param_l; i++) {
       gsw.all_samples[i].current_variance = _gsw->all_samples[i].current_variance;
-      for(int j=0; j<=param_k; j++) {
-        for(int k=0; k<param_Ns2; k++) {
+      tGswFFTExternMulToTLwe_load_4: for(int j=0; j<=param_k; j++) {
+        tGswFFTExternMulToTLwe_load_5: for(int k=0; k<param_Ns2; k++) {
           gsw.all_samples[i].a[j].coefsC[k] = _gsw->all_samples[i].a[j].coefsC[k];
         }
       }
@@ -30,7 +30,6 @@ extern "C" {
     LagrangeHalfCPolynomial decaFFT[param_kpl];
     TLweSampleFFT_FPGA tmpa;
 
-    #pragma HLS dataflow
     tGswTorus32PolynomialDecompH(deca, &accum);
     IntPolynomial_ifft(decaFFT, deca);
     tLweFFTClear(&tmpa);
@@ -38,8 +37,8 @@ extern "C" {
     tLweFromFFTConvert(&accum, &tmpa);
 
     _accum->current_variance = accum.current_variance;
-    for(int i=0; i<=param_k; i++) {
-      for(int j=0; j<param_N; j++) {
+    tGswFFTExternMulToTLwe_store_1: for(int i=0; i<=param_k; i++) {
+      tGswFFTExternMulToTLwe_store_2: for(int j=0; j<param_N; j++) {
         _accum->a[i].coefsT[j] = accum.a[i].coefsT[j];
       }
     }
