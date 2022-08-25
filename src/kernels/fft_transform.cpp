@@ -49,10 +49,10 @@ extern "C" {
 			double tpre1_odd = real[i + 1];
 			double tpim1_odd = imag[i + 1];
 			double tpre2_odd = real[i + 3];
-			double tpim2_off = imag[i + 3];
-			real[i + 1] = tpre1_odd + tpim2_off;
+			double tpim2_odd = imag[i + 3];
+			real[i + 1] = tpre1_odd + tpim2_odd;
 			imag[i + 1] = tpim1_odd - tpre2_odd;
-			real[i + 3] = tpre1_odd - tpim2_off;
+			real[i + 3] = tpre1_odd - tpim2_odd;
 			imag[i + 3] = tpim1_odd + tpre2_odd;
 		}
 
