@@ -5,16 +5,21 @@ extern "C" {
     double real_inout[param_2N];
     double imag_inout[param_2N];
 
-    #pragma HLS array_partition variable=real_inout type=complete
-    #pragma HLS array_partition variable=imag_inout type=complete
+    #pragma HLS array_partition variable=real_inout cyclic factor=128
+    #pragma HLS array_partition variable=imag_inout cyclic factor=128
+
+    LagrangeHalfCPolynomial *result;
 
     IntPolynomial_ifft_loop_1: for(int p=0; p<param_kpl; p++) {
-      LagrangeHalfCPolynomial *result = &decaFFT[p];
+      result = &decaFFT[p];
       const IntPolynomial *_p = &deca[p];
 
-      IntPolynomial_ifft_loop_2: for (int32_t i=0; i<param_N; i++) real_inout[i]=_p->coefs[i]/2.;
-      IntPolynomial_ifft_loop_3: for (int32_t i=0; i<param_N; i++) real_inout[param_N+i]=-real_inout[i];
-      IntPolynomial_ifft_loop_4: for (int32_t i=0; i<param_2N; i++) imag_inout[i]=0;
+      IntPolynomial_ifft_loop_2: for (int32_t i=0; i<param_N; i++) {
+        real_inout[i] = _p->coefs[i]/2.;
+        real_inout[param_N+i] = -real_inout[i];
+        imag_inout[i] = 0;
+        imag_inout[param_N+i] = 0;
+      }
 
       fft_transform_reverse(real_inout, imag_inout);
 
@@ -24,7 +29,7 @@ extern "C" {
       //   res_dbl[i+1]=imag_inout[i+1];
       // }
 
-      IntPolynomial_ifft_loop_5: for(int i=0; i<param_Ns2; i++) { // i = 0, 1, 2, 3, ... 510, 511, 512
+      IntPolynomial_ifft_loop_4: for(int i=0; i<param_Ns2; i++) { // i = 0, 1, 2, 3, ... 510, 511, 512
         result->coefsC[i] = cplx(real_inout[2*i+1], imag_inout[2*i+1]); // 2*i + 1 = 1, 3, 5, 7 ... 1021, 1023, 1025
       }
     }

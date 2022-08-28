@@ -52,7 +52,7 @@ alltests:
 
 VPP := v++
 PLATFORM := xilinx_u280_xdma_201920_3
-TARGET := hw
+TARGET := sw_emu
 CONFIG_NAME := config.cfg
 KERNEL_XO := tGswFFTExternMulToTLwe.xo
 KERNEL_SOURCES := fft_transform_reverse.cpp fft_transform.cpp TorusPolynomial_fft.cpp TorusPolynomial_ifft.cpp tLweFFTClear.cpp tLweFromFFTConvert.cpp IntPolynomial_ifft.cpp tGswTorus32PolynomialDecompH.cpp tLweFFTAddMulRTo.cpp
@@ -63,8 +63,8 @@ ifeq ($(TARGET), sw_emu) # sw_emu needs the sources, easiest to generate their x
 	KERNEL_XO += fft_transform_reverse.xo fft_transform.xo TorusPolynomial_fft.xo TorusPolynomial_ifft.xo tLweFFTClear.xo tLweFromFFTConvert.xo IntPolynomial_ifft.xo tGswTorus32PolynomialDecompH.xo tLweFFTAddMulRTo.xo
 endif
 
-VPP_XCLBIN_FLAGS := -l -j 16 --profile_kernel data:all:all:all --platform $(PLATFORM) -t $(TARGET) --input_files $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
-VPP_XO_FLAGS := -c --platform $(PLATFORM) -t $(TARGET) -I$(KERNEL_FOLDER)/include/
+VPP_XCLBIN_FLAGS := -l -j 16 -O2 --profile_kernel data:all:all:all --platform $(PLATFORM) -t $(TARGET) --input_files $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
+VPP_XO_FLAGS := -c -O2 --platform $(PLATFORM) -t $(TARGET) -I$(KERNEL_FOLDER)/include/
 
 xclbin: $(KERNEL_XO)
 	$(VPP) $(VPP_XCLBIN_FLAGS)
