@@ -1,3 +1,26 @@
+/*
+ * Free FFT and convolution (C++)
+ *
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ * - The above copyright notice and this permission notice shall be included in
+ *   all copies or substantial portions of the Software.
+ * - The Software is provided "as is", without warranty of any kind, express or
+ *   implied, including but not limited to the warranties of merchantability,
+ *   fitness for a particular purpose and noninfringement. In no event shall the
+ *   authors or copyright holders be liable for any claim, damages or other
+ *   liability, whether in an action of contract, tort or otherwise, arising from,
+ *   out of or in connection with the Software or the use or other dealings in the
+ *   Software.
+ */
+
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
@@ -7,13 +30,11 @@
 #include "fpga_constants.h"
 
 extern "C" {
-
-	// This is a HLS implementation that models the x86-64 AVX implementation.
 	void fft_transform(double *real, double *imag) {
-		// Bit-reversed addressing permutation
-		fft_transform_loop_1: for (uint64_t i = 0; i < param_2N; i++) {
+		// Bit reversal
+		for (int i = 0; i < param_2N; i++) {
 			uint64_t j = bit_reversed[i];
-			if (i < j) {
+			if (j > i) {
 				double tmpre = real[i];
 				real[i] = real[j];
 				real[j] = tmpre;
@@ -24,73 +45,23 @@ extern "C" {
 			}
 		}
 
-		// Size 2 merge (special)
-		fft_transform_loop_2: for (uint64_t i = 0; i < param_2N; i += 2) {
-			double tpre1 = real[i];
-			double tpre2 = real[i + 1];
-			real[i] = tpre1 + tpre2;
-			real[i + 1] = tpre1 - tpre2;
-
-			double tpim1 = imag[i];
-			double tpim2 = imag[i + 1];
-			imag[i] = tpim1 + tpim2;
-			imag[i + 1] = tpim1 - tpim2;
-		}
-
-		// Size 4 merge (special)
-		fft_transform_loop_3: for (uint64_t i = 0; i < param_2N; i += 4) {
-			// Even indices
-			double tpre1_even = real[i];
-			double tpim1_even = imag[i];
-			double tpre2_even = real[i + 2];
-			double tpim2_even = imag[i + 2];
-			real[i] = tpre1_even + tpre2_even;
-			imag[i] = tpim1_even + tpim2_even;
-			real[i + 2] = tpre1_even - tpre2_even;
-			imag[i + 2] = tpim1_even - tpim2_even;
-
-
-			// Odd indices
-			double tpre1_odd = real[i + 1];
-			double tpim1_odd = imag[i + 1];
-			double tpre2_odd = real[i + 3];
-			double tpim2_odd = imag[i + 3];
-			real[i + 1] = tpre1_odd + tpim2_odd;
-			imag[i + 1] = tpim1_odd - tpre2_odd;
-			real[i + 3] = tpre1_odd - tpim2_odd;
-			imag[i + 3] = tpim1_odd + tpre2_odd;
-		}
-
-		// Size 8 and larger merges (general)
-		double *trigtables = &trig_table_direct[0];
-		fft_transform_loop_4: for (uint64_t size = 8; size <= param_2N; size *= 2) {
-			// const uint64_t halfsize = size >> 1;
-			fft_transform_loop_5: for (uint64_t i = 0; i < param_2N; i += size) {
-				// uint64_t off = 0;
-				fft_transform_loop_6: for (uint64_t j = 0; j < (size / 2); j += 4) {
-					fft_transform_loop_7: for (uint64_t k = 0; k < 4; k++) {  // To simulate x86 AVX 4-vectors
-						uint64_t vi = i + j + k;  // Vector index
-						uint64_t ti = ((j/4)*8) + k;    // Table index
-						double re1 = real[vi + (size / 2)];
-						double im1 = imag[vi + (size / 2)];
-						double re2 = real[vi];
-						double im2 = imag[vi];
-						double tt1 = trigtables[ti];
-						double tt2 = trigtables[ti + 4];
-						double tpre = re1 * tt1 + im1 * tt2;
-						double tpim = im1 * tt1 - re1 * tt2;
-						real[vi + (size / 2)] = re2 - tpre;
-						imag[vi + (size / 2)] = im2 - tpim;
-						real[vi] = re2 + tpre;
-						imag[vi] = im2 + tpim;
-					}
-					// off += 8;
+		for (size_t size = 2; size <= param_2N; size *= 2) {
+			const size_t halfsize = size / 2;
+			const size_t tablestep = param_2N / size;
+			for (size_t i = 0; i < param_2N; i += size) {
+				int k = 0;
+				for (size_t j = i; j < i + halfsize; j++) {
+					// int k = (j-i) * tablestep;
+					size_t l = j + halfsize;
+					double tpre =  real[l] * cosTable[k] + imag[l] * sinTable[k];
+					double tpim = -real[l] * sinTable[k] + imag[l] * cosTable[k];
+					real[l] = real[j] - tpre;
+					imag[l] = imag[j] - tpim;
+					real[j] += tpre;
+					imag[j] += tpim;
+					k += tablestep;
 				}
 			}
-			trigtables += size;
 		}
-
-		return;
 	}
-
 }
