@@ -5,8 +5,8 @@ extern "C" {
     double real_inout[param_2N];
     double imag_inout[param_2N];
 
-    #pragma HLS array_partition variable=real_inout cyclic factor=128
-    #pragma HLS array_partition variable=imag_inout cyclic factor=128
+    // #pragma HLS array_partition variable=real_inout cyclic factor=128
+    // #pragma HLS array_partition variable=imag_inout cyclic factor=128
 
     static const double _2pm33 = 1./double(INT64_C(1)<<33);
 

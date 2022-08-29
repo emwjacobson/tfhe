@@ -30,10 +30,21 @@ extern "C" {
     LagrangeHalfCPolynomial decaFFT[param_kpl];
     TLweSampleFFT_FPGA tmpa;
 
-    tGswTorus32PolynomialDecompH(deca, &accum);
-    IntPolynomial_ifft(decaFFT, deca);
+    #pragma HLS array_partition variable=deca complete
+    #pragma HLS array_partition variable=decaFFT complete
+
+    for(int i=0; i<=param_k; i++) {
+      #pragma HLS unroll
+      tGswTorus32PolynomialDecompH(&deca[i * param_l], &accum.a[i]);
+    }
+    for(int p=0; p<param_kpl; p++) {
+      #pragma HLS unroll
+      IntPolynomial_ifft(&decaFFT[p], &deca[p]);
+    }
     tLweFFTClear(&tmpa);
-    tLweFFTAddMulRTo(&tmpa, decaFFT, &gsw);
+    for(int p=0; p<param_kpl; p++) {
+      tLweFFTAddMulRTo(&tmpa, &decaFFT[p], &gsw.all_samples[p]);
+    }
     tLweFromFFTConvert(&accum, &tmpa);
 
     _accum->current_variance = accum.current_variance;

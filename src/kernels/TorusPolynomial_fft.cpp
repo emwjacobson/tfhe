@@ -5,8 +5,8 @@ extern "C" {
     double real_inout[param_2N];
     double imag_inout[param_2N];
 
-    #pragma HLS array_partition variable=real_inout cyclic factor=128
-    #pragma HLS array_partition variable=imag_inout cyclic factor=128
+    // #pragma HLS array_partition variable=real_inout cyclic factor=128
+    // #pragma HLS array_partition variable=imag_inout cyclic factor=128
 
     //double* a_dbl=(double*) a;
     TorusPolynomial_fft_loop_1: for (int32_t i=0; i<param_N; i++){

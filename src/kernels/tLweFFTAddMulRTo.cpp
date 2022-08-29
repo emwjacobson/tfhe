@@ -10,13 +10,9 @@ extern "C" {
     }
   }
 
-  void tLweFFTAddMulRTo(TLweSampleFFT_FPGA *tmpa, const LagrangeHalfCPolynomial *decaFFT, const TGswSampleFFT_FPGA *gsw) {
-    tLweFFTAddMulRTo_loop_1: for(int p=0; p<param_kpl; p++) {
-      const LagrangeHalfCPolynomial *_p = &decaFFT[p];
-
-      tLweFFTAddMulRTo_loop_2: for (int32_t i = 0; i <= param_k; i++) {
-        LagrangeHalfCPolynomialAddMul(&tmpa->a[i], _p, &gsw->all_samples[p].a[i]);
-      }
+  void tLweFFTAddMulRTo(TLweSampleFFT_FPGA *result, const LagrangeHalfCPolynomial *p, const TLweSampleFFT_FPGA *sample) {
+    tLweFFTAddMulRTo_loop_1: for (int32_t i = 0; i <= param_k; i++) {
+      LagrangeHalfCPolynomialAddMul(&result->a[i], p, &sample->a[i]);
     }
   }
 }
