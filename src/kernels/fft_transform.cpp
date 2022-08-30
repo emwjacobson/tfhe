@@ -50,6 +50,7 @@ extern "C" {
 			#pragma HLS unroll factor=16
 			int k = 0;
 			for (size_t j = i; j < i + 1; j++) {
+				#pragma HLS pipeline II=1
 				size_t l = j + 1;
 				double tpre =  real[l] * cosTable[k] + imag[l] * sinTable[k];
 				double tpim = -real[l] * sinTable[k] + imag[l] * cosTable[k];
@@ -66,6 +67,7 @@ extern "C" {
 			#pragma HLS unroll factor=8
 			int k = 0;
 			for (size_t j = i; j < i + 2; j++) {
+				#pragma HLS pipeline II=1
 				size_t l = j + 2;
 				double tpre =  real[l] * cosTable[k] + imag[l] * sinTable[k];
 				double tpim = -real[l] * sinTable[k] + imag[l] * cosTable[k];
@@ -82,6 +84,7 @@ extern "C" {
 			#pragma HLS unroll factor=4
 			int k = 0;
 			for (size_t j = i; j < i + 4; j++) {
+				#pragma HLS pipeline II=1
 				size_t l = j + 4;
 				double tpre =  real[l] * cosTable[k] + imag[l] * sinTable[k];
 				double tpim = -real[l] * sinTable[k] + imag[l] * cosTable[k];
@@ -98,6 +101,7 @@ extern "C" {
 			#pragma HLS unroll factor=2
 			int k = 0;
 			for (size_t j = i; j < i + 8; j++) {
+				#pragma HLS pipeline II=1
 				size_t l = j + 8;
 				double tpre =  real[l] * cosTable[k] + imag[l] * sinTable[k];
 				double tpim = -real[l] * sinTable[k] + imag[l] * cosTable[k];
@@ -113,6 +117,7 @@ extern "C" {
 		for (size_t i = 0; i < param_2N; i += 32) {
 			int k = 0;
 			for (size_t j = i; j < i + 16; j++) {
+				#pragma HLS pipeline II=1
 				size_t l = j + 16;
 				double tpre =  real[l] * cosTable[k] + imag[l] * sinTable[k];
 				double tpim = -real[l] * sinTable[k] + imag[l] * cosTable[k];
@@ -130,6 +135,7 @@ extern "C" {
 			for (size_t i = 0; i < param_2N; i += size) {
 				int k = 0;
 				for (size_t j = i; j < i + halfsize; j++) {
+					#pragma HLS pipeline II=1
 					size_t l = j + halfsize;
 					double tpre =  real[l] * cosTable[k] + imag[l] * sinTable[k];
 					double tpim = -real[l] * sinTable[k] + imag[l] * cosTable[k];
