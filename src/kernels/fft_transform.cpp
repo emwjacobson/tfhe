@@ -45,13 +45,91 @@ extern "C" {
 			}
 		}
 
-		for (size_t size = 2; size <= param_2N; size *= 2) {
+		// size = 2 (1024 parallel)
+		for (size_t i = 0; i < param_2N; i += 2) {
+			#pragma HLS unroll factor=16
+			int k = 0;
+			for (size_t j = i; j < i + 1; j++) {
+				size_t l = j + 1;
+				double tpre =  real[l] * cosTable[k] + imag[l] * sinTable[k];
+				double tpim = -real[l] * sinTable[k] + imag[l] * cosTable[k];
+				real[l] = real[j] - tpre;
+				imag[l] = imag[j] - tpim;
+				real[j] += tpre;
+				imag[j] += tpim;
+				k += 1024;
+			}
+		}
+
+		// size = 4 (512 parallel)
+		for (size_t i = 0; i < param_2N; i += 4) {
+			#pragma HLS unroll factor=8
+			int k = 0;
+			for (size_t j = i; j < i + 2; j++) {
+				size_t l = j + 2;
+				double tpre =  real[l] * cosTable[k] + imag[l] * sinTable[k];
+				double tpim = -real[l] * sinTable[k] + imag[l] * cosTable[k];
+				real[l] = real[j] - tpre;
+				imag[l] = imag[j] - tpim;
+				real[j] += tpre;
+				imag[j] += tpim;
+				k += 512;
+			}
+		}
+
+		// size = 8 (256 parallel)
+		for (size_t i = 0; i < param_2N; i += 8) {
+			#pragma HLS unroll factor=4
+			int k = 0;
+			for (size_t j = i; j < i + 4; j++) {
+				size_t l = j + 4;
+				double tpre =  real[l] * cosTable[k] + imag[l] * sinTable[k];
+				double tpim = -real[l] * sinTable[k] + imag[l] * cosTable[k];
+				real[l] = real[j] - tpre;
+				imag[l] = imag[j] - tpim;
+				real[j] += tpre;
+				imag[j] += tpim;
+				k += 256;
+			}
+		}
+
+		// size = 16 (128 parallel)
+		for (size_t i = 0; i < param_2N; i += 16) {
+			#pragma HLS unroll factor=2
+			int k = 0;
+			for (size_t j = i; j < i + 8; j++) {
+				size_t l = j + 8;
+				double tpre =  real[l] * cosTable[k] + imag[l] * sinTable[k];
+				double tpim = -real[l] * sinTable[k] + imag[l] * cosTable[k];
+				real[l] = real[j] - tpre;
+				imag[l] = imag[j] - tpim;
+				real[j] += tpre;
+				imag[j] += tpim;
+				k += 128;
+			}
+		}
+
+		// size = 32 (64 parallel)
+		for (size_t i = 0; i < param_2N; i += 32) {
+			int k = 0;
+			for (size_t j = i; j < i + 16; j++) {
+				size_t l = j + 16;
+				double tpre =  real[l] * cosTable[k] + imag[l] * sinTable[k];
+				double tpim = -real[l] * sinTable[k] + imag[l] * cosTable[k];
+				real[l] = real[j] - tpre;
+				imag[l] = imag[j] - tpim;
+				real[j] += tpre;
+				imag[j] += tpim;
+				k += 64;
+			}
+		}
+
+		for (size_t size = 64; size <= param_2N; size *= 2) {
 			const size_t halfsize = size / 2;
 			const size_t tablestep = param_2N / size;
 			for (size_t i = 0; i < param_2N; i += size) {
 				int k = 0;
 				for (size_t j = i; j < i + halfsize; j++) {
-					// int k = (j-i) * tablestep;
 					size_t l = j + halfsize;
 					double tpre =  real[l] * cosTable[k] + imag[l] * sinTable[k];
 					double tpim = -real[l] * sinTable[k] + imag[l] * cosTable[k];
