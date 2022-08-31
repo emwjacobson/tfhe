@@ -2,7 +2,7 @@
 #include "fpga_constants.h"
 
 extern "C" {
-  void tGswFFTExternMulToTLwe(TLweSample_FPGA *_accum, TGswSampleFFT_FPGA *_gsw) {
+  void tGswFFTExternMulToTLwe(TLweSample_FPGA *_accum, const TGswSampleFFT_FPGA *_gsw) {
     #pragma HLS INTERFACE m_axi port=_accum bundle=b_accum
     #pragma HLS INTERFACE m_axi port=_gsw bundle=b_gsw
 
@@ -28,24 +28,41 @@ extern "C" {
 
     IntPolynomial deca[param_kpl];
     LagrangeHalfCPolynomial decaFFT[param_kpl];
-    TLweSampleFFT_FPGA tmpa;
+    TLweSampleFFT_FPGA tmpa[param_kpl];
+    TLweSampleFFT_FPGA tmpa_final;
 
     #pragma HLS array_partition variable=deca complete
     #pragma HLS array_partition variable=decaFFT complete
+    #pragma HLS array_partition variable=tmpa complete
 
-    for(int i=0; i<=param_k; i++) {
+    loop_decomp: for(int i=0; i<=param_k; i++) {
       #pragma HLS unroll
       tGswTorus32PolynomialDecompH(&deca[i * param_l], &accum.a[i]);
     }
-    for(int p=0; p<param_kpl; p++) {
+    loop_ifft: for(int p=0; p<param_kpl; p++) {
       #pragma HLS unroll
       IntPolynomial_ifft(&decaFFT[p], &deca[p]);
     }
-    tLweFFTClear(&tmpa);
-    for(int p=0; p<param_kpl; p++) {
-      tLweFFTAddMulRTo(&tmpa, &decaFFT[p], &gsw.all_samples[p]);
+    loop_clear: for(int p=0; p<param_kpl; p++) {
+      #pragma HLS unroll
+      tLweFFTClear(&tmpa[p]);
     }
-    tLweFromFFTConvert(&accum, &tmpa);
+    loop_rto: for(int p=0; p<param_kpl; p++) {
+      #pragma HLS unroll
+      tLweFFTAddMulRTo(&tmpa[p], &decaFFT[p], &gsw.all_samples[p]);
+    }
+
+    for(int p=0; p<param_kpl; p++) {
+      for(int k=0; k<=param_k; k++) {
+        #pragma HLS unroll
+        for(int i=0; i<param_Ns2; i++) {
+          #pragma HLS loop_flatten
+          tmpa_final.a[k].coefsC[i] += tmpa[p].a[k].coefsC[i];
+        }
+      }
+    }
+
+    tLweFromFFTConvert(&accum, &tmpa_final);
 
     _accum->current_variance = accum.current_variance;
     tGswFFTExternMulToTLwe_store_1: for(int i=0; i<=param_k; i++) {

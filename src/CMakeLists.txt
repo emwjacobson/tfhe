@@ -21,10 +21,10 @@ set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -std=c11")
 set(CMAKE_CXX_FLAGS_DEBUG "${CLANG_FLAGS} -std=c++11 -g3 -O0 -Wall -Werror -lpthread -lrt -lstdc++")
 set(CMAKE_C_FLAGS_DEBUG "-g3 -O0 -Wall -Werror -lpthread -lrt -lstdc++")
 
-set(CMAKE_CXX_FLAGS_OPTIM "${CLANG_FLAGS} -std=c++11 -g3 -O2 -DNDEBUG -Wall -Werror -lpthread -lrt -lstdc++")
+set(CMAKE_CXX_FLAGS_OPTIM "${CLANG_FLAGS} -std=c++11 -g3 -O2 -DNDEBUG -funroll-loops -Wall -Werror -lpthread -lrt -lstdc++")
 set(CMAKE_C_FLAGS_OPTIM "-g3 -O3 -DNDEBUG -Wall -Werror -lpthread -lrt -lstdc++")
 
-set(CMAKE_CXX_FLAGS_RELEASE "${CLANG_FLAGS} -std=c++11 -g0 -O2 -DNDEBUG -Wall -Werror -lpthread -lrt -lstdc++")
+set(CMAKE_CXX_FLAGS_RELEASE "${CLANG_FLAGS} -std=c++11 -g0 -O2 -DNDEBUG -funroll-loops -Wall -Werror -lpthread -lrt -lstdc++")
 set(CMAKE_C_FLAGS_RELEASE "-g0 -O3 -DNDEBUG -Wall -Werror -lpthread -lrt -lstdc++")
 
 find_package(OpenCL REQUIRED)

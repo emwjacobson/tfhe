@@ -64,6 +64,7 @@ constexpr static uint32_t param_offset = 2164391936; // tgsw.cpp - TGswParams::T
 
 // }
 
+extern "C" void tGswFFTExternMulToTLwe(TLweSample_FPGA *_accum, const TGswSampleFFT_FPGA *_gsw);
 extern "C" void TorusPolynomial_ifft(LagrangeHalfCPolynomial *result, const TorusPolynomial *p);
 extern "C" void TorusPolynomial_fft(TorusPolynomial *result, const LagrangeHalfCPolynomial *p);
 extern "C" void tLweFFTClear(TLweSampleFFT_FPGA *result);
