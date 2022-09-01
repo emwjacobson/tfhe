@@ -14,8 +14,6 @@
 
 using namespace std;
 
-
-
 // **********************************************************************************
 // ********************************* MAIN *******************************************
 // **********************************************************************************
@@ -42,6 +40,8 @@ int32_t main(int32_t argc, char **argv) {
 #ifndef NDEBUG
     cout << "DEBUG MODE!" << endl;
 #endif
+    struct timeval start, end;
+
     const int32_t nb_samples = 2;
     const int32_t nb_trials = 1;
 
@@ -66,13 +66,13 @@ int32_t main(int32_t argc, char **argv) {
 
         // evaluate the NAND tree
         cout << "starting bootstrapping NAND tree...trial " << trial << endl;
-        clock_t begin = clock();
+        gettimeofday(&start, NULL);
         for (int32_t i = nb_samples - 1; i > 0; --i) {
             bootsNAND(test_in + i, test_in + (2 * i), test_in + (2 * i + 1), &keyset->cloud);
         }
-        clock_t end = clock();
+        gettimeofday(&end, NULL);
         cout << "finished bootstrappings NAND tree" << endl;
-        cout << "time per bootNAND gate (microsecs)... " << (end - begin) / double(nb_samples - 1) << endl;
+        printf("time per bootNAND gate (microsecs)... %li\n", ((end.tv_sec - start.tv_sec) * 1000000) + (end.tv_usec - start.tv_usec));
 
         // verification
         for (int32_t i = nb_samples - 1; i > 0; --i) {

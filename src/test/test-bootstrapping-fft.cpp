@@ -42,6 +42,8 @@ int32_t main(int32_t argc, char **argv) {
 #ifndef NDEBUG
     cout << "DEBUG MODE!" << endl;
 #endif
+    struct timeval start, end;
+
     const int32_t nb_samples = 2;
     const Torus32 mu_boot = modSwitchToTorus32(1, 8);
 
@@ -63,13 +65,13 @@ int32_t main(int32_t argc, char **argv) {
 
     // bootstrap input samples
     cout << "starting bootstrapping..." << endl;
-    clock_t begin = clock();
+    gettimeofday(&start, NULL);
     for (int32_t i = 0; i < nb_samples; ++i) {
         tfhe_bootstrap_FFT(test_out + i, keyset->cloud.bkFFT, mu_boot, test_in + i);
     }
-    clock_t end = clock();
+    gettimeofday(&end, NULL);
     cout << "finished " << nb_samples << " bootstrappings" << endl;
-    cout << "time per bootstrapping (microsecs)... " << (end - begin) / double(nb_samples) << endl;
+    printf("time per bootstrapping (microsecs)... %li\n", ((end.tv_sec - start.tv_sec) * 1000000) + (end.tv_usec - start.tv_usec));
 
     for (int32_t i = 0; i < nb_samples; ++i) {
         Torus32 phase = lwePhase(test_out + i, keyset->lwe_key);

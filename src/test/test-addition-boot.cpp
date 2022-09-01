@@ -137,6 +137,8 @@ int32_t main(int32_t argc, char **argv) {
 #ifndef NDEBUG
     cout << "DEBUG MODE!" << endl;
 #endif
+    struct timeval start, end;
+
     const int32_t nb_bits = 4;
     const int32_t nb_trials = 1;
 
@@ -165,11 +167,11 @@ int32_t main(int32_t argc, char **argv) {
         // evaluate the addition circuit
         cout << "starting bootstrapping " << nb_bits << "-bits addition circuit (FA in MUX version)...trial " << trial
              << endl;
-        clock_t begin1 = clock();
+        gettimeofday(&start, NULL);
         full_adder_MUX(sum, x, y, nb_bits, keyset);
-        clock_t end1 = clock();
+        gettimeofday(&end, NULL);
         cout << "finished bootstrappings " << nb_bits << "-bits addition circuit (FA in MUX version)" << endl;
-        cout << "total time (microsecs)... " << (end1 - begin1) << endl;
+        printf("time time (microsecs)... %li\n", ((end.tv_sec - start.tv_sec) * 1000000) + (end.tv_usec - start.tv_usec));
 
 
         // verification
@@ -199,11 +201,11 @@ int32_t main(int32_t argc, char **argv) {
 
         // evaluate the addition circuit
         cout << "starting bootstrapping " << nb_bits << "-bits addition circuit (FA)...trial " << trial << endl;
-        clock_t begin2 = clock();
+        gettimeofday(&start, NULL);
         full_adder(sum, x, y, nb_bits, keyset);
-        clock_t end2 = clock();
+        gettimeofday(&end, NULL);
         cout << "finished bootstrappings " << nb_bits << "-bits addition circuit (FA)" << endl;
-        cout << "total time (microsecs)... " << (end2 - begin2) << endl;
+        printf("time time (microsecs)... %li\n", ((end.tv_sec - start.tv_sec) * 1000000) + (end.tv_usec - start.tv_usec));
 
 
         // verification
@@ -230,11 +232,11 @@ int32_t main(int32_t argc, char **argv) {
         LweSample *comp = new_LweSample(in_out_params);
         // evaluate the addition circuit
         cout << "starting bootstrapping " << nb_bits << "-bits comparison...trial " << trial << endl;
-        clock_t begin3 = clock();
+        gettimeofday(&start, NULL);
         comparison_MUX(comp, x, y, nb_bits, keyset);
-        clock_t end3 = clock();
+        gettimeofday(&end, NULL);
         cout << "finished bootstrappings " << nb_bits << "-bits comparison" << endl;
-        cout << "total time (microsecs)... " << (end3 - begin3) << endl;
+        printf("time time (microsecs)... %li\n", ((end.tv_sec - start.tv_sec) * 1000000) + (end.tv_usec - start.tv_usec));
 
         // verification
         {
