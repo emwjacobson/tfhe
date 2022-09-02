@@ -8,6 +8,7 @@
 typedef ap_fixed<64, 32> ap_cplx;
 typedef std::complex<double> cplx;
 
+constexpr static int64_t param_n = 630;
 constexpr static int64_t param_N = 1024;
 constexpr static int64_t param_2N = 2 * param_N;
 constexpr static int64_t param_Ns2 = param_N / 2;
@@ -65,6 +66,7 @@ constexpr static uint32_t param_offset = 2164391936; // tgsw.cpp - TGswParams::T
 // }
 
 extern "C" void tGswFFTExternMulToTLwe(TLweSample_FPGA *_accum, const TGswSampleFFT_FPGA *_gsw);
+extern "C" void tfhe_MuxRotate_FFT(TLweSample_FPGA *accum, const TGswSampleFFT_FPGA *bki, const int32_t barai);
 extern "C" void TorusPolynomial_ifft(LagrangeHalfCPolynomial *result, const TorusPolynomial *p);
 extern "C" void TorusPolynomial_fft(TorusPolynomial *result, const LagrangeHalfCPolynomial *p);
 extern "C" void tLweFFTClear(TLweSampleFFT_FPGA *result);

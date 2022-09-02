@@ -52,15 +52,15 @@ alltests:
 
 VPP := v++
 PLATFORM := xilinx_u280_xdma_201920_3
-TARGET := sw_emu
+TARGET := hw
 CONFIG_NAME := config.cfg
-KERNEL_XO := tGswFFTExternMulToTLwe.xo
-KERNEL_SOURCES := fft_transform.cpp TorusPolynomial_fft.cpp tLweFFTClear.cpp tLweFromFFTConvert.cpp IntPolynomial_ifft.cpp tGswTorus32PolynomialDecompH.cpp tLweFFTAddMulRTo.cpp
+KERNEL_XO := tfhe_blindRotate_FFT.xo
+KERNEL_SOURCES := fft_transform.cpp IntPolynomial_ifft.cpp tfhe_MuxRotate_FFT.cpp tGswFFTExternMulToTLwe.cpp tGswTorus32PolynomialDecompH.cpp tLweFFTAddMulRTo.cpp tLweFFTClear.cpp tLweFromFFTConvert.cpp TorusPolynomial_fft.cpp
 KERNEL_FOLDER := ./src/kernels
 PROJECT_NAME := fft
 
 ifeq ($(TARGET), sw_emu) # sw_emu needs the sources, easiest to generate their xo files to include the sources. hw(_emu) have sources manually included
-	KERNEL_XO += fft_transform.xo TorusPolynomial_fft.xo tLweFFTClear.xo tLweFromFFTConvert.xo IntPolynomial_ifft.xo tGswTorus32PolynomialDecompH.xo tLweFFTAddMulRTo.xo
+	KERNEL_XO += fft_transform.xo IntPolynomial_ifft.xo tfhe_MuxRotate_FFT.xo tGswFFTExternMulToTLwe.xo tGswTorus32PolynomialDecompH.xo tLweFFTAddMulRTo.xo tLweFFTClear.xo tLweFromFFTConvert.xo TorusPolynomial_fft.xo
 endif
 
 VPP_XCLBIN_FLAGS := -l -j 16 -O0 --profile_kernel data:all:all:all --platform $(PLATFORM) -t $(TARGET) --input_files $(KERNEL_XO) -o $(PROJECT_NAME).xclbin

@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cassert>
 #include "tfhe.h"
+#include "fpga.h"
 
 using namespace std;
 #define INCLUDE_ALL
@@ -91,24 +92,76 @@ EXPORT void tfhe_blindRotate_FFT(TLweSample *accum,
                                  const int32_t n,
                                  const TGswParams *bk_params) {
 
-    //TGswSampleFFT* temp = new_TGswSampleFFT(bk_params);
-    TLweSample *temp = new_TLweSample(bk_params->tlwe_params);
-    TLweSample *temp2 = temp;
-    TLweSample *temp3 = accum;
+    cl::Buffer accum_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSample_FPGA));
+    cl::Buffer bkFFT_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TGswSampleFFT_FPGA) * Value_n);
+    cl::Buffer bara_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(int32_t) * Value_n);
 
-    for (int32_t i = 0; i < n; i++) {
-        const int32_t barai = bara[i];
-        if (barai == 0) continue; //indeed, this is an easy case!
+    TLweSample_FPGA *accum_map = (TLweSample_FPGA *)fpga.q.enqueueMapBuffer(accum_buf, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, sizeof(TLweSample_FPGA));
+    TGswSampleFFT_FPGA *bkFFT_map = (TGswSampleFFT_FPGA *)fpga.q.enqueueMapBuffer(bkFFT_buf, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, sizeof(TGswSampleFFT_FPGA) * Value_n);
+    int32_t *bara_map = (int32_t *)fpga.q.enqueueMapBuffer(bara_buf, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, sizeof(int32_t) * Value_n);
 
-        tfhe_MuxRotate_FFT(temp2, temp3, bkFFT + i, barai, bk_params);
-        swap(temp2, temp3);
+    accum_map->current_variance = accum->current_variance;
+    for(int i=0; i<=Value_k; i++) {
+        for(int j=0; j<Value_N; j++) {
+            accum_map->a[i].coefsT[j] = accum->a[i].coefsT[j];
+        }
     }
-    if (temp3 != accum) {
-        tLweCopy(accum, temp3, bk_params->tlwe_params);
+
+    for(int i=0; i<Value_n; i++) {
+        bkFFT_map[i].k = bkFFT[i].k;
+        bkFFT_map[i].l = bkFFT[i].l;
+        for(int j=0; j<(Value_k+1) * Value_l; j++) {
+            bkFFT_map[i].all_samples[j].current_variance = bkFFT[i].all_samples[j].current_variance;
+            for(int k=0; k<=Value_k; k++) {
+                for(int l=0; l<Value_Ns2; l++) {
+                    bkFFT_map[i].all_samples[j].a[k].coefsC[l] = bkFFT[i].all_samples[j].a[k].coefsC[l];
+                }
+            }
+        }
     }
 
-    delete_TLweSample(temp);
-    //delete_TGswSampleFFT(temp);
+    for(int i=0; i<Value_n; i++) {
+        bara_map[i] = bara[i];
+    }
+
+    fpga.k_tfhe_blindRotate_FFT.setArg(0, accum_buf);
+    fpga.k_tfhe_blindRotate_FFT.setArg(1, bkFFT_buf);
+    fpga.k_tfhe_blindRotate_FFT.setArg(2, bara_buf);
+
+    fpga.q.enqueueMigrateMemObjects({ accum_buf, bkFFT_buf, bara_buf }, 0);
+    fpga.q.enqueueTask(fpga.k_tfhe_blindRotate_FFT);
+    fpga.q.enqueueMigrateMemObjects({ accum_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
+
+    fpga.q.finish();
+
+    accum->current_variance = accum_map->current_variance;
+    for(int i=0; i<=Value_k; i++) {
+        for(int j=0; j<Value_N; j++) {
+            accum->a[i].coefsT[j] = accum_map->a[i].coefsT[j];
+        }
+    }
+
+
+
+    // ORIGINAL CODE
+    // //TGswSampleFFT* temp = new_TGswSampleFFT(bk_params);
+    // TLweSample *temp = new_TLweSample(bk_params->tlwe_params);
+    // TLweSample *temp2 = temp;
+    // TLweSample *temp3 = accum;
+
+    // for (int32_t i = 0; i < n; i++) {
+    //     const int32_t barai = bara[i];
+    //     if (barai == 0) continue; //indeed, this is an easy case!
+
+    //     tfhe_MuxRotate_FFT(temp2, temp3, bkFFT + i, barai, bk_params);
+    //     swap(temp2, temp3);
+    // }
+    // if (temp3 != accum) {
+    //     tLweCopy(accum, temp3, bk_params->tlwe_params);
+    // }
+
+    // delete_TLweSample(temp);
+    // //delete_TGswSampleFFT(temp);
 }
 #endif
 
