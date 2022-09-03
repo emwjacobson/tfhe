@@ -52,7 +52,7 @@ alltests:
 
 VPP := v++
 PLATFORM := xilinx_u280_xdma_201920_3
-TARGET := sw_emu
+TARGET := hw
 CONFIG_NAME := config.cfg
 KERNEL_XO := tGswFFTExternMulToTLwe.xo
 KERNEL_SOURCES := fft_transform.cpp TorusPolynomial_fft.cpp tLweFFTClear.cpp tLweFromFFTConvert.cpp IntPolynomial_ifft.cpp tGswTorus32PolynomialDecompH.cpp tLweFFTAddMulRTo.cpp

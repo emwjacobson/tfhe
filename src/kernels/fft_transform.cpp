@@ -29,223 +29,88 @@
 #include <algorithm>
 #include "fpga_constants.h"
 
+template <size_t SIZE>
+void fft_mult(double *real_out, double *imag_out, const double *real_in, const double *imag_in) {
+	constexpr size_t halfsize = SIZE / 2;
+	constexpr size_t tablestep = param_2N / SIZE;
+
+	for (size_t i = 0; i < param_2N; i += SIZE) {
+		for (size_t j = 0; j < halfsize; j++) {
+			// #pragma HLS dependence variable=real inter false // Amin recommended intra, inter seems to produce fewer errors?
+			// #pragma HLS dependence variable=imag inter false
+			// #pragma HLS dependence variable=real intra false
+			// #pragma HLS dependence variable=imag intra false
+			#pragma HLS pipeline II=1
+			const size_t first = j + i;
+			const size_t second = j + i + halfsize;
+			const int k = j * tablestep;
+			// Load
+			double tprel = real_in[second];
+			double tpiml = imag_in[second];
+			double tprej = real_in[first];
+			double tpimj = imag_in[first];
+			double tpcos = cosTable[k];
+			double tpsin = sinTable[k];
+			// Calc
+			double calcre =  tprel * tpcos + tpiml * tpsin;
+			double calcim = -tprel * tpsin + tpiml * tpcos;
+			// Store
+			real_out[second] = tprej - calcre;
+			imag_out[second] = tpimj - calcim;
+			real_out[first] = tprej + calcre;
+			imag_out[first] = tpimj + calcim;
+		}
+	}
+}
+
 extern "C" {
-	void fft_transform(double *real, double *imag) {
+	void fft_transform(double *_real, double *_imag) {
+		double re1[param_2N];
+		double im1[param_2N];
+
+		double re2[param_2N];
+		double im2[param_2N];
+
+		memcpy(re1, _real, sizeof(double) * param_2N);
+		memcpy(im1, _imag, sizeof(double) * param_2N);
+
 		// Bit reversal
 		for (int i = 0; i < param_2N; i++) {
-			#pragma HLS dependence variable=real inter false
-			#pragma HLS dependence variable=imag inter false
+			// #pragma HLS dependence variable=real intra false
+			// #pragma HLS dependence variable=imag intra false
+			#pragma HLS pipeline II=1
 			uint64_t j = bit_reversed[i];
 			if (j > i) {
-				double tmpre = real[i];
-				real[i] = real[j];
-				real[j] = tmpre;
+				re1[i] = _real[j];
+				im1[i] = _imag[j];
 
-				double tmpim = imag[i];
-				imag[i] = imag[j];
-				imag[j] = tmpim;
+				re1[j] = _real[i];
+				im1[j] = _imag[i];
+				// double tmpre = re1[i];
+				// re1[i] = re1[j];
+				// re1[j] = tmpre;
+
+				// double tmpim = im1[i];
+				// im1[i] = im1[j];
+				// im1[j] = tmpim;
 			}
 		}
 
-		// // size = 2
-		// for (size_t i = 0; i < param_2N; i += 2) {
-		// 	#pragma HLS unroll factor=64
-		// 	for (size_t j = 0; j < 1; j++) {
-		// 		#pragma HLS dependence variable=real inter false
-		// 		#pragma HLS dependence variable=imag inter false
-		// 		#pragma HLS pipeline II=1
-		// 		const size_t first = j + i;
-		// 		const size_t second = j + i + 1;
-		// 		const int k = j * 1024;
-		// 		// Load
-		// 		double tprel = real[second];
-		// 		double tpiml = imag[second];
-		// 		double tprej = real[first];
-		// 		double tpimj = imag[first];
-		// 		double tpcos = cosTable[k];
-		// 		double tpsin = sinTable[k];
-		// 		// Calc
-		// 		double calcre =  tprel * tpcos + tpiml * tpsin;
-		// 		double calcim = -tprel * tpsin + tpiml * tpcos;
-		// 		// Store
-		// 		real[second] = tprej - calcre;
-		// 		imag[second] = tpimj - calcim;
-		// 		real[first] = tprej + calcre;
-		// 		imag[first] = tpimj + calcim;
-		// 	}
-		// }
+		// At this point, temp arrays hold the bit-reversed elements
+		// Now we swap between the 2 memories to perform radix2fft
+		fft_mult<2>(re2, im2, re1, im1); // (re2,im2) = radix2fft(re1, im1)
+		fft_mult<4>(re1, im1, re2, im2); // (re1,im1) = radix2fft(re2,im2)
+		fft_mult<8>(re2, im2, re1, im1); // ...
+		fft_mult<16>(re1, im1, re2, im2);
+		fft_mult<32>(re2, im2, re1, im1);
+		fft_mult<64>(re1, im1, re2, im2);
+		fft_mult<128>(re2, im2, re1, im1);
+		fft_mult<256>(re1, im1, re2, im2);
+		fft_mult<512>(re2, im2, re1, im1);
+		fft_mult<1024>(re1, im1, re2, im2);
+		fft_mult<2048>(re2, im2, re1, im1); // Final result stored in re2, im2
 
-		// // size = 4
-		// for (size_t i = 0; i < param_2N; i += 4) {
-		// 	#pragma HLS unroll factor=64
-		// 	for (size_t j = 0; j < 2; j++) {
-		// 		#pragma HLS dependence variable=real inter false
-		// 		#pragma HLS dependence variable=imag inter false
-		// 		#pragma HLS pipeline II=1
-		// 		const size_t first = j + i;
-		// 		const size_t second = j + i + 2;
-		// 		const int k = j * 512;
-		// 		// Load
-		// 		double tprel = real[second];
-		// 		double tpiml = imag[second];
-		// 		double tprej = real[first];
-		// 		double tpimj = imag[first];
-		// 		double tpcos = cosTable[k];
-		// 		double tpsin = sinTable[k];
-		// 		// Calc
-		// 		double calcre =  tprel * tpcos + tpiml * tpsin;
-		// 		double calcim = -tprel * tpsin + tpiml * tpcos;
-		// 		// Store
-		// 		real[second] = tprej - calcre;
-		// 		imag[second] = tpimj - calcim;
-		// 		real[first] = tprej + calcre;
-		// 		imag[first] = tpimj + calcim;
-		// 	}
-		// }
-
-		// // size = 8
-		// for (size_t i = 0; i < param_2N; i += 8) {
-		// 	#pragma HLS unroll factor=64
-		// 	for (size_t j = 0; j < 4; j++) {
-		// 		#pragma HLS dependence variable=real inter false
-		// 		#pragma HLS dependence variable=imag inter false
-		// 		#pragma HLS pipeline II=1
-		// 		const size_t first = j + i;
-		// 		const size_t second = j + i + 4;
-		// 		const int k = j * 256;
-		// 		// Load
-		// 		double tprel = real[second];
-		// 		double tpiml = imag[second];
-		// 		double tprej = real[first];
-		// 		double tpimj = imag[first];
-		// 		double tpcos = cosTable[k];
-		// 		double tpsin = sinTable[k];
-		// 		// Calc
-		// 		double calcre =  tprel * tpcos + tpiml * tpsin;
-		// 		double calcim = -tprel * tpsin + tpiml * tpcos;
-		// 		// Store
-		// 		real[second] = tprej - calcre;
-		// 		imag[second] = tpimj - calcim;
-		// 		real[first] = tprej + calcre;
-		// 		imag[first] = tpimj + calcim;
-		// 	}
-		// }
-
-		// // size = 16
-		// for (size_t i = 0; i < param_2N; i += 16) {
-		// 	#pragma HLS unroll factor=64
-		// 	for (size_t j = 0; j < 8; j++) {
-		// 		#pragma HLS dependence variable=real inter false
-		// 		#pragma HLS dependence variable=imag inter false
-		// 		#pragma HLS pipeline II=1
-		// 		const size_t first = j + i;
-		// 		const size_t second = j + i + 8;
-		// 		const int k = j * 128;
-		// 		// Load
-		// 		double tprel = real[second];
-		// 		double tpiml = imag[second];
-		// 		double tprej = real[first];
-		// 		double tpimj = imag[first];
-		// 		double tpcos = cosTable[k];
-		// 		double tpsin = sinTable[k];
-		// 		// Calc
-		// 		double calcre =  tprel * tpcos + tpiml * tpsin;
-		// 		double calcim = -tprel * tpsin + tpiml * tpcos;
-		// 		// Store
-		// 		real[second] = tprej - calcre;
-		// 		imag[second] = tpimj - calcim;
-		// 		real[first] = tprej + calcre;
-		// 		imag[first] = tpimj + calcim;
-		// 	}
-		// }
-
-		// // size = 32
-		// for (size_t i = 0; i < param_2N; i += 32) {
-		// 	#pragma HLS unroll factor=32
-		// 	for (size_t j = 0; j < 16; j++) {
-		// 		#pragma HLS dependence variable=real inter false
-		// 		#pragma HLS dependence variable=imag inter false
-		// 		#pragma HLS pipeline II=1
-		// 		const size_t first = j + i;
-		// 		const size_t second = j + i + 16;
-		// 		const int k = j * 64;
-		// 		// Load
-		// 		double tprel = real[second];
-		// 		double tpiml = imag[second];
-		// 		double tprej = real[first];
-		// 		double tpimj = imag[first];
-		// 		double tpcos = cosTable[k];
-		// 		double tpsin = sinTable[k];
-		// 		// Calc
-		// 		double calcre =  tprel * tpcos + tpiml * tpsin;
-		// 		double calcim = -tprel * tpsin + tpiml * tpcos;
-		// 		// Store
-		// 		real[second] = tprej - calcre;
-		// 		imag[second] = tpimj - calcim;
-		// 		real[first] = tprej + calcre;
-		// 		imag[first] = tpimj + calcim;
-		// 	}
-		// }
-
-		// // size = 64
-		// for (size_t i = 0; i < param_2N; i += 64) {
-		// 	#pragma HLS unroll factor=16
-		// 	for (size_t j = 0; j < 32; j++) {
-		// 		#pragma HLS dependence variable=real inter false
-		// 		#pragma HLS dependence variable=imag inter false
-		// 		#pragma HLS pipeline II=1
-		// 		const size_t first = j + i;
-		// 		const size_t second = j + i + 32;
-		// 		const int k = j * 32;
-		// 		// Load
-		// 		double tprel = real[second];
-		// 		double tpiml = imag[second];
-		// 		double tprej = real[first];
-		// 		double tpimj = imag[first];
-		// 		double tpcos = cosTable[k];
-		// 		double tpsin = sinTable[k];
-		// 		// Calc
-		// 		double calcre =  tprel * tpcos + tpiml * tpsin;
-		// 		double calcim = -tprel * tpsin + tpiml * tpcos;
-		// 		// Store
-		// 		real[second] = tprej - calcre;
-		// 		imag[second] = tpimj - calcim;
-		// 		real[first] = tprej + calcre;
-		// 		imag[first] = tpimj + calcim;
-		// 	}
-		// }
-
-
-		fft_size: for (size_t size = 2; size <= param_2N; size *= 2) {
-			const size_t halfsize = size / 2;
-			const size_t tablestep = param_2N / size;
-			fft_window: for (size_t i = 0; i < param_2N; i += size) {
-				fft_calc: for (size_t j = 0; j < halfsize; j++) {
-					#pragma HLS dependence variable=real inter false // Amin recommended intra, inter seems to produce fewer errors?
-					#pragma HLS dependence variable=imag inter false
-					// #pragma HLS dependence variable=real intra false
-					// #pragma HLS dependence variable=imag intra false
-					#pragma HLS pipeline II=1
-					const size_t first = j + i;
-					const size_t second = j + i + halfsize;
-					const int k = j * tablestep;
-					// Load
-					double tprel = real[second];
-					double tpiml = imag[second];
-					double tprej = real[first];
-					double tpimj = imag[first];
-					double tpcos = cosTable[k];
-					double tpsin = sinTable[k];
-					// Calc
-					double calcre =  tprel * tpcos + tpiml * tpsin;
-					double calcim = -tprel * tpsin + tpiml * tpcos;
-					// Store
-					real[second] = tprej - calcre;
-					imag[second] = tpimj - calcim;
-					real[first] = tprej + calcre;
-					imag[first] = tpimj + calcim;
-				}
-			}
-		}
+		memcpy(_real, re2, sizeof(double) * param_2N);
+		memcpy(_imag, im2, sizeof(double) * param_2N);
 	}
 }

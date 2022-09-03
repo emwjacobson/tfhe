@@ -6,7 +6,9 @@ extern "C" {
     const cplx* bb = b->coefsC;
     cplx* rr = accum->coefsC;
     LagrangeHalfCPolynomialAddMul_loop_1: for (int32_t i=0; i<param_Ns2; i++) {
-      rr[i] += aa[i]*bb[i];
+      // accum should have been zero'd out before, and with splitting `tmpa` into multiple arrays, can avoid the +=
+      // rr[i] += aa[i]*bb[i];
+      rr[i] = aa[i] * bb[i];
     }
   }
 
