@@ -34,12 +34,8 @@ void fft_mult(double *real_out, double *imag_out, const double *real_in, const d
 	constexpr size_t halfsize = SIZE / 2;
 	constexpr size_t tablestep = param_2N / SIZE;
 
-	for (size_t i = 0; i < param_2N; i += SIZE) {
-		for (size_t j = 0; j < halfsize; j++) {
-			// #pragma HLS dependence variable=real inter false // Amin recommended intra, inter seems to produce fewer errors?
-			// #pragma HLS dependence variable=imag inter false
-			// #pragma HLS dependence variable=real intra false
-			// #pragma HLS dependence variable=imag intra false
+	fft_mult_window: for (size_t i = 0; i < param_2N; i += SIZE) {
+		fft_mult_mult: for (size_t j = 0; j < halfsize; j++) {
 			#pragma HLS pipeline II=1
 			const size_t first = j + i;
 			const size_t second = j + i + halfsize;
@@ -64,53 +60,29 @@ void fft_mult(double *real_out, double *imag_out, const double *real_in, const d
 }
 
 extern "C" {
-	void fft_transform(double *_real, double *_imag) {
+	void fft_transform(double *real, double *imag) {
 		double re1[param_2N];
 		double im1[param_2N];
 
-		double re2[param_2N];
-		double im2[param_2N];
-
-		memcpy(re1, _real, sizeof(double) * param_2N);
-		memcpy(im1, _imag, sizeof(double) * param_2N);
-
 		// Bit reversal
-		for (int i = 0; i < param_2N; i++) {
-			// #pragma HLS dependence variable=real intra false
-			// #pragma HLS dependence variable=imag intra false
-			#pragma HLS pipeline II=1
+		fft_bit_reverse: for (int i = 0; i < param_2N; i++) {
 			uint64_t j = bit_reversed[i];
-			if (j > i) {
-				re1[i] = _real[j];
-				im1[i] = _imag[j];
-
-				re1[j] = _real[i];
-				im1[j] = _imag[i];
-				// double tmpre = re1[i];
-				// re1[i] = re1[j];
-				// re1[j] = tmpre;
-
-				// double tmpim = im1[i];
-				// im1[i] = im1[j];
-				// im1[j] = tmpim;
-			}
+			re1[i] = real[j];
+			im1[i] = imag[j];
 		}
 
 		// At this point, temp arrays hold the bit-reversed elements
 		// Now we swap between the 2 memories to perform radix2fft
-		fft_mult<2>(re2, im2, re1, im1); // (re2,im2) = radix2fft(re1, im1)
-		fft_mult<4>(re1, im1, re2, im2); // (re1,im1) = radix2fft(re2,im2)
-		fft_mult<8>(re2, im2, re1, im1); // ...
-		fft_mult<16>(re1, im1, re2, im2);
-		fft_mult<32>(re2, im2, re1, im1);
-		fft_mult<64>(re1, im1, re2, im2);
-		fft_mult<128>(re2, im2, re1, im1);
-		fft_mult<256>(re1, im1, re2, im2);
-		fft_mult<512>(re2, im2, re1, im1);
-		fft_mult<1024>(re1, im1, re2, im2);
-		fft_mult<2048>(re2, im2, re1, im1); // Final result stored in re2, im2
-
-		memcpy(_real, re2, sizeof(double) * param_2N);
-		memcpy(_imag, im2, sizeof(double) * param_2N);
+		fft_mult<2>(real, imag, re1, im1); // (re2,im2) = radix2fft(re1, im1)
+		fft_mult<4>(re1, im1, real, imag); // (re1,im1) = radix2fft(re2,im2)
+		fft_mult<8>(real, imag, re1, im1); // ...
+		fft_mult<16>(re1, im1, real, imag);
+		fft_mult<32>(real, imag, re1, im1);
+		fft_mult<64>(re1, im1, real, imag);
+		fft_mult<128>(real, imag, re1, im1);
+		fft_mult<256>(re1, im1, real, imag);
+		fft_mult<512>(real, imag, re1, im1);
+		fft_mult<1024>(re1, im1, real, imag);
+		fft_mult<2048>(real, imag, re1, im1); // Final result stored in real, imag
 	}
 }

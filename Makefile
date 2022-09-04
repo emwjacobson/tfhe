@@ -63,8 +63,8 @@ ifeq ($(TARGET), sw_emu) # sw_emu needs the sources, easiest to generate their x
 	KERNEL_XO += fft_transform.xo TorusPolynomial_fft.xo tLweFFTClear.xo tLweFromFFTConvert.xo IntPolynomial_ifft.xo tGswTorus32PolynomialDecompH.xo tLweFFTAddMulRTo.xo
 endif
 
-VPP_XCLBIN_FLAGS := -l -j 16 -O0 --profile_kernel data:all:all:all --platform $(PLATFORM) -t $(TARGET) --input_files $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
-VPP_XO_FLAGS := -c -j 16 -O0 --platform $(PLATFORM) -t $(TARGET) -I$(KERNEL_FOLDER)/include/
+VPP_XCLBIN_FLAGS := -l -j 16 -O0 --save-temps --profile_kernel data:all:all:all --profile_kernel stall:all:all --platform $(PLATFORM) -t $(TARGET) --input_files $(KERNEL_XO) -o $(PROJECT_NAME).xclbin
+VPP_XO_FLAGS := -c -j 16 -O0 --save-temps --profile_kernel stall:all:all:all --platform $(PLATFORM) -t $(TARGET) -I$(KERNEL_FOLDER)/include/
 
 xclbin: $(KERNEL_XO)
 	$(VPP) $(VPP_XCLBIN_FLAGS)

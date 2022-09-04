@@ -48,10 +48,9 @@ extern "C" {
       tLweFFTAddMulRTo(&tmpa[p], &decaFFT[p], &gsw.all_samples[p]);
     }
 
-    for(int p=0; p<param_kpl; p++) {
-      for(int k=0; k<=param_k; k++) {
-        for(int i=0; i<param_Ns2; i++) {
-          #pragma HLS loop_flatten
+    loop_tmpa_final_1: for(int p=0; p<param_kpl; p++) {
+      loop_tmpa_final_2: for(int k=0; k<=param_k; k++) {
+        loop_tmpa_final_3: for(int i=0; i<param_Ns2; i++) {
           tmpa_final.a[k].coefsC[i] += tmpa[p].a[k].coefsC[i];
         }
       }
