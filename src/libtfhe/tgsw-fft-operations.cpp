@@ -93,8 +93,13 @@ EXPORT void tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, 
     cl::Buffer accum_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSample_FPGA));
     cl::Buffer gsw_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TGswSampleFFT_FPGA));
 
-    TLweSample_FPGA *accum_map = (TLweSample_FPGA *)fpga.q.enqueueMapBuffer(accum_buf, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, sizeof(TLweSample_FPGA));
-    TGswSampleFFT_FPGA *gsw_map = (TGswSampleFFT_FPGA *)fpga.q.enqueueMapBuffer(gsw_buf, CL_TRUE, CL_MAP_WRITE, 0, sizeof(TGswSampleFFT_FPGA));
+    std::vector<cl::Event> enqueue(2);
+    std::vector<cl::Event> migrate_to(1);
+    std::vector<cl::Event> task(1);
+    std::vector<cl::Event> migrate_from(1);
+
+    TLweSample_FPGA *accum_map = (TLweSample_FPGA *)fpga.q.enqueueMapBuffer(accum_buf, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, sizeof(TLweSample_FPGA), NULL, &enqueue[0]);
+    TGswSampleFFT_FPGA *gsw_map = (TGswSampleFFT_FPGA *)fpga.q.enqueueMapBuffer(gsw_buf, CL_TRUE, CL_MAP_WRITE, 0, sizeof(TGswSampleFFT_FPGA), NULL, &enqueue[1]);
 
     accum_map->current_variance = accum->current_variance;
     for (int i=0; i<=Value_k; i++) {
@@ -117,11 +122,12 @@ EXPORT void tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, 
     fpga.k_tGswFFTExternMulToTLwe.setArg(0, accum_buf);
     fpga.k_tGswFFTExternMulToTLwe.setArg(1, gsw_buf);
 
-    fpga.q.enqueueMigrateMemObjects({ accum_buf, gsw_buf }, 0);
-    fpga.q.enqueueTask(fpga.k_tGswFFTExternMulToTLwe);
-    fpga.q.enqueueMigrateMemObjects({ accum_buf }, CL_MIGRATE_MEM_OBJECT_HOST);
+    fpga.q.enqueueMigrateMemObjects({ accum_buf, gsw_buf }, 0, &enqueue, &migrate_to[0]);
+    fpga.q.enqueueTask(fpga.k_tGswFFTExternMulToTLwe, &migrate_to, &task[0]);
+    fpga.q.enqueueMigrateMemObjects({ accum_buf }, CL_MIGRATE_MEM_OBJECT_HOST, &task, &migrate_from[0]);
 
-    fpga.q.finish();
+    // fpga.q.finish();
+    migrate_from[0].wait();
 
     accum->current_variance = accum_map->current_variance;
     for (int i=0; i<=Value_k; i++) {

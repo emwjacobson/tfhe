@@ -24,7 +24,7 @@ FPGA_Processor::FPGA_Processor() {
     cl::Program::Binaries bins{{filebuf.data(), filebuf.size()}};
 
     program = cl::Program(context, devices, bins, NULL, &err);
-    q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
+    q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE | CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, &err);
     k_tGswFFTExternMulToTLwe = cl::Kernel(program, "tGswFFTExternMulToTLwe", &err);
 
     printf("Finished loading FPGA kernels\n");
