@@ -19,11 +19,11 @@ extern "C" {
     }
   }
 
-  void tGswTorus32PolynomialDecompH(IntPolynomial result[param_kpl], const TorusPolynomial sample[param_k]) {
+  void tGswTorus32PolynomialDecompH(IntPolynomial result[param_kpl], const TLweSample_FPGA *accum) {
     #pragma HLS dataflow
     // for(int i=0; i<=param_k; i++) {
-    tGswTorus32PolynomialDecompH_dataflow(&result[0], &sample[0]);
-    tGswTorus32PolynomialDecompH_dataflow(&result[3], &sample[1]);
+    tGswTorus32PolynomialDecompH_dataflow(&result[0], &accum->a[0]);
+    tGswTorus32PolynomialDecompH_dataflow(&result[3], &accum->a[1]);
     // }
   }
 }
