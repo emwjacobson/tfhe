@@ -71,7 +71,7 @@ int32_t main(int32_t argc, char **argv) {
     }
     gettimeofday(&end, NULL);
     cout << "finished " << nb_samples << " bootstrappings" << endl;
-    printf("time per bootstrapping (microsecs)... %li\n", (((end.tv_sec - start.tv_sec) * 1000000) + (end.tv_usec - start.tv_usec))/double(nb_samples));
+    printf("time per bootstrapping (microsecs)... %f\n", (((end.tv_sec - start.tv_sec) * 1000000) + (end.tv_usec - start.tv_usec))/double(nb_samples));
 
     for (int32_t i = 0; i < nb_samples; ++i) {
         Torus32 phase = lwePhase(test_out + i, keyset->lwe_key);
