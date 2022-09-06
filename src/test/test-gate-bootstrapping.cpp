@@ -72,7 +72,7 @@ int32_t main(int32_t argc, char **argv) {
         }
         gettimeofday(&end, NULL);
         cout << "finished bootstrappings NAND tree" << endl;
-        printf("time per bootNAND gate (microsecs)... %li\n", ((end.tv_sec - start.tv_sec) * 1000000) + (end.tv_usec - start.tv_usec));
+        printf("time per bootNAND gate (microsecs)... %li\n", (((end.tv_sec - start.tv_sec) * 1000000) + (end.tv_usec - start.tv_usec))/double(nb_samples - 1));
 
         // verification
         for (int32_t i = nb_samples - 1; i > 0; --i) {

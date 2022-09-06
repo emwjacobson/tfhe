@@ -7,6 +7,7 @@ extern "C" {
     #pragma HLS INTERFACE m_axi port=_gsw bundle=b_gsw
 
     TLweSample_FPGA accum;
+    #pragma HLS array_partition variable=accum.a complete dim=1
     accum.current_variance = _accum->current_variance;
     tGswFFTExternMulToTLwe_load_1: for(int i=0; i<=param_k; i++) {
       tGswFFTExternMulToTLwe_load_2: for(int j=0; j<param_N; j++) {
@@ -15,6 +16,7 @@ extern "C" {
     }
 
     TGswSampleFFT_FPGA gsw;
+    #pragma HLS array_partition variable=gsw.all_samples complete dim=1
     gsw.k = _gsw->k;
     gsw.l = _gsw->l;
     tGswFFTExternMulToTLwe_load_3: for(int i=0; i<(param_k + 1) * param_l; i++) {
@@ -31,23 +33,18 @@ extern "C" {
     TLweSampleFFT_FPGA tmpa[param_kpl];
     TLweSampleFFT_FPGA tmpa_final;
 
-    loop_decomp: for(int i=0; i<=param_k; i++) {
-      #pragma HLS unroll
-      tGswTorus32PolynomialDecompH(&deca[i * param_l], &accum.a[i]);
-    }
-    loop_ifft: for(int p=0; p<param_kpl; p++) {
-      #pragma HLS unroll
-      IntPolynomial_ifft(&decaFFT[p], &deca[p]);
-    }
-    loop_clear: for(int p=0; p<param_kpl; p++) {
-      #pragma HLS unroll
-      tLweFFTClear(&tmpa[p]);
-    }
-    loop_rto: for(int p=0; p<param_kpl; p++) {
-      #pragma HLS unroll
-      tLweFFTAddMulRTo(&tmpa[p], &decaFFT[p], &gsw.all_samples[p]);
-    }
+    #pragma HLS array_partition variable=deca complete dim=1
+    #pragma HLS array_partition variable=decaFFT complete dim=1
+    #pragma HLS array_partition variable=tmpa complete dim=1
+    #pragma HLS array_partition variable=tmpa_final.a complete dim=1
 
+    // TODO: Break out these calls into own function, use #pragma HLS dataflow
+    tGswTorus32PolynomialDecompH(deca, accum.a);
+    IntPolynomial_ifft(decaFFT, deca);
+    tLweFFTClear(tmpa);
+    tLweFFTAddMulRTo(tmpa, decaFFT, gsw.all_samples);
+
+    // TODO: Move this into its own function
     loop_tmpa_final_1: for(int p=0; p<param_kpl; p++) {
       loop_tmpa_final_2: for(int k=0; k<=param_k; k++) {
         loop_tmpa_final_3: for(int i=0; i<param_Ns2; i++) {

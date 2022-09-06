@@ -1,7 +1,7 @@
 #include "fpga_constants.h"
 
 extern "C" {
-  void tGswTorus32PolynomialDecompH(IntPolynomial *result, const TorusPolynomial *sample){
+  void tGswTorus32PolynomialDecompH_dataflow(IntPolynomial result[param_l], const TorusPolynomial *sample) {
     uint32_t buf[param_N];
 
     //First, add offset to everyone
@@ -17,5 +17,13 @@ extern "C" {
         result[p].coefs[j] = temp1 - param_halfBg;
       }
     }
+  }
+
+  void tGswTorus32PolynomialDecompH(IntPolynomial result[param_kpl], const TorusPolynomial sample[param_k]) {
+    #pragma HLS dataflow
+    // for(int i=0; i<=param_k; i++) {
+    tGswTorus32PolynomialDecompH_dataflow(&result[0], &sample[0]);
+    tGswTorus32PolynomialDecompH_dataflow(&result[3], &sample[1]);
+    // }
   }
 }
