@@ -25,7 +25,7 @@ FPGA_Processor::FPGA_Processor() {
 
     program = cl::Program(context, devices, bins, NULL, &err);
     q = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE | CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, &err);
-    k_tGswFFTExternMulToTLwe = cl::Kernel(program, "tGswFFTExternMulToTLwe", &err);
+    k_tfhe_blindRotate_FFT = cl::Kernel(program, "tfhe_blindRotate_FFT", &err);
 
     printf("Finished loading FPGA kernels\n");
 }

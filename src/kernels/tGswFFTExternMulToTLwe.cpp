@@ -13,8 +13,8 @@ extern "C" {
   }
 
   void tGswFFTExternMulToTLwe(TLweSample_FPGA *_accum, const TGswSampleFFT_FPGA *_gsw) {
-    #pragma HLS INTERFACE m_axi port=_accum bundle=b_accum
-    #pragma HLS INTERFACE m_axi port=_gsw bundle=b_gsw
+    // #pragma HLS INTERFACE m_axi port=_accum bundle=b_accum
+    // #pragma HLS INTERFACE m_axi port=_gsw bundle=b_gsw
 
     TLweSample_FPGA accum;
     #pragma HLS array_partition variable=accum.a complete dim=1

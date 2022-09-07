@@ -13,7 +13,7 @@ clean: build
 	make -C build clean
 
 distclean:
-	rm -rf build builddtests buildotests *.log _x .Xil *.compile_summary *.xo* *.info *.link_summary *.csv *.run_summary .run/ fft.xclbin.*; true
+	rm -rf build builddtests buildotests *.log _x .Xil *.compile_summary *.xo* *.info *.link_summary *.csv *.run_summary .run/ fft.xclbin.* vitis_analyzer*; true
 
 # test: builddtests src/test/googletest/CMakeLists.txt
 test: builddtests buildotests src/test/googletest/CMakeLists.txt
@@ -52,15 +52,15 @@ alltests:
 
 VPP := v++
 PLATFORM := xilinx_u280_xdma_201920_3
-TARGET := hw
+TARGET := hw_emu
 CONFIG_NAME := config.cfg
-KERNEL_XO := tGswFFTExternMulToTLwe.xo
-KERNEL_SOURCES := fft_transform.cpp TorusPolynomial_fft.cpp tLweFFTClear.cpp tLweFromFFTConvert.cpp IntPolynomial_ifft.cpp tGswTorus32PolynomialDecompH.cpp tLweFFTAddMulRTo.cpp
+KERNEL_XO := tfhe_blindRotate_FFT.xo
+KERNEL_SOURCES := fft_transform.cpp TorusPolynomial_fft.cpp tLweFFTClear.cpp tLweFromFFTConvert.cpp IntPolynomial_ifft.cpp tGswTorus32PolynomialDecompH.cpp tLweFFTAddMulRTo.cpp tGswFFTExternMulToTLwe.cpp tfhe_MuxRotate_FFT.cpp
 KERNEL_FOLDER := ./src/kernels
 PROJECT_NAME := fft
 
 ifeq ($(TARGET), sw_emu) # sw_emu needs the sources, easiest to generate their xo files to include the sources. hw(_emu) have sources manually included
-	KERNEL_XO += fft_transform.xo TorusPolynomial_fft.xo tLweFFTClear.xo tLweFromFFTConvert.xo IntPolynomial_ifft.xo tGswTorus32PolynomialDecompH.xo tLweFFTAddMulRTo.xo
+	KERNEL_XO += fft_transform.xo TorusPolynomial_fft.xo tLweFFTClear.xo tLweFromFFTConvert.xo IntPolynomial_ifft.xo tGswTorus32PolynomialDecompH.xo tLweFFTAddMulRTo.xo tGswFFTExternMulToTLwe.xo tfhe_MuxRotate_FFT.xo
 endif
 
 VPP_XCLBIN_FLAGS := -l -j 16 -O0 --save-temps --profile_kernel data:all:all:all --platform $(PLATFORM) -t $(TARGET) --input_files $(KERNEL_XO) -o $(PROJECT_NAME).xclbin

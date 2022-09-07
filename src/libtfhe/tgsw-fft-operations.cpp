@@ -90,83 +90,33 @@ EXPORT void tGswFFTClear(TGswSampleFFT *result, const TGswParams *params) {
 
 // External product (*): accum = gsw (*) accum
 EXPORT void tGswFFTExternMulToTLwe(TLweSample *accum, const TGswSampleFFT *gsw, const TGswParams *params) {
-    cl::Buffer accum_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSample_FPGA));
-    cl::Buffer gsw_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TGswSampleFFT_FPGA));
+    const TLweParams *tlwe_params = params->tlwe_params;
+    const int32_t k = tlwe_params->k;
+    const int32_t l = params->l;
+    const int32_t kpl = params->kpl;
 
-    std::vector<cl::Event> enqueue(2);
-    std::vector<cl::Event> migrate_to(1);
-    std::vector<cl::Event> task(1);
-    std::vector<cl::Event> migrate_from(1);
+    //TODO attention, improve these new/delete...
+    IntPolynomial *deca = new_IntPolynomial_array(kpl); //decomposed accumulator
+    LagrangeHalfCPolynomial *decaFFT = new_LagrangeHalfCPolynomial_array(kpl); //fft version
+    TLweSampleFFT *tmpa = new_TLweSampleFFT(tlwe_params);
 
-    TLweSample_FPGA *accum_map = (TLweSample_FPGA *)fpga.q.enqueueMapBuffer(accum_buf, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, sizeof(TLweSample_FPGA), NULL, &enqueue[0]);
-    TGswSampleFFT_FPGA *gsw_map = (TGswSampleFFT_FPGA *)fpga.q.enqueueMapBuffer(gsw_buf, CL_TRUE, CL_MAP_WRITE, 0, sizeof(TGswSampleFFT_FPGA), NULL, &enqueue[1]);
-
-    accum_map->current_variance = accum->current_variance;
-    for (int i=0; i<=Value_k; i++) {
-        for(int j=0; j<Value_N; j++) {
-            accum_map->a[i].coefsT[j] = accum->a[i].coefsT[j];
-        }
+    for (int32_t i = 0; i <= k; i++) {
+        tGswTorus32PolynomialDecompH(deca + i * l, accum->a + i);
+    }
+    for (int32_t p = 0; p < kpl; p++) {
+        IntPolynomial_ifft(&decaFFT[p], &deca[p]);
     }
 
-    gsw_map->k = gsw->k;
-    gsw_map->l = gsw->l;
-    for(int i=0; i<(Value_k+1) * Value_l; i++) {
-        gsw_map->all_samples[i].current_variance = gsw->all_samples[i].current_variance;
-        for (int j=0; j<=Value_k; j++) {
-            for(int k=0; k<Value_Ns2; k++) {
-                gsw_map->all_samples[i].a[j].coefsC[k] = gsw->all_samples[i].a[j].coefsC[k];
-            }
-        }
+    tLweFFTClear(tmpa);
+
+    for (int32_t p = 0; p < kpl; p++) {
+        tLweFFTAddMulRTo(tmpa, decaFFT + p, gsw->all_samples + p);
     }
+    tLweFromFFTConvert(accum, tmpa);
 
-    fpga.k_tGswFFTExternMulToTLwe.setArg(0, accum_buf);
-    fpga.k_tGswFFTExternMulToTLwe.setArg(1, gsw_buf);
-
-    fpga.q.enqueueMigrateMemObjects({ accum_buf, gsw_buf }, 0, &enqueue, &migrate_to[0]);
-    fpga.q.enqueueTask(fpga.k_tGswFFTExternMulToTLwe, &migrate_to, &task[0]);
-    fpga.q.enqueueMigrateMemObjects({ accum_buf }, CL_MIGRATE_MEM_OBJECT_HOST, &task, &migrate_from[0]);
-
-    // fpga.q.finish();
-    migrate_from[0].wait();
-
-    accum->current_variance = accum_map->current_variance;
-    for (int i=0; i<=Value_k; i++) {
-        for(int j=0; j<Value_N; j++) {
-            accum->a[i].coefsT[j] = accum_map->a[i].coefsT[j];
-        }
-    }
-
-
-
-
-    // // Original function code
-    // const TLweParams *tlwe_params = params->tlwe_params;
-    // const int32_t k = tlwe_params->k;
-    // const int32_t l = params->l;
-    // const int32_t kpl = params->kpl;
-
-    // //TODO attention, improve these new/delete...
-    // IntPolynomial *deca = new_IntPolynomial_array(kpl); //decomposed accumulator
-    // LagrangeHalfCPolynomial *decaFFT = new_LagrangeHalfCPolynomial_array(kpl); //fft version
-    // TLweSampleFFT *tmpa = new_TLweSampleFFT(tlwe_params);
-
-    // for (int32_t i = 0; i <= k; i++) {
-        // tGswTorus32PolynomialDecompH(deca + i * l, accum->a + i);
-    // }
-    // for (int32_t p = 0; p < kpl; p++) {
-    //     IntPolynomial_ifft(&decaFFT[p], &deca[p]);
-    // }
-
-    // tLweFFTClear(tmpa);
-
-    // for (int32_t p = 0; p < kpl; p++) {
-    //     tLweFFTAddMulRTo(tmpa, decaFFT + p, gsw->all_samples + p);
-    // }
-    // tLweFromFFTConvert(accum, tmpa);
-
-    // delete_TLweSampleFFT(tmpa);
-    // delete_LagrangeHalfCPolynomial_array(kpl, decaFFT);
-    // delete_IntPolynomial_array(kpl, deca);
+    delete_TLweSampleFFT(tmpa);
+    delete_LagrangeHalfCPolynomial_array(kpl, decaFFT);
+    delete_IntPolynomial_array(kpl, deca);
 }
 
 // result = (X^ai -1)*bki

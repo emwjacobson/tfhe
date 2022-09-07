@@ -16,7 +16,7 @@ public:
   ~FPGA_Processor();
   cl::Context context;
   cl::CommandQueue q;
-  cl::Kernel k_tGswFFTExternMulToTLwe;
+  cl::Kernel k_tfhe_blindRotate_FFT;
 
   cplx* omegaxminus1;
 

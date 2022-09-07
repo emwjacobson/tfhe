@@ -14,3 +14,4 @@ fft.xclbin*
 *.log
 *.run_summary
 *.json
+vitis_analyzer*

@@ -10,6 +10,7 @@
 #include <complex>
 typedef std::complex< double > cplx; // https://stackoverflow.com/a/31800404
 
+constexpr static int64_t Value_n = 630;
 constexpr static int64_t Value_N = 1024;
 constexpr static int64_t Value_2N = 2 * Value_N;
 constexpr static int64_t Value_Ns2 = Value_N / 2;
