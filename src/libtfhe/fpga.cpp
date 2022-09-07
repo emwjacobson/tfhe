@@ -33,7 +33,7 @@ FPGA_Processor::FPGA_Processor() {
     this->bkFFT_buf = cl::Buffer(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, sizeof(TGswSampleFFT_FPGA) * Value_n);
     this->bara_buf = cl::Buffer(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, sizeof(int32_t) * Value_n);
 
-    printf("Finished creating buffers");
+    printf("Finished creating buffers\n");
 }
 
 FPGA_Processor::~FPGA_Processor() {
