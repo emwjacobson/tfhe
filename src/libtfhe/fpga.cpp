@@ -28,6 +28,12 @@ FPGA_Processor::FPGA_Processor() {
     k_tfhe_blindRotate_FFT = cl::Kernel(program, "tfhe_blindRotate_FFT", &err);
 
     printf("Finished loading FPGA kernels\n");
+
+    this->accum_buf = cl::Buffer(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSample_FPGA));
+    this->bkFFT_buf = cl::Buffer(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, sizeof(TGswSampleFFT_FPGA) * Value_n);
+    this->bara_buf = cl::Buffer(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_ONLY, sizeof(int32_t) * Value_n);
+
+    printf("Finished creating buffers");
 }
 
 FPGA_Processor::~FPGA_Processor() {

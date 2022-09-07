@@ -20,6 +20,10 @@ public:
 
   cplx* omegaxminus1;
 
+  cl::Buffer accum_buf;
+  cl::Buffer bkFFT_buf;
+  cl::Buffer bara_buf;
+
 private:
   std::vector<cl::Device> get_xilinx_devices();
   std::vector<unsigned char> read_binary_file(const std::string &xclbin_file_name);

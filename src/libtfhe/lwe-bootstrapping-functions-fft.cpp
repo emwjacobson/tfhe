@@ -91,24 +91,26 @@ EXPORT void tfhe_blindRotate_FFT(TLweSample *accum,
                                  const int32_t *bara,
                                  const int32_t n,
                                  const TGswParams *bk_params) {
-    cl::Buffer accum_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TLweSample_FPGA));
-    cl::Buffer bkFFT_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(TGswSampleFFT_FPGA) * Value_n);
-    cl::Buffer bara_buf(fpga.context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, sizeof(int32_t) * Value_n);
+
 
     std::vector<cl::Event> enqueue(3);
     std::vector<cl::Event> migrate_to(1);
     std::vector<cl::Event> task(1);
     std::vector<cl::Event> migrate_from(1);
 
-    TLweSample_FPGA *accum_map = (TLweSample_FPGA *)fpga.q.enqueueMapBuffer(accum_buf, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, sizeof(TLweSample_FPGA), NULL, &enqueue[0]);
-    TGswSampleFFT_FPGA *bkFFT_map = (TGswSampleFFT_FPGA *)fpga.q.enqueueMapBuffer(bkFFT_buf, CL_TRUE, CL_MAP_READ, 0, sizeof(TGswSampleFFT_FPGA) * Value_n, NULL, &enqueue[1]);
-    int32_t *bara_map = (int32_t *)fpga.q.enqueueMapBuffer(bara_buf, CL_TRUE, CL_MAP_READ, 0, sizeof(int32_t) * Value_n, NULL, &enqueue[2]);
+    TLweSample_FPGA *accum_map = (TLweSample_FPGA *)fpga.q.enqueueMapBuffer(fpga.accum_buf, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, sizeof(TLweSample_FPGA), NULL, &enqueue[0]);
+    int32_t *bara_map = (int32_t *)fpga.q.enqueueMapBuffer(fpga.bara_buf, CL_TRUE, CL_MAP_READ, 0, sizeof(int32_t) * Value_n, NULL, &enqueue[1]);
+    TGswSampleFFT_FPGA *bkFFT_map = (TGswSampleFFT_FPGA *)fpga.q.enqueueMapBuffer(fpga.bkFFT_buf, CL_TRUE, CL_MAP_READ, 0, sizeof(TGswSampleFFT_FPGA) * Value_n, NULL, &enqueue[2]);
 
     accum_map->current_variance = accum->current_variance;
     for(int i=0; i<=Value_k; i++) {
         for(int j=0; j<Value_N; j++) {
             accum_map->a[i].coefsT[j] = accum->a[i].coefsT[j];
         }
+    }
+
+    for(int i=0; i<Value_n; i++) {
+        bara_map[i] = bara[i];
     }
 
     for(int i=0; i<Value_n; i++) {
@@ -124,17 +126,13 @@ EXPORT void tfhe_blindRotate_FFT(TLweSample *accum,
         }
     }
 
-    for(int i=0; i<Value_n; i++) {
-        bara_map[i] = bara[i];
-    }
+    fpga.k_tfhe_blindRotate_FFT.setArg(0, fpga.accum_buf);
+    fpga.k_tfhe_blindRotate_FFT.setArg(1, fpga.bkFFT_buf);
+    fpga.k_tfhe_blindRotate_FFT.setArg(2, fpga.bara_buf);
 
-    fpga.k_tfhe_blindRotate_FFT.setArg(0, accum_buf);
-    fpga.k_tfhe_blindRotate_FFT.setArg(1, bkFFT_buf);
-    fpga.k_tfhe_blindRotate_FFT.setArg(2, bara_buf);
-
-    fpga.q.enqueueMigrateMemObjects({ accum_buf, bkFFT_buf, bara_buf }, 0, &enqueue, &migrate_to[0]);
+    fpga.q.enqueueMigrateMemObjects({ fpga.accum_buf, fpga.bkFFT_buf, fpga.bara_buf }, 0, &enqueue, &migrate_to[0]);
     fpga.q.enqueueTask(fpga.k_tfhe_blindRotate_FFT, &migrate_to, &task[0]);
-    fpga.q.enqueueMigrateMemObjects({ accum_buf }, CL_MIGRATE_MEM_OBJECT_HOST, &task, &migrate_from[0]);
+    fpga.q.enqueueMigrateMemObjects({ fpga.accum_buf }, CL_MIGRATE_MEM_OBJECT_HOST, &task, &migrate_from[0]);
 
     migrate_from[0].wait();
 
