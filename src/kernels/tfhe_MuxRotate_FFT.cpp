@@ -26,8 +26,9 @@ extern "C" {
 
   void tLweAddTo(TLweSample_FPGA *result_out, const TLweSample_FPGA *result_in, const TLweSample_FPGA *sample) {
     tLweAddTo_loop_1: for (int32_t i = 0; i <= param_k; i++) {
-      tLweAddTo_loop_2: for (int32_t j = 0; j < param_N; j++)
-        result_out->a[i].coefsT[j] = result_in->a[i].coefsT[j] + sample->a[i].coefsT[j];
+      tLweAddTo_loop_2: for (int32_t j = 0; j < param_N; j++) {
+        result_out->a[i].coefsT[j] = result_in->a[i].coefsT[j] + sample->a[i].coefsT[j];;
+      }
     }
     result_out->current_variance = result_in->current_variance + sample->current_variance;
   }

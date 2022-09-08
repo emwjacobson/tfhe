@@ -12,7 +12,7 @@ extern "C" {
     }
   }
 
-  void tGswFFTExternMulToTLwe(TLweSample_FPGA *_accum, const TGswSampleFFT_FPGA *_gsw) {
+  void tGswFFTExternMulToTLwe(TLweSample_FPGA *_accum, const TGswSampleFFT_FPGA *gsw) {
     // #pragma HLS INTERFACE m_axi port=_accum bundle=b_accum
     // #pragma HLS INTERFACE m_axi port=_gsw bundle=b_gsw
 
@@ -25,18 +25,18 @@ extern "C" {
       }
     }
 
-    TGswSampleFFT_FPGA gsw;
-    #pragma HLS array_partition variable=gsw.all_samples complete dim=1
-    gsw.k = _gsw->k;
-    gsw.l = _gsw->l;
-    tGswFFTExternMulToTLwe_load_3: for(int i=0; i<(param_k + 1) * param_l; i++) {
-      gsw.all_samples[i].current_variance = _gsw->all_samples[i].current_variance;
-      tGswFFTExternMulToTLwe_load_4: for(int j=0; j<=param_k; j++) {
-        tGswFFTExternMulToTLwe_load_5: for(int k=0; k<param_Ns2; k++) {
-          gsw.all_samples[i].a[j].coefsC[k] = _gsw->all_samples[i].a[j].coefsC[k];
-        }
-      }
-    }
+    // TGswSampleFFT_FPGA gsw;
+    // #pragma HLS array_partition variable=gsw.all_samples complete dim=1
+    // gsw.k = _gsw->k;
+    // gsw.l = _gsw->l;
+    // tGswFFTExternMulToTLwe_load_3: for(int i=0; i<(param_k + 1) * param_l; i++) {
+    //   gsw.all_samples[i].current_variance = _gsw->all_samples[i].current_variance;
+    //   tGswFFTExternMulToTLwe_load_4: for(int j=0; j<=param_k; j++) {
+    //     tGswFFTExternMulToTLwe_load_5: for(int k=0; k<param_Ns2; k++) {
+    //       gsw.all_samples[i].a[j].coefsC[k] = _gsw->all_samples[i].a[j].coefsC[k];
+    //     }
+    //   }
+    // }
 
     IntPolynomial deca[param_kpl];
     LagrangeHalfCPolynomial decaFFT[param_kpl];
@@ -51,7 +51,7 @@ extern "C" {
     tGswTorus32PolynomialDecompH(deca, &accum);
     IntPolynomial_ifft(decaFFT, deca);
     tLweFFTClear(tmpa);
-    tLweFFTAddMulRTo(tmpa, decaFFT, &gsw);
+    tLweFFTAddMulRTo(tmpa, decaFFT, gsw);
     tmpa_accum(&tmpa_final, tmpa);
     tLweFromFFTConvert(&accum, &tmpa_final);
 
