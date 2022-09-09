@@ -15,16 +15,13 @@ extern "C" {
     TLweSample_FPGA *temp2 = &temp;
     TLweSample_FPGA *temp3 = accum;
 
-    for (int32_t i = 0; i < param_n; i++) {
+    blindRotate_loop_1: for (int32_t i = 0; i < param_n; i++) {
       const TGswSampleFFT_FPGA bkFFT_cache = bkFFT[i];
       #pragma HLS array_partition variable=bkFFT_cache.all_samples complete dim=1
       const int32_t barai = bara[i];
-      // const int32_t barai = bara[i];
-      // if (barai == 0) continue; //indeed, this is an easy case!
 
       tfhe_MuxRotate_FFT(temp2, temp3, &bkFFT_cache, barai);
 
-      // swap(temp2, temp3);
       TLweSample_FPGA *t = temp2;
       temp2 = temp3;
       temp3 = t;
