@@ -13,10 +13,9 @@ extern "C" {
     IntPolynomial_ifft_loop_1: for (int32_t i=0; i<param_N; i++) {
       real_inout[i] = p->coefs[i]/2.;
       real_inout[param_N+i] = -real_inout[i];
-    }
 
-    IntPolynomial_ifft_loop_2: for(int32_t i=0; i<param_2N; i++) {
       imag_inout[i] = 0;
+      imag_inout[param_N+i] = 0;
     }
 
     fft_transform(imag_inout, real_inout);
