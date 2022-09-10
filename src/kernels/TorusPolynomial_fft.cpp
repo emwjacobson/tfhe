@@ -5,11 +5,6 @@ extern "C" {
     double real_inout[param_2N];
     double imag_inout[param_2N];
 
-    // #pragma HLS array_partition variable=real_inout cyclic factor=512
-    // #pragma HLS array_partition variable=imag_inout cyclic factor=512
-    // // #pragma HLS bind_storage variable=real_inout type=RAM_T2P
-    // // #pragma HLS bind_storage variable=imag_inout type=RAM_T2P
-
     // Even Elements = 0
     TorusPolynomial_fft_loop_1: for (int32_t i=0; i<param_N; i++){
       real_inout[2*i] = 0;
