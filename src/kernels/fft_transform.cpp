@@ -34,7 +34,7 @@ void fft_mult(double *real_out, double *imag_out, const double *real_in, const d
 	constexpr size_t halfsize = SIZE / 2;
 	constexpr size_t tablestep = param_2N / SIZE;
 
-	fft_mult_window: for (size_t i = 0; i < param_2N; i += SIZE) {
+	fft_mult_window: for (size_t i = 0; i < param_Ns2; i += SIZE) {
 		fft_mult_mult: for (size_t j = 0; j < halfsize; j++) {
 			#pragma HLS pipeline II=1
 			const size_t first = j + i;
@@ -59,30 +59,167 @@ void fft_mult(double *real_out, double *imag_out, const double *real_in, const d
 	}
 }
 
+void load_bit_reverse(double *in_1, double *in_2, double *in_3, double *in_4, const double *in) {
+	for(int i=0; i<param_2N; i++) {
+		#pragma HLS pipeline II=1
+		int place = i % 4;
+		uint64_t j = bit_reversed[i];
+		if (place == 0) {
+			in_1[i] = in[j];
+		} else if (place == 1) {
+			in_2[i] = in[j];
+		} else if (place == 2) {
+			in_3[i] = in[j];
+		} else if (place == 3) {
+			in_4[i] = in[j];
+		}
+	}
+}
+
+void fft_512(double *re_out, double *im_out, const double *re_in, const double *im_in) {
+	double re_temp[param_Ns2]; double im_temp[param_Ns2];
+
+	fft_mult<2>(re_temp, im_temp, re_in, im_in);
+	fft_mult<4>(re_out, im_out, re_temp, im_temp);
+	fft_mult<8>(re_temp, im_temp, re_out, im_out);
+	fft_mult<16>(re_out, im_out, re_temp, im_temp);
+	fft_mult<32>(re_temp, im_temp, re_out, im_out);
+	fft_mult<64>(re_out, im_out, re_temp, im_temp);
+	fft_mult<128>(re_temp, im_temp, re_out, im_out);
+	fft_mult<256>(re_out, im_out, re_temp, im_temp);
+	fft_mult<512>(re_temp, im_temp, re_out, im_out);
+
+	for(int i=0; i<param_Ns2; i++) {
+		re_out[i] = re_temp[i];
+		im_out[i] = im_temp[i];
+	}
+}
+
+void fft_1024(double *re1_out, double *im1_out, double *re2_out, double *im2_out, const double *re1_in, const double *im1_in, const double *re2_in, const double *im2_in) {
+	constexpr size_t halfsize = 1024 / 2;
+	constexpr size_t tablestep = param_2N / 1024;
+
+	fft_mult_mult: for (size_t j = 0; j < halfsize; j++) {
+		#pragma HLS pipeline II=1
+		const size_t first = j;
+		const int k = j * tablestep;
+		// Load
+		double tprel = re2_in[first];
+		double tpiml = im2_in[first];
+		double tprej = re1_in[first];
+		double tpimj = im1_in[first];
+		double tpcos = cosTable[k];
+		double tpsin = sinTable[k];
+		// Calc
+		double calcre =  tprel * tpcos + tpiml * tpsin;
+		double calcim = -tprel * tpsin + tpiml * tpcos;
+		// Store
+		re2_out[first] = tprej - calcre;
+		im2_out[first] = tpimj - calcim;
+		re1_out[first] = tprej + calcre;
+		im1_out[first] = tpimj + calcim;
+	}
+}
+
+void fft_2048(double *re_out, double *im_out, const double *re1_in, const double *im1_in, const double *re2_in, const double *im2_in, const double *re3_in, const double *im3_in, const double *re4_in, const double *im4_in) {
+	constexpr size_t halfsize = 2048 / 2;
+	constexpr size_t tablestep = param_2N / 2048;
+
+	fft_mult_mult_1: for (size_t j = 0; j < halfsize; j++) {
+		#pragma HLS pipeline II=1
+		const size_t first = j;
+		const size_t second = j + halfsize;
+		const int k = j * tablestep;
+		// Load
+		double tprel = re3_in[first];
+		double tpiml = im3_in[first];
+		double tprej = re1_in[first];
+		double tpimj = im1_in[first];
+		double tpcos = cosTable[k];
+		double tpsin = sinTable[k];
+		// Calc
+		double calcre =  tprel * tpcos + tpiml * tpsin;
+		double calcim = -tprel * tpsin + tpiml * tpcos;
+		// Store
+		re_out[second] = tprej - calcre;
+		im_out[second] = tpimj - calcim;
+		re_out[first] = tprej + calcre;
+		im_out[first] = tpimj + calcim;
+	}
+
+	fft_mult_mult_2: for (size_t j = 0; j < halfsize; j++) {
+		#pragma HLS pipeline II=1
+		const size_t first = j;
+		const size_t second = j + halfsize;
+		const int k = j * tablestep;
+		// Load
+		double tprel = re4_in[first];
+		double tpiml = im4_in[first];
+		double tprej = re2_in[first];
+		double tpimj = im2_in[first];
+		double tpcos = cosTable[k];
+		double tpsin = sinTable[k];
+		// Calc
+		double calcre =  tprel * tpcos + tpiml * tpsin;
+		double calcim = -tprel * tpsin + tpiml * tpcos;
+		// Store
+		re_out[second+param_Ns2] = tprej - calcre;
+		im_out[second+param_Ns2] = tpimj - calcim;
+		re_out[first+param_Ns2] = tprej + calcre;
+		im_out[first+param_Ns2] = tpimj + calcim;
+	}
+}
+
 extern "C" {
 	void fft_transform(double *real, double *imag) {
-		double re1[param_2N];
-		double im1[param_2N];
+		double re1_1[param_Ns2]; double im1_1[param_Ns2];
+		double re1_2[param_Ns2]; double im1_2[param_Ns2];
+		double re1_3[param_Ns2]; double im1_3[param_Ns2];
+		double re1_4[param_Ns2]; double im1_4[param_Ns2];
 
+		double re2_1[param_Ns2]; double im2_1[param_Ns2];
+		double re2_2[param_Ns2]; double im2_2[param_Ns2];
+		double re2_3[param_Ns2]; double im2_3[param_Ns2];
+		double re2_4[param_Ns2]; double im2_4[param_Ns2];
+
+		#pragma HLS dataflow
 		// Bit reversal
-		fft_bit_reverse: for (int i = 0; i < param_2N; i++) {
-			uint64_t j = bit_reversed[i];
-			re1[i] = real[j];
-			im1[i] = imag[j];
-		}
+		load_bit_reverse(re1_1, re1_2, re1_3, re1_4, real);
+		load_bit_reverse(im1_1, im1_2, im1_3, im1_4, imag);
+		// FFT
+		fft_512(re2_1, im2_1, re1_1, im1_1);
+		fft_512(re2_2, im2_2, re1_2, im1_2);
+		fft_512(re2_3, im2_3, re1_3, im1_3);
+		fft_512(re2_4, im2_4, re1_4, im1_4);
+		fft_1024(re1_1, im1_1, re1_2, im1_2, re2_1, im2_1, re2_2, im2_2);
+		fft_1024(re1_3, im1_3, re1_4, im1_4, re2_3, im2_3, re2_4, im2_4);
+		fft_2048(real, imag, re1_1, im1_1, re1_2, im1_2, re1_3, im1_3, re1_4, im1_4);
 
-		// At this point, temp arrays hold the bit-reversed elements
-		// Now we swap between the 2 memories to perform radix2fft
-		fft_mult<2>(real, imag, re1, im1); // (re2,im2) = radix2fft(re1, im1)
-		fft_mult<4>(re1, im1, real, imag); // (re1,im1) = radix2fft(re2,im2)
-		fft_mult<8>(real, imag, re1, im1); // ...
-		fft_mult<16>(re1, im1, real, imag);
-		fft_mult<32>(real, imag, re1, im1);
-		fft_mult<64>(re1, im1, real, imag);
-		fft_mult<128>(real, imag, re1, im1);
-		fft_mult<256>(re1, im1, real, imag);
-		fft_mult<512>(real, imag, re1, im1);
-		fft_mult<1024>(re1, im1, real, imag);
-		fft_mult<2048>(real, imag, re1, im1); // Final result stored in real, imag
+
+		// double re1[param_2N];
+		// double im1[param_2N];
+		// double re2[param_2N];
+		// double im2[param_2N];
+
+		// // Bit reversal
+		// fft_bit_reverse: for (int i = 0; i < param_2N; i++) {
+		// 	uint64_t j = bit_reversed[i];
+		// 	re1[i] = real[j];
+		// 	im1[i] = imag[j];
+		// }
+
+		// // At this point, temp arrays hold the bit-reversed elements
+		// // Now we swap between the 2 memories to perform radix2fft
+		// fft_mult<2>(re2, im2, re1, im1);
+		// fft_mult<4>(re1, im1, re2, im2);
+		// fft_mult<8>(re2, im2, re1, im1);
+		// fft_mult<16>(re1, im1, re2, im2);
+		// fft_mult<32>(re2, im2, re1, im1);
+		// fft_mult<64>(re1, im1, re2, im2);
+		// fft_mult<128>(re2, im2, re1, im1);
+		// fft_mult<256>(re1, im1, re2, im2);
+		// fft_mult<512>(re2, im2, re1, im1);
+		// fft_mult<1024>(re1, im1, re2, im2);
+		// fft_mult<2048>(real, imag, re1, im1);
 	}
 }
