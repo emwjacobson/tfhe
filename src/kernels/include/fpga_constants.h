@@ -4,8 +4,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <complex>
-#include "ap_fixed.h"
-typedef ap_fixed<64, 32> ap_cplx;
 typedef std::complex<double> cplx;
 
 constexpr static int64_t param_n = 630;
