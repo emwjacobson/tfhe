@@ -33,11 +33,11 @@
 // Templated through SIZE and WINDOW
 // eg. SIZE=2048 WINDOW=256 will perform an FFT stage on an array of size 2048 in 256 sized windows.
 //     Loop `fft_mult_window` will run 8 times. Loop `fft_mult_mult` will run (256/2)=128 times.
-//		 In theory `fft_mult_window` could be parallelized by a factor of 8, as each iteration of `fft_mult_window`
-//		 does not depend on another. (Though it will depend on the array_partition factor)
+//     In theory `fft_mult_window` could be parallelized by a factor of 8, as each iteration of `fft_mult_window`
+//     does not depend on another. (Though it will depend on the array_partition factor)
 // eg. SIZE=2048 WINDOW=2048 will perform an FFT stage on an array of size 2048 in 2048 sized windows.
-//		 Loop `fft_mult_window` will run 1 time. Loop `fft_mult_mult` will run (2048/2)=1024 times.
-//		 This example cannot be parallelized as the entire array is needed for the calculation.
+//     Loop `fft_mult_window` will run 1 time. Loop `fft_mult_mult` will run (2048/2)=1024 times.
+//     This example cannot be parallelized as the entire array is needed for the calculation.
 template <size_t SIZE, size_t WINDOW>
 void fft_mult(double *real_out, double *imag_out, const double *real_in, const double *imag_in) {
 	constexpr size_t halfsize = WINDOW / 2;
