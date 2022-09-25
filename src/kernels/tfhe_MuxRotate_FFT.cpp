@@ -6,16 +6,22 @@ extern "C" {
     const Torus32 *in = source->coefsT;
 
     if (a < param_N) {
-      torusPolynomialMulByXaiMinusOne_loop_1: for (int32_t i = 0; i < a; i++)//sur que i-a<0
-        out[i] = -in[i - a + param_N] - in[i];
-      torusPolynomialMulByXaiMinusOne_loop_2: for (int32_t i = a; i < param_N; i++)//sur que N>i-a>=0
-        out[i] = in[i - a] - in[i];
+      torusPolynomialMulByXaiMinusOne_loop_1: for(int i=0; i<param_N; i++) {
+        if (i<a) {
+          out[i] = -in[i - a + param_N] - in[i];
+        } else {
+          out[i] = in[i - a] - in[i];
+        }
+      }
     } else {
       const int32_t aa = a - param_N;
-      torusPolynomialMulByXaiMinusOne_loop_3: for (int32_t i = 0; i < aa; i++)//sur que i-a<0
-        out[i] = in[i - aa + param_N] - in[i];
-      torusPolynomialMulByXaiMinusOne_loop_4: for (int32_t i = aa; i < param_N; i++)//sur que N>i-a>=0
-        out[i] = -in[i - aa] - in[i];
+      torusPolynomialMulByXaiMinusOne_loop_2: for(int i=0; i<param_N; i++) {
+        if (i < aa) {
+          out[i] = in[i - aa + param_N] - in[i];
+        } else {
+          out[i] = -in[i - aa] - in[i];
+        }
+      }
     }
   }
 

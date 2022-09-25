@@ -29,12 +29,12 @@
 #include <algorithm>
 #include "fpga_constants.h"
 
-template <size_t SIZE>
+template<size_t SIZE, size_t WINDOW>
 void fft_mult(double *real_out, double *imag_out, const double *real_in, const double *imag_in) {
-	constexpr size_t halfsize = SIZE / 2;
-	constexpr size_t tablestep = param_2N / SIZE;
+	const size_t halfsize = WINDOW / 2;
+	const size_t tablestep = param_2N / WINDOW;
 
-	fft_mult_window: for (size_t i = 0; i < param_2N; i += SIZE) {
+	fft_mult_window: for (size_t i = 0; i < SIZE; i += WINDOW) {
 		fft_mult_mult: for (size_t j = 0; j < halfsize; j++) {
 			#pragma HLS pipeline II=1
 			const size_t first = j + i;
@@ -59,30 +59,89 @@ void fft_mult(double *real_out, double *imag_out, const double *real_in, const d
 	}
 }
 
-extern "C" {
+template <size_t SIZE, size_t WINDOW>
+void fft_mult_temp(double *real_out, double *imag_out, const double *real_in, const double *imag_in) {
+	constexpr size_t halfsize = WINDOW / 2;
+	constexpr size_t tablestep = param_2N / WINDOW;
+
+	fft_mult_window_template: for (size_t i = 0; i < SIZE; i += WINDOW) {
+		fft_mult_mult_template: for (size_t j = 0; j < halfsize; j++) {
+			#pragma HLS pipeline II=1
+			const size_t first = j + i;
+			const size_t second = j + i + halfsize;
+			const int k = j * tablestep;
+			// Load
+			double tprel = real_in[second];
+			double tpiml = imag_in[second];
+			double tprej = real_in[first];
+			double tpimj = imag_in[first];
+			double tpcos = cosTable[k];
+			double tpsin = sinTable[k];
+			// Calc
+			double calcre =  tprel * tpcos + tpiml * tpsin;
+			double calcim = -tprel * tpsin + tpiml * tpcos;
+			// Store
+			real_out[second] = tprej - calcre;
+			imag_out[second] = tpimj - calcim;
+			real_out[first] = tprej + calcre;
+			imag_out[first] = tpimj + calcim;
+		}
+	}
+}
+
+template<size_t SIZE, size_t WINDOW>
+void fft_mult_parallel(double real_out[4][param_2N/4], double imag_out[4][param_2N/4], const double real_in[4][param_2N/4], const double imag_in[4][param_2N/4]) {
+	fft_mult_parallel: for(int i=0; i<4; i++) {
+		#pragma HLS unroll
+		fft_mult_temp<SIZE/4, WINDOW>(real_out[i], imag_out[i], real_in[i], imag_in[i]);
+	}
+}
+
+// extern "C" {
 	void fft_transform(double *real, double *imag) {
-		double re1[param_2N];
-		double im1[param_2N];
+		double re1[4][param_2N/4];
+		double im1[4][param_2N/4];
+		double re2[4][param_2N/4];
+		double im2[4][param_2N/4];
+
+		#pragma HLS array_partition variable=re1 complete dim=1
+		#pragma HLS array_partition variable=im1 complete dim=1
+		#pragma HLS array_partition variable=re2 complete dim=1
+		#pragma HLS array_partition variable=im2 complete dim=1
 
 		// Bit reversal
-		fft_bit_reverse: for (int i = 0; i < param_2N; i++) {
-			uint64_t j = bit_reversed[i];
-			re1[i] = real[j];
-			im1[i] = imag[j];
+		fft_bit_reverse_1: for(int i=0; i<4; i++) {
+			fft_bit_reverse_2: for(int j=0; j<param_2N/4; j++) {
+				uint64_t br = bit_reversed[(param_2N/4)*i + j];
+				re1[i][j] = real[br];
+				im1[i][j] = imag[br];
+			}
 		}
 
 		// At this point, temp arrays hold the bit-reversed elements
 		// Now we swap between the 2 memories to perform radix2fft
-		fft_mult<2>(real, imag, re1, im1); // (re2,im2) = radix2fft(re1, im1)
-		fft_mult<4>(re1, im1, real, imag); // (re1,im1) = radix2fft(re2,im2)
-		fft_mult<8>(real, imag, re1, im1); // ...
-		fft_mult<16>(re1, im1, real, imag);
-		fft_mult<32>(real, imag, re1, im1);
-		fft_mult<64>(re1, im1, real, imag);
-		fft_mult<128>(real, imag, re1, im1);
-		fft_mult<256>(re1, im1, real, imag);
-		fft_mult<512>(real, imag, re1, im1);
-		fft_mult<1024>(re1, im1, real, imag);
-		fft_mult<2048>(real, imag, re1, im1); // Final result stored in real, imag
+		// To do full FFT we need to do fft_mult for all powers of 2 from 2 to 2N.
+		fft_mult_parallel<2048, 2>(re2, im2, re1, im1); // (re2,im2) = radix2fft(re1, im1)
+		fft_mult_parallel<2048, 4>(re1, im1, re2, im2); // (re1,im1) = radix2fft(re2, im2)
+		fft_mult_parallel<2048, 8>(re2, im2, re1, im1); // ...
+		fft_mult_parallel<2048, 16>(re1, im1, re2, im2);
+		fft_mult_parallel<2048, 32>(re2, im2, re1, im1);
+		fft_mult_parallel<2048, 64>(re1, im1, re2, im2); // 32 parallel
+		fft_mult_parallel<2048, 128>(re2, im2, re1, im1); // 16 parallel
+		fft_mult_parallel<2048, 256>(re1, im1, re2, im2); // 8 parallel
+		fft_mult_parallel<2048, 512>(re2, im2, re1, im1); // 4 parallel
+
+		for(int i=0; i<4; i++) {
+			for(int j=0; j<param_2N/4; j++) {
+				real[(param_2N/4)*i + j] = re2[i][j];
+				imag[(param_2N/4)*i + j] = im2[i][j];
+			}
+		}
+
+		double real_temp[param_2N];
+		double imag_temp[param_2N];
+
+		fft_mult<2048, 1024>(real_temp, imag_temp, real, imag); // 2 parallel
+		fft_mult<2048, 2048>(real, imag, real_temp, imag_temp); // Final result stored in real, imag
 	}
-}
+// }

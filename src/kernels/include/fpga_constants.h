@@ -45,6 +45,10 @@ constexpr static uint32_t param_offset = 2164391936; // tgsw.cpp - TGswParams::T
     // TODO: Reimplement `b` once needed...
     // LagrangeHalfCPolynomial_Collapsed b; ///< alias of a[k] to get the right term
     double current_variance; ///< avg variance of the sample
+
+    TLweSampleFFT_FPGA(): a{{}, {}} {
+      this->current_variance = 0;
+    }
   } TLweSampleFFT_FPGA;
 
   typedef struct TLweSample_FPGA {
@@ -52,6 +56,10 @@ constexpr static uint32_t param_offset = 2164391936; // tgsw.cpp - TGswParams::T
     // TODO: Reimplement `b` once needed...
     // TorusPolynomial *b; ///< alias of a[k] to get the right term
     double current_variance; ///< avg variance of the sample
+
+    TLweSample_FPGA(): a{{}, {}} {
+      this->current_variance = 0;
+    }
   } TLweSample_FPGA;
 
   typedef struct TGswSampleFFT_FPGA {
@@ -61,6 +69,11 @@ constexpr static uint32_t param_offset = 2164391936; // tgsw.cpp - TGswParams::T
     //double current_variance;
     int32_t k;
     int32_t l;
+
+    TGswSampleFFT_FPGA(): all_samples{{}, {}, {}, {}, {}, {}} {
+      this->k = 0;
+      this->l = 0;
+    }
   } TGswSampleFFT_FPGA;
 
 // }
