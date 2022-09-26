@@ -28,15 +28,21 @@ constexpr static uint32_t param_offset = 2164391936; // tgsw.cpp - TGswParams::T
   /** This structure represents an integer polynomial modulo X^N+1 */
   typedef struct IntPolynomial {
     int32_t coefs[param_N];
+
+    IntPolynomial() {}
   } IntPolynomial;
 
   /** This structure represents an torus polynomial modulo X^N+1 */
   typedef struct TorusPolynomial {
     Torus32 coefsT[param_N];
+
+    TorusPolynomial() {}
   } TorusPolynomial;
 
   typedef struct LagrangeHalfCPolynomial {
     cplx coefsC[param_Ns2];
+
+    LagrangeHalfCPolynomial() {}
   } LagrangeHalfCPolynomial;
 
 
