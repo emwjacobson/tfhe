@@ -5,21 +5,21 @@ extern "C" {
     Torus32 *out = result->coefsT;
     const Torus32 *in = source->coefsT;
 
-    if (a < param_N) {
-      torusPolynomialMulByXaiMinusOne_loop_1: for(int i=0; i<param_N; i++) {
+    torusPolynomialMulByXaiMinusOne_loop_1: for(int i=0; i<param_N; i++) {
+      if (a < param_N) {
+        Torus32 sub = in[i];
         if (i<a) {
-          out[i] = -in[i - a + param_N] - in[i];
+          out[i] = -in[i - a + param_N] - sub;
         } else {
-          out[i] = in[i - a] - in[i];
+          out[i] = in[i - a] - sub;
         }
-      }
-    } else {
-      const int32_t aa = a - param_N;
-      torusPolynomialMulByXaiMinusOne_loop_2: for(int i=0; i<param_N; i++) {
+      } else {
+        const int32_t aa = a - param_N;
+        Torus32 sub = in[i];
         if (i < aa) {
-          out[i] = in[i - aa + param_N] - in[i];
+          out[i] = in[i - aa + param_N] - sub;
         } else {
-          out[i] = -in[i - aa] - in[i];
+          out[i] = -in[i - aa] - sub;
         }
       }
     }

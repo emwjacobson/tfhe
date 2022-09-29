@@ -37,12 +37,24 @@ constexpr static uint32_t param_offset = 2164391936; // tgsw.cpp - TGswParams::T
     Torus32 coefsT[param_N];
 
     TorusPolynomial() {}
+
+    TorusPolynomial(const TorusPolynomial *other) {
+      for(int i=0; i<param_N; i++) {
+        this->coefsT[i] = other->coefsT[i];
+      }
+    }
   } TorusPolynomial;
 
   typedef struct LagrangeHalfCPolynomial {
     cplx coefsC[param_Ns2];
 
     LagrangeHalfCPolynomial() {}
+
+    LagrangeHalfCPolynomial(const LagrangeHalfCPolynomial *other) {
+      for(int i=0; i<param_Ns2; i++) {
+        this->coefsC[i] = other->coefsC[i];
+      }
+    }
   } LagrangeHalfCPolynomial;
 
 
@@ -52,9 +64,9 @@ constexpr static uint32_t param_offset = 2164391936; // tgsw.cpp - TGswParams::T
     // LagrangeHalfCPolynomial_Collapsed b; ///< alias of a[k] to get the right term
     double current_variance; ///< avg variance of the sample
 
-    TLweSampleFFT_FPGA(): a{{}, {}} {
-      this->current_variance = 0;
-    }
+    TLweSampleFFT_FPGA(): a{{}, {}}, current_variance(0) {}
+
+    TLweSampleFFT_FPGA(const TLweSampleFFT_FPGA *other): a{other->a[0], other->a[1]}, current_variance(other->current_variance) {}
   } TLweSampleFFT_FPGA;
 
   typedef struct TLweSample_FPGA {
@@ -63,9 +75,9 @@ constexpr static uint32_t param_offset = 2164391936; // tgsw.cpp - TGswParams::T
     // TorusPolynomial *b; ///< alias of a[k] to get the right term
     double current_variance; ///< avg variance of the sample
 
-    TLweSample_FPGA(): a{{}, {}} {
-      this->current_variance = 0;
-    }
+    TLweSample_FPGA(): a{{}, {}}, current_variance(0) {}
+
+    TLweSample_FPGA(const TLweSample_FPGA *other): a{other->a[0], other->a[1]}, current_variance(other->current_variance) {}
   } TLweSample_FPGA;
 
   typedef struct TGswSampleFFT_FPGA {
@@ -76,10 +88,9 @@ constexpr static uint32_t param_offset = 2164391936; // tgsw.cpp - TGswParams::T
     int32_t k;
     int32_t l;
 
-    TGswSampleFFT_FPGA(): all_samples{{}, {}, {}, {}, {}, {}} {
-      this->k = 0;
-      this->l = 0;
-    }
+    TGswSampleFFT_FPGA(): all_samples{{}, {}, {}, {}, {}, {}}, k(0), l(0) {}
+
+    TGswSampleFFT_FPGA(const TGswSampleFFT_FPGA *other): all_samples{other->all_samples[0], other->all_samples[1], other->all_samples[2], other->all_samples[3], other->all_samples[4], other->all_samples[5]}, k(other->k), l(other->l) {}
   } TGswSampleFFT_FPGA;
 
 // }
